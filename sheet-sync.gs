@@ -21,10 +21,27 @@ const FEEDS = [
 const CACHE_SECS = 240;
 const KEEP = /^(BEGIN:VEVENT$|END:VEVENT$|(UID|SUMMARY|DTSTART|DTEND|RRULE|EXDATE|RECURRENCE-ID|STATUS)[;:])/;
 
-function trimIcs_(s){ // keep only the event lines the app needs (smaller, fits cache)
+function trimIcs_(s){ // keep only event lines the app needs, and only events that can fall in -14d..+90d
+  const now = Date.now(), lo = now - 14*864e5, hi = now + 90*864e5;
+  const ymd = d => Utilities.formatDate(new Date(d), 'America/New_York', 'yyyyMMdd');
+  const LO = ymd(lo), HI = ymd(hi);
   const lines = s.replace(/\r?\n[ \t]/g,'').split(/\r?\n/);
-  let inEv = false; const out = [];
-  lines.forEach(l => { if (l.indexOf('BEGIN:VEVENT')===0) inEv = true; if (inEv && KEEP.test(l)) out.push(l); if (l.indexOf('END:VEVENT')===0) inEv = false; });
+  const out = []; let ev = null;
+  lines.forEach(l => {
+    if (l.indexOf('BEGIN:VEVENT')===0) { ev = [l]; return; }
+    if (!ev) return;
+    if (KEEP.test(l)) ev.push(l);
+    if (l.indexOf('END:VEVENT')===0) {
+      const txt = ev.join('\n');
+      const ds = (txt.match(/^DTSTART[^:]*:(\d{8})/m)||[])[1] || '';
+      const rr = (txt.match(/^RRULE:(.*)$/m)||[])[1] || '';
+      let keep;
+      if (rr) { const u = (rr.match(/UNTIL=(\d{8})/)||[])[1]; keep = ds <= HI && (!u || u >= LO); }
+      else keep = ds >= LO && ds <= HI;
+      if (keep) out.push(txt);
+      ev = null;
+    }
+  });
   return out.join('\n');
 }
 function cacheGet_(c,k){ const n = c.get(k+':n'); if (!n) return null; const parts = c.getAll(Array.from({length:+n},(_,i)=>k+':'+i)); let s=''; for (let i=0;i<+n;i++){ const p = parts[k+':'+i]; if (p==null) return null; s+=p; } return s; }
