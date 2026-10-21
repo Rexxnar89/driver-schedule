@@ -10,6 +10,39 @@ const HEADERS = ['Date','Weekday','Driver','Client','Pickup','Destination','Retu
 // Same as Trips formulas: <2026-10-14 1.10, =2026-10-14 1.35, >=2026-10-15 1.30; 12 mpg; wait $12.50/hr; wear $0.20/mi.
 const RATES = [{from:'2000-01-01',rate:1.10},{from:'2026-10-14',rate:1.35},{from:'2026-10-15',rate:1.30}];
 const MPG = 12, WAIT = 12.5, WEAR = 0.20;
+// Proton read-only share links (PRIVATE - only in the deployed script, never in the repo).
+const FEEDS = [
+  {name:'Pickup Jobs', url:'PASTE-PICKUP-JOBS-ICS-LINK'},
+  {name:'Jay',         url:'PASTE-JAY-ICS-LINK'},
+  {name:'Jared',       url:'PASTE-JARED-ICS-LINK'},
+  {name:'Bruce',       url:'PASTE-BRUCE-ICS-LINK'},
+  {name:'Kaci',        url:'PASTE-KACI-ICS-LINK'}
+];
+const CACHE_SECS = 240;
+const KEEP = /^(BEGIN:VEVENT$|END:VEVENT$|(UID|SUMMARY|DTSTART|DTEND|RRULE|EXDATE|RECURRENCE-ID|STATUS)[;:])/;
+
+function trimIcs_(s){ // keep only the event lines the app needs (smaller, fits cache)
+  const lines = s.replace(/\r?\n[ \t]/g,'').split(/\r?\n/);
+  let inEv = false; const out = [];
+  lines.forEach(l => { if (l.indexOf('BEGIN:VEVENT')===0) inEv = true; if (inEv && KEEP.test(l)) out.push(l); if (l.indexOf('END:VEVENT')===0) inEv = false; });
+  return out.join('\n');
+}
+function cacheGet_(c,k){ const n = c.get(k+':n'); if (!n) return null; const parts = c.getAll(Array.from({length:+n},(_,i)=>k+':'+i)); let s=''; for (let i=0;i<+n;i++){ const p = parts[k+':'+i]; if (p==null) return null; s+=p; } return s; }
+function cachePut_(c,k,s){ const sz=90000, o={}; const n=Math.max(1,Math.ceil(s.length/sz)); for(let i=0;i<n;i++) o[k+':'+i]=s.substr(i*sz,sz); o[k+':n']=String(n); c.putAll(o,CACHE_SECS); }
+
+function jobs_(force){
+  const c = CacheService.getScriptCache();
+  const ts = c.get('jobs:ts');
+  if (!force && ts) {
+    const cals = FEEDS.map(f => ({name:f.name, ics:cacheGet_(c,'cal:'+f.name)}));
+    if (cals.every(x => x.ics != null)) return {ok:true, cached:true, age:Math.round((Date.now()-Number(ts))/1000), cals};
+  }
+  const res = UrlFetchApp.fetchAll(FEEDS.map(f => ({url:f.url, muteHttpExceptions:true})));
+  const cals = FEEDS.map((f,i) => { const r = res[i]; const ok = r.getResponseCode()===200; const ics = ok ? trimIcs_(r.getContentText()) : ''; if (ok) cachePut_(c,'cal:'+f.name,ics); return {name:f.name, ics, status:r.getResponseCode()}; });
+  c.put('jobs:ts', String(Date.now()), CACHE_SECS);
+  return {ok:true, cached:false, age:0, cals};
+}
+
 
 function out_(o){return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);}
 
@@ -23,6 +56,7 @@ function tab_(){
 
 function doGet(e){
   if ((e.parameter.secret||'') !== SECRET) return out_({ok:false,error:'bad secret'});
+  if (e.parameter.action === 'jobs') return out_(jobs_(e.parameter.force === '1'));
   const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('GasLookup');
   const v = sh.getRange(2,1,sh.getLastRow()-1,2).getValues();
   const prices = {};
