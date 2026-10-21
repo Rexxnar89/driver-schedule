@@ -1,0 +1,19 @@
+name: Update gas.json from sheet
+on:
+  schedule: [{cron: '30 11 * * *'}]
+  workflow_dispatch:
+permissions: {contents: write}
+jobs:
+  gas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch GasLookup via Apps Script
+        env: {URL: '${{ secrets.SYNC_URL }}', SECRET: '${{ secrets.SYNC_SECRET }}'}
+        run: |
+          if [ -z "$URL" ]; then echo "SYNC_URL secret not set; skipping"; exit 0; fi
+          curl -sL "$URL?action=gas&secret=$SECRET" -o resp.json
+          node -e "const r=require('./resp.json');if(!r.ok)process.exit(1);require('fs').writeFileSync('gas.json',JSON.stringify({source:'Driver_Schedule_2026 GasLookup',updated:new Date().toISOString().slice(0,10),prices:r.prices,rates:r.rates,mpg:r.mpg}))"
+          rm resp.json
+          git config user.name gas-bot; git config user.email gas-bot@users.noreply.github.com
+          git add gas.json; git diff --cached --quiet || (git commit -m "gas.json update" && git push)
