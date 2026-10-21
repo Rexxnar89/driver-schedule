@@ -74,6 +74,14 @@ function tab_(){
 function doGet(e){
   if ((e.parameter.secret||'') !== SECRET) return out_({ok:false,error:'bad secret'});
   if (e.parameter.action === 'jobs') return out_(jobs_(e.parameter.force === '1'));
+  if (e.parameter.action === 'rows') { // read-only: All Drivers rows for shared earnings totals
+    const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TAB);
+    if (!sh || sh.getLastRow() < 2) return out_({ok:true, headers:HEADERS, rows:[]});
+    const v = sh.getRange(1,1,sh.getLastRow(),sh.getLastColumn()).getValues();
+    const tz = Session.getScriptTimeZone();
+    const rows = v.slice(1).map(r => r.map(x => x instanceof Date ? Utilities.formatDate(x, tz, 'yyyy-MM-dd') : x));
+    return out_({ok:true, headers:v[0], rows});
+  }
   const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('GasLookup');
   const v = sh.getRange(2,1,sh.getLastRow()-1,2).getValues();
   const prices = {};
