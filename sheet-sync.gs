@@ -74,6 +74,7 @@ function tab_(){
 function doGet(e){
   if ((e.parameter.secret||'') !== SECRET) return out_({ok:false,error:'bad secret'});
   if (e.parameter.action === 'jobs') return out_(jobs_(e.parameter.force === '1'));
+  if (e.parameter.action === 'savedjobs') { const sj = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Saved Jobs'); if (!sj || sj.getLastRow() < 2) return out_({ok:true, jobs:{}}); const v = sj.getRange(2,1,sj.getLastRow()-1,3).getValues(); const o = {}; v.forEach(r => { try { o[r[0]] = JSON.parse(r[2]); } catch(x) {} }); return out_({ok:true, jobs:o}); }
   if (e.parameter.action === 'rows') { // read-only: All Drivers rows for shared earnings totals
     const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TAB);
     if (!sh || sh.getLastRow() < 2) return out_({ok:true, headers:HEADERS, rows:[]});
@@ -92,6 +93,18 @@ function doGet(e){
 function doPost(e){
   let b; try { b = JSON.parse(e.postData.contents); } catch(x) { return out_({ok:false,error:'bad json'}); }
   if (b.secret !== SECRET) return out_({ok:false,error:'bad secret'});
+  if (b.action === 'savejob' && b.id && b.job) { // app-saved job (JSON) in 'Saved Jobs' tab, keyed by UID
+    const lock0 = LockService.getScriptLock(); lock0.waitLock(10000);
+    try {
+      const ss = SpreadsheetApp.getActiveSpreadsheet(); let sj = ss.getSheetByName('Saved Jobs');
+      if (!sj) { sj = ss.insertSheet('Saved Jobs'); sj.getRange(1,1,1,3).setValues([['UID','Updated','Job JSON']]).setFontWeight('bold'); sj.setFrozenRows(1); }
+      const last = sj.getLastRow(); let r = 0;
+      if (last >= 2) { const ids = sj.getRange(2,1,last-1,1).getValues(); for (let i=0;i<ids.length;i++) if (ids[i][0] === b.id) { r = i+2; break; } }
+      if (!r) r = last + 1;
+      sj.getRange(r,1,1,3).setValues([[b.id, new Date(), JSON.stringify(b.job)]]);
+      return out_({ok:true, row:r});
+    } finally { lock0.releaseLock(); }
+  }
   if (b.action !== 'upsert' || !b.id || !Array.isArray(b.row)) return out_({ok:false,error:'bad request'});
   const lock = LockService.getScriptLock(); lock.waitLock(10000);
   try {
