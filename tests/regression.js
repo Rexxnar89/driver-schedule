@@ -7,4 +7,12 @@ const t=trip({hm:60,wh:8},new Date('2026-10-21T09:00'),'x');
 const exp={proj:120,expBW:196.8,wait:100,exp:296.8,pwear:24,pgas:40.8,powed:64.8};let ok=true;
 for(const k in exp){const v=Math.round(t[k]*100)/100;const pass=v===exp[k];ok=ok&&pass;console.log(k.padEnd(6),v,'expected',exp[k],pass?'ok':'FAIL')}
 const t2=trip({hm:60,wh:8,hmMode:'total',hmTot:120},new Date('2026-10-21T09:00'),'x');console.log('total-mode 120 →',t2.exp);ok=ok&&R2(t2.exp)===296.8;
-console.log(ok?'PASS':'FAIL');process.exit(ok?0:1)
+// One-way loop: Home → pickups → drop-offs → Home, miles used as-is (no ×2), no wait
+(async()=>{const LEG={'H|A':10,'A|B':5,'B|C':20,'C|H':25};var HOME=()=>'H';
+var routeEst=async L=>{let mi=0,h=0;for(let i=1;i<L.length;i++){const d=LEG[L[i-1]+'|'+L[i]];if(d==null)throw 'leg '+L[i-1]+'>'+L[i];mi+=d;h+=d/40}return{mi,h}};var isHome=async q=>q=='H';
+eval('async '+pick('rtEst'));const E=await rtEst(['A','B'],['C'],false);
+var J={tt:'ow',stops:{p:['A','B'],d:['C']}};var ttOf=j=>j.tt,jStops=j=>j.stops;eval(pick('jobStopsList'));const nav=jobStopsList(J).join('>');
+const o=trip({emi:String(E.full.mi)},new Date('2026-10-21T09:00'),'x'),o2=trip({hm:String(60/2),hmMode:'total'},new Date('2026-10-21T09:00'),'x');
+const okOW=E.full.mi===60&&E.paid.mi===25&&nav==='A>B>C>H'&&o.proj===60&&R2(o.exp)===98.4&&o.wait==null&&o2.proj===60;
+console.log('one-way loop',E.full.mi,'mi, nav',nav,'fare',o.exp,'total-mode',o2.proj,okOW?'ok':'FAIL');
+console.log(ok&&okOW?'PASS':'FAIL');process.exit(ok&&okOW?0:1)})();
