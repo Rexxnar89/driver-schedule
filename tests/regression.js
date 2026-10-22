@@ -7,6 +7,12 @@ const t=trip({hm:60,wh:8},new Date('2026-10-21T09:00'),'x');
 const exp={proj:120,expBW:196.8,wait:100,exp:296.8,pwear:24,pgas:40.8,powed:64.8};let ok=true;
 for(const k in exp){const v=Math.round(t[k]*100)/100;const pass=v===exp[k];ok=ok&&pass;console.log(k.padEnd(6),v,'expected',exp[k],pass?'ok':'FAIL')}
 const t2=trip({hm:60,wh:8,hmMode:'total',hmTot:120},new Date('2026-10-21T09:00'),'x');console.log('total-mode 120 →',t2.exp);ok=ok&&R2(t2.exp)===296.8;
+
+// Overnight: return after midnight, and a wait that crosses midnight
+{var SJ=()=>({}),ttOf=()=>'rt';eval(pick('parseRet')+pick('span')+pick('tmin')+pick('wtStop'));
+const st=new Date('2026-10-21T22:00'),[a,e]=span({start:st,ret:'1:30am'});const okR=e.toString()==new Date('2026-10-22T01:30').toString();
+const w=wtStop({m:'ts',p:[['2026-10-21T23:30','2026-10-22T00:45']]},'');const okW=w===75;const okT=tmin('2026-10-21T22:00','2026-10-22T02:15')===255;
+console.log('overnight return',e.toString().slice(0,21),okR?'ok':'FAIL','| overnight wait',w,'min',okW?'ok':'FAIL','| 22:00→02:15',okT?'ok':'FAIL');ok=ok&&okR&&okW&&okT}
 // One-way loop: Home → pickups → drop-offs → Home, miles used as-is (no ×2), no wait
 (async()=>{const LEG={'H|A':10,'A|B':5,'B|C':20,'C|H':25};var HOME=()=>'H';
 var routeEst=async L=>{let mi=0,h=0;for(let i=1;i<L.length;i++){const d=LEG[L[i-1]+'|'+L[i]];if(d==null)throw 'leg '+L[i-1]+'>'+L[i];mi+=d;h+=d/40}return{mi,h}};var isHome=async q=>q=='H';
