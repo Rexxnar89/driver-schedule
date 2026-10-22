@@ -1,0 +1,12 @@
+// Error summary box above Save job. Usage: node tests/errsum.js <url>
+const p=require('puppeteer-core');(async()=>{const b=await p.launch({executablePath:'/usr/bin/google-chrome',args:['--no-sandbox'],headless:'new'});const pg=await b.newPage();pg.on('dialog',d=>d.accept());pg.on('pageerror',e=>console.log('ERR',e.message));await pg.setViewport({width:375,height:800});await pg.goto(process.argv[2]);await pg.waitForFunction('LIVE',{timeout:120000});
+const r=await pg.evaluate(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms));const o={};try{vSeed()}catch(e){}localStorage.removeItem('draft');show('newjob');formReset();npd.value=npt.value=ndt.value='';avail();await w(200);
+const S=()=>{const B=$('errsum');return{hidden:!B||B.classList.contains('hide'),red:B&&/c62828/.test(B.getAttribute('style')||''),txt:B?B.textContent:'',aboveSave:B&&B.nextElementSibling&&B.nextElementSibling.id=='nsave'}};
+o.empty=S();
+const typ=(id,v)=>{const e=$(id);e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}))};
+const D=VDB();D.list.find(x=>x.name=='Ford Van').status='In shop';VSAVE(D);nv.value='Ford Van';nv.dispatchEvent(new Event('change',{bubbles:true}));await w(200);o.inshop=S();
+const p1=$('pks').querySelector('input');p1.value='Berlin, OH';p1.dispatchEvent(new Event('input',{bubbles:true}));typ('npd','2027-03-03');typ('npt','09:00');await w(300);o.dated=S();
+nv.value='Durango';nv.dispatchEvent(new Event('change',{bubbles:true}));np.value='6';np.dispatchEvent(new Event('input',{bubbles:true}));await w(300);o.near=S();
+np.value='9';np.dispatchEvent(new Event('input',{bubbles:true}));await w(300);o.over=S();capok.checked=true;capr.value='ok';capr.dispatchEvent(new Event('input',{bubbles:true}));capok.dispatchEvent(new Event('change',{bubbles:true}));await w(300);o.overridden=S();
+np.value='2';np.dispatchEvent(new Event('input',{bubbles:true}));const D2=VDB();D2.list.find(x=>x.name=='Ford Van').status='Available';VSAVE(D2);await w(300);o.clean=S();return o});
+console.log(JSON.stringify(r,null,1));const pass=!r.empty.hidden&&r.empty.red&&/First pickup/.test(r.empty.txt)&&r.empty.aboveSave&&/Unavailable: Ford Van/.test(r.inshop.txt)&&r.dated.red&&!/First pickup|date and time/.test(r.dated.txt)&&!r.near.red&&/Nearly full/.test(r.near.txt)&&r.over.red&&/Over capacity/.test(r.over.txt)&&/overridden/.test(r.overridden.txt)&&!r.overridden.red&&r.clean.hidden;console.log(pass?'PASS':'FAIL');await b.close();process.exit(pass?0:1)})()

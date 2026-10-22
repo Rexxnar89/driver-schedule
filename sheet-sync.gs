@@ -75,6 +75,7 @@ function doGet(e){
   if ((e.parameter.secret||'') !== SECRET) return out_({ok:false,error:'bad secret'});
   if (e.parameter.action === 'jobs') return out_(jobs_(e.parameter.force === '1'));
   if (e.parameter.action === 'savedjobs') { const sj = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Saved Jobs'); if (!sj || sj.getLastRow() < 2) return out_({ok:true, jobs:{}}); const v = sj.getRange(2,1,sj.getLastRow()-1,3).getValues(); const o = {}; v.forEach(r => { try { o[r[0]] = JSON.parse(r[2]); } catch(x) {} }); return out_({ok:true, jobs:o}); }
+  if (e.parameter.action === 'getvehicles') return out_({ok:true, items:vehRead_()});
   if (e.parameter.action === 'rows') { // read-only: All Drivers rows for shared earnings totals
     const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TAB);
     if (!sh || sh.getLastRow() < 2) return out_({ok:true, headers:HEADERS, rows:[]});
@@ -93,6 +94,24 @@ function doGet(e){
 function doPost(e){
   let b; try { b = JSON.parse(e.postData.contents); } catch(x) { return out_({ok:false,error:'bad json'}); }
   if (b.secret !== SECRET) return out_({ok:false,error:'bad secret'});
+  if (b.action === 'savevehicles' && Array.isArray(b.items)) { // shared vehicle/equipment status, last-write-wins by ts
+    const lockV = LockService.getScriptLock(); lockV.waitLock(10000);
+    try {
+      const sh = vehTab_(), last = sh.getLastRow(), keys = last >= 2 ? sh.getRange(2,1,last-1,7).getValues() : [];
+      let written = 0;
+      b.items.forEach(it => {
+        if (!it || !it.key || !it.rec) return;
+        let r = 0; for (let i=0;i<keys.length;i++) if (keys[i][0] === it.key) { r = i+2; break; }
+        const ts = Number(it.ts)||0;
+        if (r && Number(keys[r-2][6]||0) >= ts) return; // stored copy is newer or same
+        if (!r) { r = sh.getLastRow() + 1; keys.push([it.key,'','','','','',ts]); } else keys[r-2][6] = ts;
+        const rec = it.rec;
+        sh.getRange(r,1,1,8).setValues([[it.key, it.kind||'', rec.name||'', rec.status||'', rec.back||'', rec.notes||rec.note||'', ts, JSON.stringify(rec)]]);
+        written++;
+      });
+      return out_({ok:true, written, items:vehRead_()});
+    } finally { lockV.releaseLock(); }
+  }
   if (b.action === 'savejob' && b.id && b.job) { // app-saved job (JSON) in 'Saved Jobs' tab, keyed by UID
     const lock0 = LockService.getScriptLock(); lock0.waitLock(10000);
     try {
@@ -136,4 +155,16 @@ function doPost(e){
     ]]);
     return out_({ok:true,row:r});
   } finally { lock.releaseLock(); }
+}
+
+// Vehicles tab: Key | Kind | Name | Status | Expected back | Notes | Updated (ms) | Record JSON
+function vehTab_(){
+  const ss = SpreadsheetApp.getActiveSpreadsheet(); let sh = ss.getSheetByName('Vehicles');
+  if (!sh) { sh = ss.insertSheet('Vehicles'); sh.getRange(1,1,1,8).setValues([['Key','Kind','Name','Status','Expected back','Notes','Updated (ms)','Record JSON']]).setFontWeight('bold'); sh.setFrozenRows(1); }
+  return sh;
+}
+function vehRead_(){
+  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Vehicles');
+  if (!sh || sh.getLastRow() < 2) return [];
+  return sh.getRange(2,1,sh.getLastRow()-1,8).getValues().map(r => { let rec = null; try { rec = JSON.parse(r[7]); } catch(x) {} return rec ? {key:r[0], kind:r[1], ts:Number(r[6])||0, rec} : null; }).filter(Boolean);
 }
