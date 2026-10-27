@@ -1,0 +1,3 @@
+// sound: looping two-tone siren via WebAudio
+let AC=null,OSC=null;const unlock=()=>{try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();AC.resume()}catch(e){}};document.addEventListener('pointerdown',unlock,{capture:true});
+const siren=on=>{try{if(OSC){OSC.forEach(o=>{try{o.stop()}catch(e){}});OSC=null}if(!on)return;unlock();const g=AC.createGain();g.gain.value=1;g.connect(AC.destination);const o=AC.createOscillator(),l=AC.createOscillator(),lg=AC.createGain();o.type='square';o.frequency.value=880;l.type='square';l.frequency.value=2;lg.gain.value=300;l.connect(lg);lg.connect(o.frequency);o.connect(g);o.start();l.start();OSC=[o,l]}catch(e){console.log('siren',e)}};
