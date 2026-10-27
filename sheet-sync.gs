@@ -128,12 +128,12 @@ function doPost(e){
     const lockF = LockService.getScriptLock(); lockF.waitLock(10000);
     try {
       const ss = SpreadsheetApp.getActiveSpreadsheet(); let fb = ss.getSheetByName('Feedback'); const t = b.ticket;
-      const H = ['ID','Created','Name','Type','Area','Title','Details','Priority','Status','Notes','Updated'];
+      const H = ['ID','Created','Name','Type','Area','Section','Title','Details','Priority','Status','Notes','Updated'];
       if (!fb) { fb = ss.insertSheet('Feedback'); fb.getRange(1,1,1,H.length).setValues([H]).setFontWeight('bold'); fb.setFrozenRows(1); }
       const last = fb.getLastRow(); let r = 0;
       if (last >= 2) { const ids = fb.getRange(2,1,last-1,1).getValues(); for (let i=0;i<ids.length;i++) if (ids[i][0] === b.id) { r = i+2; break; } }
       if (!r) r = last + 1;
-      fb.getRange(r,1,1,H.length).setValues([[b.id, t.ts||'', t.name||'', t.type||'', t.area||'', t.title||'', t.details||'', t.priority||'', t.status||'Open', t.notes||'', new Date()]]);
+      fb.getRange(r,1,1,H.length).setValues([[b.id, t.ts||'', t.name||'', t.type||'', t.area||'', t.section||'', t.title||'', t.details||'', t.priority||'', t.status||'Open', t.notes||'', new Date()]]);
       return out_({ok:true, row:r});
     } finally { lockF.releaseLock(); }
   }
