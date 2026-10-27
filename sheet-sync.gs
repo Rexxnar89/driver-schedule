@@ -75,6 +75,11 @@ function doGet(e){
   if ((e.parameter.secret||'') !== SECRET) return out_({ok:false,error:'bad secret'});
   if (e.parameter.action === 'jobs') return out_(jobs_(e.parameter.force === '1'));
   if (e.parameter.action === 'savedjobs') { const sj = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Saved Jobs'); if (!sj || sj.getLastRow() < 2) return out_({ok:true, jobs:{}}); const v = sj.getRange(2,1,sj.getLastRow()-1,3).getValues(); const o = {}; v.forEach(r => { try { o[r[0]] = JSON.parse(r[2]); } catch(x) {} }); return out_({ok:true, jobs:o}); }
+  if (e.parameter.action === 'getsettings') { // app settings (e.g. owner PIN hash) from 'Settings' tab: key | JSON value
+    const st = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Settings'); const o = {};
+    if (st && st.getLastRow() >= 2) st.getRange(2,1,st.getLastRow()-1,2).getValues().forEach(r => { if (r[0]) { try { o[r[0]] = JSON.parse(r[1]); } catch(x) {} } });
+    return out_({ok:true, settings:o});
+  }
   if (e.parameter.action === 'getvehicles') return out_({ok:true, items:vehRead_()});
   if (e.parameter.action === 'rows') { // read-only: All Drivers rows for shared earnings totals
     const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TAB);
@@ -123,6 +128,19 @@ function doPost(e){
       sj.getRange(r,1,1,3).setValues([[b.id, new Date(), JSON.stringify(b.job)]]);
       return out_({ok:true, row:r});
     } finally { lock0.releaseLock(); }
+  }
+  if (b.action === 'savesetting' && b.key && b.value) { // one app setting, last-write-wins by value.ts
+    const lockS = LockService.getScriptLock(); lockS.waitLock(10000);
+    try {
+      const ss = SpreadsheetApp.getActiveSpreadsheet(); let st = ss.getSheetByName('Settings');
+      if (!st) { st = ss.insertSheet('Settings'); st.getRange(1,1,1,3).setValues([['Key','Value (JSON)','Updated']]).setFontWeight('bold'); st.setFrozenRows(1); }
+      const last = st.getLastRow(); let r = 0, cur = null;
+      if (last >= 2) { const v = st.getRange(2,1,last-1,2).getValues(); for (let i=0;i<v.length;i++) if (v[i][0] === b.key) { r = i+2; try { cur = JSON.parse(v[i][1]); } catch(x) {} break; } }
+      if (cur && (+cur.ts||0) > (+b.value.ts||0)) return out_({ok:true, stale:true, value:cur});
+      if (!r) r = last + 1;
+      st.getRange(r,1,1,3).setValues([[b.key, JSON.stringify(b.value), new Date()]]);
+      return out_({ok:true, row:r});
+    } finally { lockS.releaseLock(); }
   }
   if (b.action === 'savefeedback' && b.id && b.ticket) { // app feedback tickets in 'Feedback' tab, keyed by ticket id
     const lockF = LockService.getScriptLock(); lockF.waitLock(10000);
