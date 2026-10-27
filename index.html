@@ -228,7 +228,7 @@ async function earnings(){const g=rangeOf();$('earn').innerHTML=rangeBar()+'<sma
 if(SROWS===null){try{const k=await fetchJson(LS.syncurl+'?action=rows&secret='+encodeURIComponent(LS.syncsec||''),30000);SROWS=k.ok&&k.rows?k:false}catch(e){SROWS=false}}
 if(SROWS){const H=SROWS.headers.map(String),c=n=>H.indexOf(n);src='shared sheet (All Drivers tab, every phone that synced)';SROWS.rows.forEach(r=>{const d=new Date(r[c('Date')]+'T12:00');if(isNaN(d))return;if(!(g.all?d>=g.from:d>=g.from&&d<g.to))return;const n=String(r[c('Notes')]||''),m=n.match(/Revenue actual \$([\d.]+)/);R.push({drv:String(r[c('Driver')]).replace(/^Jay \(Jeffrey\)$/,'Jeffrey'),ra:m?+m[1]:0,mi:+r[c('Miles')]||0,owed:+r[c('Owed')]||0,profit:+r[c('Profit')]||0})})}
 else{const S=ST();inRange(upcomingAll()).forEach(j=>{const s=S[j.uid]||{};if(s.st!='Done')return;const c=calc(s.mi,j.start,s.wh);R.push({drv:j.driver,ra:+s.ra||0,mi:+s.mi||0,owed:c.owed,profit:c.profit})})}
-const by={};R.forEach(x=>{const o=by[x.drv]=by[x.drv]||{drv:x.drv,n:0,ra:0,mi:0,owed:0,profit:0};o.n++;o.ra+=x.ra;o.mi+=x.mi;o.owed+=x.owed;o.profit+=x.profit});let rows=Object.values(by);rows.forEach(o=>o.ppm=o.mi?o.ra/o.mi:0);
+if(window.OWNV)R=R.filter(x=>x.drv==window.OWNV);const by={};R.forEach(x=>{const o=by[x.drv]=by[x.drv]||{drv:x.drv,n:0,ra:0,mi:0,owed:0,profit:0};o.n++;o.ra+=x.ra;o.mi+=x.mi;o.owed+=x.owed;o.profit+=x.profit});let rows=Object.values(by);rows.forEach(o=>o.ppm=o.mi?o.ra/o.mi:0);
 const sk=LS.esort||'ra',dir=LS.edir=='asc'?1:-1;rows.sort((a,b)=>sk=='drv'?dir*a.drv.localeCompare(b.drv):dir*(a[sk]-b[sk]));
 const T={drv:'TOTAL',n:0,ra:0,mi:0,owed:0,profit:0};rows.forEach(o=>{['n','ra','mi','owed','profit'].forEach(k=>T[k]+=o[k])});T.ppm=T.mi?T.ra/T.mi:0;
 const cols=[['drv','Driver'],['n','Jobs done'],['ra','Revenue actual'],['mi','Actual mi'],['ppm','$/mi'],['owed','Wear+gas owed'],['profit','Profit']],fm=(k,v)=>k=='drv'?esc2(v):k=='n'?v:k=='mi'?R2(v):'$'+R2(v).toFixed(2);
@@ -990,7 +990,7 @@ setTimeout(()=>{const t=(()=>{try{return LS.tab}catch(e){return''}})();if(t&&t!=
 function tripsMath(){const R=window.RATE||{},B=+R.base||1.30,G=R.gasHigh!=null?+R.gasHigh:null,M=+R.mpg||12,W=12.5,WR=0.20,$f=x=>x==null||isNaN(x)?'–':'$'+(+x).toFixed(2),r2=x=>Math.round(x*100)/100,e=x=>esc2(String(x??''));
 let h=`<div class="tmw"><table class="tmt"><tr><th>Input</th><th>Value</th></tr>${[['Base $/mi',$f(B)],['Gas today ('+e(R.gasTodaySource||'AAA Ohio')+')',R.gasToday!=null?$f(R.gasToday)+'/gal':'–'],['3-day high (blended)',G!=null?$f(G)+'/gal':'–'],['MPG',M],['Fuel $/mi = gas ÷ mpg',G!=null?$f(G/M)+(R.fuelExact?' ('+R.fuelExact+')':''):'–'],['All-in rate = base + fuel',$f(R.rate)],['Alt. 18-mpg rate',$f(R.alt18mpg)],['Wait $/h',$f(W)],['Wear $/mi (owner)',$f(WR)]].map(([a,b])=>`<tr><td>${a}</td><td class="n">${b}</td></tr>`).join('')}</table></div>`;
 if(G==null){$('tmbody').innerHTML=h+'<small>rate.json not loaded yet</small>';return}
-const S=ST(),rows=[];upcomingAll().forEach(j=>{const s=S[j.uid]||{};if(s.st!='Done')return;const am=+s.mi||0;let pm=0;try{pm=+(projMi(s,j.uid)||{}).mi||0}catch(x){}const mi=am||pm,wh=+s.wh||0,trip=r2(mi*(B+G/M)),wc=r2(wh*W),exp=r2(trip+wc),wear=r2(mi*WR),gas=r2(mi*G/M),ra=s.ra!==''&&s.ra!=null?+s.ra:null;rows.push({d:new Date(j.start),drv:j.driver||'?',cl:j.client||j.title||'',am,pm,mi,src:am?'actual':'proj',wh,trip,wc,exp,ra,wear,gas,owed:r2(wear+gas),profit:r2((ra??exp)-wear-gas)})});
+const S=ST(),rows=[];upcomingAll().forEach(j=>{const s=S[j.uid]||{};if(s.st!='Done')return;const am=+s.mi||0;let pm=0;try{pm=+(projMi(s,j.uid)||{}).mi||0}catch(x){}const mi=am||pm,wh=+s.wh||0,trip=r2(mi*(B+G/M)),wc=r2(wh*W),exp=r2(trip+wc),wear=r2(mi*WR),gas=r2(mi*G/M),ra=s.ra!==''&&s.ra!=null?+s.ra:null;if(!window.OWNV||j.driver==window.OWNV)rows.push({d:new Date(j.start),drv:j.driver||'?',cl:j.client||j.title||'',am,pm,mi,src:am?'actual':'proj',wh,trip,wc,exp,ra,wear,gas,owed:r2(wear+gas),profit:r2((ra??exp)-wear-gas)})});
 rows.sort((a,b)=>a.d-b.d);const fd=d=>d.toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'2-digit'}),wd=d=>d.toLocaleDateString('en-US',{weekday:'short'});
 const sum=(L,k)=>r2(L.reduce((t,x)=>t+(+x[k]||0),0));
 const tbl=L=>{const T={trip:sum(L,'trip'),wc:sum(L,'wc'),exp:sum(L,'exp'),ra:sum(L,'ra'),wear:sum(L,'wear'),gas:sum(L,'gas'),owed:sum(L,'owed'),profit:sum(L,'profit'),mi:sum(L,'mi'),wh:sum(L,'wh')};return`<div class="tmw"><table class="tmt"><tr><th>Date</th><th>Day</th><th>Client</th><th>Projected mi</th><th>Miles actual</th><th>Expected before wait $</th><th>Wait hours</th><th>Wait charge $</th><th>Expected</th><th>Revenue actual $</th><th>Wear</th><th>Gas</th><th>Profit</th><th>Total owed</th><th>Math</th></tr>${L.map(x=>`<tr><td>${fd(x.d)}</td><td>${wd(x.d)}</td><td>${e(x.cl).slice(0,40)}</td><td class="n">${x.pm||''}</td><td class="n">${x.am||''}</td><td class="n">${$f(x.trip)}</td><td class="n">${x.wh||''}</td><td class="n">${$f(x.wc)}</td><td class="n"><b>${$f(x.exp)}</b></td><td class="n">${x.ra!=null?$f(x.ra):''}</td><td class="n">${$f(x.wear)}</td><td class="n">${$f(x.gas)}</td><td class="n">${$f(x.profit)}</td><td class="n">${$f(x.owed)}</td><td style="color:#555">ROUND(${x.mi} ${x.src} mi × ($${B.toFixed(2)} + $${G.toFixed(2)}÷${M}), 2) = ${$f(x.trip)}${x.wh?` + ${x.wh} h × $${W.toFixed(2)} = ${$f(x.exp)}`:''}</td></tr>`).join('')}<tr class="tot"><td>TOTAL</td><td>${L.length}</td><td></td><td></td><td class="n">${T.mi}</td><td class="n">${$f(T.trip)}</td><td class="n">${T.wh||''}</td><td class="n">${$f(T.wc)}</td><td class="n">${$f(T.exp)}</td><td class="n">${$f(T.ra)}</td><td class="n">${$f(T.wear)}</td><td class="n">${$f(T.gas)}</td><td class="n">${$f(T.profit)}</td><td class="n">${$f(T.owed)}</td><td></td></tr></table></div>`};
@@ -1030,52 +1030,62 @@ fblist.innerHTML=a.length?a.map(t=>`<div style="border:1px solid #ccc;border-rad
 #pinov .pt{font-weight:800;font-size:1.1rem;margin-bottom:4px}#pinov .pm{min-height:1.3em;font-size:.85rem;color:#c62828}
 #pinov .pd{font-size:1.8rem;letter-spacing:10px;min-height:1.4em;margin:6px 0}
 #pinov .pk{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px}
-#pinov .pk button{min-height:60px;font-size:1.5rem;font-weight:700;border-radius:12px;border:1px solid #b0bec5;background:#eceff1;color:#263238}
+#pinov .pk button,#pinov .who button{min-height:60px;font-size:1.5rem;font-weight:700;border-radius:12px;border:1px solid #b0bec5;background:#eceff1;color:#263238}
+#pinov .who{display:grid;gap:12px;margin:12px 0 4px}#pinov .who button{background:#1565c0;color:#fff;border-color:#1565c0}
 #pinov .pk .ok{background:#2e7d32;color:#fff;border-color:#2e7d32}#pinov .pl{margin-top:10px;display:flex;justify-content:space-between;font-size:.85rem}
 #pinov .pl a{color:#1565c0;cursor:pointer;text-decoration:underline}
 #pinov .shake{animation:pinshake .4s}@keyframes pinshake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-12px)}40%,80%{transform:translateX(12px)}}
+#ownbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;background:#263238;color:#fff;border-radius:10px;padding:6px 8px;margin:4px 0 10px}
+#ownbar b{flex:1 1 auto;font-size:1rem}#ownbar button{min-height:40px;padding:0 10px;border-radius:8px;border:0;font-weight:700;font-size:.85rem;background:#eceff1;color:#263238}
+#ownbar button.on{background:#ffd54f}
 #pinset .sw{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:48px;font-weight:700}
 #pinset input[type=checkbox]{width:52px;height:30px;accent-color:#2e7d32}
 </style>
 <script>
-(function(){
-const K='ownerPin',TTL=30*60e3;
-const cfg=()=>{try{return JSON.parse(LS.pinCfg||'{}')}catch(e){return{}}},put=c=>{LS.pinCfg=JSON.stringify(c)};
+(function(){ // Owner PINs v2: two owners (Jeffrey, BB). v1 archived in archive/owner-pin-v1-single.md
+const OW=['Jeffrey','BB'],TTL=30*60e3,KEY=w=>'ownerPin_'+w;
+const cfg=w=>{try{return JSON.parse(LS['pin_'+w]||'{}')}catch(e){return{}}},put=(w,c)=>{LS['pin_'+w]=JSON.stringify(c)};
+if(LS.pinCfg){if(!LS.pin_Jeffrey)LS.pin_Jeffrey=LS.pinCfg;LS.removeItem('pinCfg')} // migrate v1 single PIN -> Jeffrey
 window.PINSYNC=LS.syncurl?'checking':'local';
 const hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
 const H=async(p,s)=>hex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s+':'+p)));
-const unlocked=()=>Date.now()-(+sessionStorage.ownerUnlock||0)<TTL;
-async function push(c){if(!LS.syncurl){PINSYNC='local';return}try{const r=await fetch(LS.syncurl,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({secret:LS.syncsec,action:'savesetting',key:K,value:c})});const k=await r.json();if(k.ok){PINSYNC='sheet';if(k.stale&&k.value)put({...k.value,synced:1});else put({...c,synced:1})}else PINSYNC='redeploy'}catch(e){PINSYNC='offline'}}
-async function pull(){if(!LS.syncurl){PINSYNC='local';return}try{const r=await fetch(LS.syncurl+'?action=getsettings&secret='+encodeURIComponent(LS.syncsec||''),{cache:'no-store'});const j=await r.json();if(!j.ok||!j.settings){PINSYNC='redeploy';return}PINSYNC='sheet';const s=j.settings[K],c=cfg();
- if(s&&(+s.ts||0)>=(+c.ts||0))put({...s,synced:1});else if(!s&&c.synced)put({});else if(c.ts)push(c)}catch(e){PINSYNC='offline'}}
-async function save(c){const {synced,...v}=c;v.ts=Date.now();put(v);await push(v)}
-window.pinPull=pull;
+const unlocked=w=>Date.now()-(+sessionStorage['ownerUnlock_'+w]||0)<TTL;
+async function push(w,c){if(!LS.syncurl){PINSYNC='local';return}try{const r=await fetch(LS.syncurl,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({secret:LS.syncsec,action:'savesetting',key:KEY(w),value:c})});const k=await r.json();if(k.ok){PINSYNC='sheet';put(w,{...(k.stale&&k.value?k.value:c),synced:1})}else PINSYNC='redeploy'}catch(e){PINSYNC='offline'}}
+async function pull(){if(!LS.syncurl){PINSYNC='local';return}try{const r=await fetch(LS.syncurl+'?action=getsettings&secret='+encodeURIComponent(LS.syncsec||''),{cache:'no-store'});const j=await r.json();if(!j.ok||!j.settings){PINSYNC='redeploy';return}PINSYNC='sheet';
+ for(const w of OW){const s=j.settings[KEY(w)]||(w=='Jeffrey'?j.settings.ownerPin:null),c=cfg(w);if(s&&(+s.ts||0)>=(+c.ts||0)){put(w,{...s,synced:1});if(!j.settings[KEY(w)])push(w,s)}else if(!s&&c.synced)put(w,{});else if(c.ts)push(w,c)}}catch(e){PINSYNC='offline'}}
+async function save(w,c){const {synced,...v}=c;v.ts=Date.now();put(w,v);await push(w,v)}
+function modal(html,wire){return new Promise(res=>{const ov=document.createElement('div');ov.id='pinov';ov.innerHTML=`<div class="pbox">${html}</div>`;document.body.appendChild(ov);wire(ov,v=>{ov.remove();res(v)})})}
+function who(){return modal(`<div class="pt">👤 Who are you?</div><div class="who">${OW.map(w=>`<button type="button" data-w="${w}">${w}</button>`).join('')}</div><div class="pl"><a data-w="x">Cancel</a></div>`,(ov,done)=>ov.addEventListener('click',e=>{const w=e.target.dataset&&e.target.dataset.w;if(w)done(w=='x'?null:w)}))}
 // number pad; check(d) -> true (accept) | string (error msg, shake)
-function pad(title,check,forgot){return new Promise(res=>{let d='';const ov=document.createElement('div');ov.id='pinov';
- ov.innerHTML=`<div class="pbox"><div class="pt">${title}</div><div class="pd"></div><div class="pm"></div><div class="pk">${[1,2,3,4,5,6,7,8,9].map(n=>`<button type="button" data-k="${n}">${n}</button>`).join('')}<button type="button" data-k="b">⌫</button><button type="button" data-k="0">0</button><button type="button" class="ok" data-k="ok">OK</button></div><div class="pl"><a data-k="x">Cancel</a>${forgot?'<a data-k="f">Forgot PIN?</a>':''}</div></div>`;
- document.body.appendChild(ov);const box=ov.querySelector('.pbox'),dd=ov.querySelector('.pd'),mm=ov.querySelector('.pm'),draw=()=>dd.textContent='●'.repeat(d.length)||' ';draw();
- const done=v=>{ov.remove();res(v)};
+function pad(title,check,forgot){let d='';return modal(`<div class="pt">${title}</div><div class="pd"> </div><div class="pm"></div><div class="pk">${[1,2,3,4,5,6,7,8,9].map(n=>`<button type="button" data-k="${n}">${n}</button>`).join('')}<button type="button" data-k="b">⌫</button><button type="button" data-k="0">0</button><button type="button" class="ok" data-k="ok">OK</button></div><div class="pl"><a data-k="x">Cancel</a>${forgot?'<a data-k="f">Forgot PIN?</a>':''}</div>`,(ov,done)=>{
+ const box=ov.querySelector('.pbox'),dd=ov.querySelector('.pd'),mm=ov.querySelector('.pm'),draw=()=>dd.textContent='●'.repeat(d.length)||' ';
  ov.addEventListener('click',async e=>{const k=e.target.dataset&&e.target.dataset.k;if(!k)return;
   if(k=='x')return done(null);if(k=='f'){if(await forgot())done(null);return}
   if(k=='b'){d=d.slice(0,-1);draw();return}
   if(k=='ok'){const r=await check(d);if(r===true)return done(d);mm.textContent=r;d='';draw();box.classList.remove('shake');void box.offsetWidth;box.classList.add('shake');return}
   if(d.length<6){d+=k;draw();mm.textContent=''}})})}
 const fmt=d=>/^\d{4,6}$/.test(d)?true:'PIN must be 4–6 digits';
-async function verify(title){const c=cfg();return (await pad(title,async d=>{const until=+LS.pinLock||0;if(until>Date.now())return 'Too many tries. Wait '+Math.ceil((until-Date.now())/1000)+'s.';
- if(await H(d,c.salt)===c.hash){LS.pinMiss=0;return true}const m=(+LS.pinMiss||0)+1;if(m>=5){LS.pinMiss=0;LS.pinLock=Date.now()+60e3;return 'Wrong PIN. Locked for 1 minute.'}LS.pinMiss=m;return 'Wrong PIN ('+(5-m)+' left)'},forgot))!=null}
-async function newPin(){const a=await pad('New PIN (4–6 digits)',async d=>fmt(d));if(a==null)return false;const b=await pad('Type the new PIN again',async d=>d===a?true:'PINs don\'t match');if(b==null)return false;
- const salt=hex(crypto.getRandomValues(new Uint8Array(16)));await save({on:true,salt,hash:await H(a,salt)});sessionStorage.ownerUnlock=Date.now();return true}
-async function forgot(){const s=prompt(LS.syncsec?'Reset the Owner PIN: paste the sync secret (the one in Owner → sync setup on this phone).':'This phone has no sync secret, so the PIN is local only. Type RESET to turn the PIN off on this phone.');if(s==null)return false;
- if(LS.syncsec?s.trim()===LS.syncsec:s.trim().toUpperCase()=='RESET'){await save({on:false});LS.pinMiss=0;LS.pinLock=0;alert('Owner PIN turned off.');return true}alert('That doesn\'t match.');return false}
-const _show=window.show;window.show=function(s){if(s=='owner'&&cfg().on&&!unlocked()){verify('🔒 Enter Owner PIN').then(ok=>{if(ok){sessionStorage.ownerUnlock=Date.now();_show('owner')}});return}return _show.apply(this,arguments)};
-setInterval(()=>{if(cfg().on&&!unlocked()&&!$('owner').classList.contains('hide'))_show('driver')},15000);
-function note(){return {sheet:'Synced to the Google Sheet (works on every phone).',local:'Saved on this phone only (no sync URL set).',redeploy:'Saved on this phone only: the Apps Script needs a redeploy before the PIN syncs to other phones.',offline:'Saved on this phone only (sheet unreachable right now).',checking:'Checking the sheet…'}[PINSYNC]||''}
-window.pinSettings=function(){const c=cfg();let m=$('pinset');if(m)m.remove();m=document.createElement('div');m.id='pinset';m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center';
- m.innerHTML=`<div style="background:#fff;border-radius:14px;padding:16px;width:min(360px,92vw)"><div style="font-weight:800;font-size:1.15rem;margin-bottom:8px">⚙ Owner settings</div><label class="sw">Require PIN for Owner view<input type="checkbox" id="pinsw" ${c.on?'checked':''}></label>${c.on?'<button type="button" class="btn" id="pinchg" style="width:100%;min-height:44px;margin:6px 0">Change PIN</button>':''}<div style="font-size:.8rem;color:#555;margin:6px 0">${note()}</div><div style="font-size:.75rem;color:#777">Unlocks for 30 minutes or until the app is closed. 5 wrong tries lock the pad for 1 minute.</div><div style="text-align:right;margin-top:10px"><button type="button" class="btn" id="pinx" style="min-height:44px">Close</button></div></div>`;
+async function verify(w,title){const c=cfg(w),ML='pinMiss_'+w,LK='pinLock_'+w;return (await pad(title,async d=>{const until=+LS[LK]||0;if(until>Date.now())return 'Too many tries. Wait '+Math.ceil((until-Date.now())/1000)+'s.';
+ if(await H(d,c.salt)===c.hash){LS[ML]=0;return true}const m=(+LS[ML]||0)+1;if(m>=5){LS[ML]=0;LS[LK]=Date.now()+60e3;return 'Wrong PIN. Locked for 1 minute.'}LS[ML]=m;return 'Wrong PIN ('+(5-m)+' left)'},()=>forgot(w)))!=null}
+async function newPin(w){const a=await pad(w+': new PIN (4–6 digits)',async d=>fmt(d));if(a==null)return false;const b=await pad(w+': type the new PIN again',async d=>d===a?true:'PINs don\'t match');if(b==null)return false;
+ const salt=hex(crypto.getRandomValues(new Uint8Array(16)));await save(w,{on:true,salt,hash:await H(a,salt)});sessionStorage['ownerUnlock_'+w]=Date.now();return true}
+async function forgot(w){const s=prompt(LS.syncsec?`Reset ${w}'s Owner PIN: paste the sync secret (the one in Owner → sync setup on this phone).`:`This phone has no sync secret, so ${w}'s PIN is local only. Type RESET to turn it off on this phone.`);if(s==null)return false;
+ if(LS.syncsec?s.trim()===LS.syncsec:s.trim().toUpperCase()=='RESET'){await save(w,{on:false});LS['pinMiss_'+w]=0;LS['pinLock_'+w]=0;alert(w+'\'s Owner PIN turned off.');return true}alert('That doesn\'t match.');return false}
+window.OWNV='';
+function bar(){let b=$('ownbar');if(!b){b=document.createElement('div');b.id='ownbar';$('owner').prepend(b)}const w=sessionStorage.ownerWho,all=!window.OWNV;
+ b.innerHTML=`<b>👤 ${w}'s view</b><button type="button" class="${all?'':'on'}" onclick="ownView(0)">My jobs</button><button type="button" class="${all?'on':''}" onclick="ownView(1)">All drivers</button><button type="button" onclick="ownSwitch()">⇄ Switch owner</button><button type="button" onclick="pinSettings()">⚙ Settings</button>`}
+window.ownView=function(all){window.OWNV=all?'':sessionStorage.ownerWho;bar();try{const s=$('alldrv');if(s){if(!all&&![...s.options].some(o=>o.value==OWNV))s.add(new Option(OWNV,OWNV));s.value=OWNV;render()}}catch(e){}try{if($('earn')&&$('earn').innerHTML)earnings()}catch(e){}};
+function enter(w){sessionStorage.ownerWho=w;if(cfg(w).on)sessionStorage['ownerUnlock_'+w]=sessionStorage['ownerUnlock_'+w]&&unlocked(w)?sessionStorage['ownerUnlock_'+w]:Date.now();_show('owner');ownView(0)}
+async function gate(){const w=await who();if(!w)return;if(!cfg(w).on||unlocked(w))return enter(w);if(await verify(w,'🔒 '+w+': enter Owner PIN')){sessionStorage['ownerUnlock_'+w]=Date.now();enter(w)}}
+window.ownSwitch=function(){_show('driver');gate()};
+const _show=window.show;window.show=function(s){if(s=='owner'){gate();return}return _show.apply(this,arguments)};
+setInterval(()=>{const w=sessionStorage.ownerWho;if(!$('owner').classList.contains('hide')&&(!w||cfg(w).on&&!unlocked(w)))_show('driver')},15000);
+function note(){return {sheet:'Synced to the Google Sheet (works on every phone).',local:'Saved on this phone only (no sync URL set).',redeploy:'Saved on this phone only: the Apps Script needs a redeploy before PINs sync to other phones.',offline:'Saved on this phone only (sheet unreachable right now).',checking:'Checking the sheet…'}[PINSYNC]||''}
+window.pinSettings=function(){const w=sessionStorage.ownerWho;if(!w)return;const c=cfg(w),o=OW.find(x=>x!=w);let m=$('pinset');if(m)m.remove();m=document.createElement('div');m.id='pinset';m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center';
+ m.innerHTML=`<div style="background:#fff;border-radius:14px;padding:16px;width:min(360px,92vw)"><div style="font-weight:800;font-size:1.15rem;margin-bottom:8px">⚙ Owner settings · ${w}</div><label class="sw">Require PIN for ${w}<input type="checkbox" id="pinsw" ${c.on?'checked':''}></label>${c.on?`<button type="button" class="btn" id="pinchg" style="width:100%;min-height:44px;margin:6px 0">Change ${w}'s PIN</button>`:''}<div style="font-size:.8rem;color:#555;margin:6px 0">${o}'s PIN: ${cfg(o).on?'on':'off'} (only ${o} can change it)</div><div style="font-size:.8rem;color:#555;margin:6px 0">${note()}</div><div style="font-size:.75rem;color:#777">Unlocks for 30 minutes or until the app is closed. 5 wrong tries lock that owner's pad for 1 minute.</div><div style="text-align:right;margin-top:10px"><button type="button" class="btn" id="pinx" style="min-height:44px">Close</button></div></div>`;
  document.body.appendChild(m);$('pinx').onclick=()=>m.remove();
- $('pinsw').onchange=async e=>{e.target.checked=!e.target.checked;const ok=cfg().on?(await verify('Enter current PIN to turn it off')&&(await save({on:false}),true)):await newPin();pinSettings();if(ok)alert(cfg().on?'Owner PIN is on.':'Owner PIN is off.')};
- if($('pinchg'))$('pinchg').onclick=async()=>{if(await verify('Enter current PIN')&&await newPin())alert('PIN changed.');pinSettings()}};
-const g=document.createElement('button');g.type='button';g.className='btn';g.textContent='⚙ Settings';g.title='Owner settings';g.style.cssText='float:right;min-height:44px;margin:4px 0 4px 8px';g.onclick=()=>pinSettings();$('owner').prepend(g);
+ $('pinsw').onchange=async e=>{e.target.checked=!e.target.checked;const ok=cfg(w).on?(await verify(w,w+': enter current PIN to turn it off')&&(await save(w,{on:false}),true)):await newPin(w);pinSettings();if(ok)alert(w+'\'s PIN is '+(cfg(w).on?'on.':'off.'))};
+ if($('pinchg'))$('pinchg').onclick=async()=>{if(await verify(w,w+': enter current PIN')&&await newPin(w))alert(w+'\'s PIN changed.');pinSettings()}};
 pull();
 })();
 </script>
