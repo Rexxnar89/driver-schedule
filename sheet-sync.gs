@@ -21,8 +21,8 @@ const FEEDS = [
 const CACHE_SECS = 240;
 const KEEP = /^(BEGIN:VEVENT$|END:VEVENT$|(UID|SUMMARY|LOCATION|DTSTART|DTEND|RRULE|EXDATE|RECURRENCE-ID|STATUS)[;:])/;
 
-function trimIcs_(s){ // keep only event lines the app needs, and only events that can fall in -14d..+90d
-  const now = Date.now(), lo = now - 14*864e5, hi = now + 90*864e5;
+function trimIcs_(s){ // keep only event lines the app needs, and only events that can fall in -365d..+90d
+  const now = Date.now(), lo = now - 365*864e5, hi = now + 90*864e5;
   const ymd = d => Utilities.formatDate(new Date(d), 'America/New_York', 'yyyyMMdd');
   const LO = ymd(lo), HI = ymd(hi);
   const lines = s.replace(/\r?\n[ \t]/g,'').split(/\r?\n/);
