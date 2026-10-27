@@ -9,3 +9,6 @@ Quick-day buttons set the date without firing change, so recDrv never ran; hook 
 
 ## 2026-10-27 — Re-render on blur eats taps
 Typing in #np then tapping a chip fires change on blur first, which re-renders #vfree and the tap lands on the parent. Tests must blur first; hand-pick detection uses trusted events only (pg.select dispatches untrusted ones).
+
+## 2026-10-27 — Alarm tests fire real overlays
+Testing alarms against a job starting soon makes the scheduler ring mid-test (prep at now). Use a job 3+ hours out for alarm screenshots.
