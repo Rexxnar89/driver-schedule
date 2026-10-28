@@ -1462,4 +1462,28 @@ function ajAnother(){if(typeof EDIT!='undefined'&&EDIT){alert('You are editing a
  const m=$('draftmsg');if(m)m.textContent=ok?'✅ Previous job saved to 📝 Drafts. This is a new blank job.':'Form is already blank.';const b=$('ajmsg');if(b)b.textContent=ok?'✅ Saved to Drafts':'Already blank';scrollTo(0,0)}
 (function(){const h=$('njh');if(!h||$('ajbox'))return;h.insertAdjacentHTML('afterend','<div id="ajbox" style="margin:4px 0 8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center"><button type="button" id="ajbtn" class="btn ok" onclick="ajAnother()">➕ Create another job</button><button type="button" class="btn" onclick="window.kvDrafts&&kvDrafts()">📝 Drafts</button><small id="ajmsg" style="color:#555;overflow-wrap:break-word">Saves this job to Drafts and starts a blank one</small></div>')})();
 </script>
+<script>/* org1 v1: Organizer auto-fills pickup #1 (name, + address/phone from address book) while #norg1 = auto; switch to "someone else" or N/A. Manual edit of pickup #1 switches to "someone else". Syncs legacy #norgpos (orgpos=1 / ''). */
+(function(){const F={n:'',a:'',ph:''};let busy=0;
+ const r1=()=>document.querySelector('#pks > div'),n1=()=>{const r=r1();return r&&r.querySelector('.pxn')},a1=()=>{const r=r1();return r&&r.querySelector('input.loc')};
+ function pos(v){const S=$('norgpos');if(!S)return;try{pxPos()}catch(e){}S.value=v}
+ function phFill(){const P=$('njphone');if(!P)return;const nm=nc.value.trim(),C=nm?pxByName(nm):[],ph=C.length==1&&C[0].phone||'';if(P.value.trim()===F.ph||!P.value.trim()){busy=1;P.value=F.ph=ph;P.dispatchEvent(new Event('input',{bubbles:true}));busy=0}}
+ function fill(){phFill();const M=$('norg1');if(!M||M.value!='auto')return;try{pxDecoAll()}catch(e){}const n=n1(),a=a1();if(!n||!a)return;busy=1;const nm=nc.value.trim();
+  if(n.value.trim()===F.n||!n.value.trim())n.value=F.n=nm;
+  const C=nm?pxByName(nm):[],c=C.length==1?C[0]:null,ad=c&&c.addr||'';
+  if(a.value.trim()===F.a||!a.value.trim()){a.value=F.a=ad;if(c)a.dataset.client=c.id;else delete a.dataset.client;a.dispatchEvent(new Event('input',{bubbles:true}))}
+    pos(nm?'1':'');try{pxHint(r1())}catch(e){}busy=0}
+ function setMode(v,ui){const M=$('norg1');if(!M)return;M.value=v;if(v=='auto'){F.n=F.a='';fill()}else if(v=='na'){const n=n1(),a=a1();if(n&&n.value.trim()===F.n)n.value='';if(a&&F.a&&a.value.trim()===F.a){a.value='';a.dispatchEvent(new Event('input',{bubbles:true}))}F.n=F.a='';pos('')}else{F.n=F.a='';const S=$('norgpos');if(S&&S.value=='1')pos('')}
+  if(ui)try{draftSave()}catch(e){}}
+ window.org1Set=setMode;
+ function ui(){if($('norg1'))return;const P=$('pks');if(!P)return;P.insertAdjacentHTML('beforebegin','<div id="org1box" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:2px 0 6px;overflow-wrap:break-word"><label for="norg1" style="margin:0;font-size:.875rem;font-weight:bold">Pickup #1:</label><select id="norg1" style="width:auto;max-width:100%" onchange="org1Set(this.value,1)"><option value="auto">Organizer (auto-filled)</option><option value="other">Someone else</option><option value="na">N/A – organizer not riding</option></select></div>')}
+ ui();
+ document.addEventListener('input',e=>{const t=e.target;if(!t||busy)return;if(t.id=='nc'){fill();return}const M=$('norg1');if(!M||M.value!='auto')return;if(t===n1()&&t.value.trim()!==F.n||t===a1()&&t.value.trim()!==F.a&&F.a!==''&&t.value.trim()!==''){M.value='other';F.n=F.a=''}},true);
+ document.addEventListener('change',e=>{if(e.target&&e.target.id=='nc'&&!busy)fill()},true);
+ const S=$('norgpos');S&&S.addEventListener('change',()=>{const M=$('norg1');if(M&&M.value=='auto'&&S.value!='1'){M.value=S.value?'other':'na';F.n=F.a=F.ph=''}});
+ const wrap=(k,f)=>{const o=window[k];if(typeof o=='function')window[k]=f(o)};
+ wrap('formReset',o=>function(){const r=o.apply(this,arguments);const M=$('norg1');if(M)M.value='auto';F.n=F.a=F.ph='';return r});
+ wrap('editJob',o=>function(u){const r=o.apply(this,arguments);try{const j=jobs.find(x=>x.uid==u),M=$('norg1');if(j&&M){const N=j.pxn||(SJ(j)||{}).pxn||[];M.value=String(j.orgpos||'')=='1'?'auto':(N[0]?'other':'na');const n=n1(),a=a1();F.n=M.value=='auto'&&n?n.value.trim():'';F.a=M.value=='auto'&&a?a.value.trim():'';F.ph='';if(M.value=='auto'&&!F.n)fill()}}catch(e){}return r});
+ wrap('draftLoad',o=>function(){const r=o.apply(this,arguments);try{const M=$('norg1');if(M&&M.value=='auto'){const n=n1(),a=a1();F.n=n?n.value.trim():'';F.a=a?a.value.trim():'';const P=$('njphone');F.ph=P?P.value.trim():'';fill()}}catch(e){}return r});
+})();
+</script>
 </body></html>
