@@ -47,3 +47,9 @@ siren/fire are closure-private; drive them via window.alarmFireTest(uid,1,why) a
 ## 2026-10-28 — org1 v1 (Organizer = pickup #1, phone auto-fill)
 - Auto-fill only overwrites a field when it is empty or still holds the exact value we last filled (F.n/F.a/F.ph). That protects anything typed by hand without needing extra "dirty" flags.
 - Put new mode controls outside #pks and give them an id. draftSave/formReset skip #pks children, and selects are not reset by formReset, so wrap formReset to set the default.
+
+## 2026-10-28 — syncstat v1, nav2 v1, rep-move v1
+- syncstat: kv-sync push/pull live inside an IIFE, so the status hooks are guarded calls (`window.ssB&&...`) defined by a later script. No extra fetches, and the DOM only updates on sync events plus a 30s tick. Heartbeat posts and the legacy PIN/settings sync are not logged.
+- nav2: a Back-button layer system (NAV/MOD) already existed. Extend its MOD registry rather than building a second one. Full-screen panels (abp, vhp, jlbox, calfsm) are left out of backdrop-tap dismissal because their own padding would count as "outside".
+- A layer with typed input asks before Back or a backdrop tap would lose it. If cancelled, Back re-pushes the history entry.
+- rep-move: move HTML blocks with a balanced-<div> scan, never a regex guess.
