@@ -57,3 +57,9 @@ siren/fire are closure-private; drive them via window.alarmFireTest(uid,1,why) a
 ## 2026-10-28 — org2 v1 (organizer slot follows position; N/A clears it)
 - Model the pickups as an array of {name,addr,client}, change the array, then write it back into the rows. Moving, inserting and clearing are much simpler that way than patching the DOM row by row.
 - N/A must not rely on auto-fill flags (they get lost across drafts and edits). It clears any slot whose name matches the organizer.
+
+## 2026-10-28 — syncperf v1 / syncaudit v1 / syncdot v1
+- Big pulls starved typing (maxLag ~220ms at 4x CPU). Chunk with requestIdleCallback, defer while typing, queue re-render of the focused form until blur → maxLag ~32-46ms.
+- Over-syncing causes: LS proxy called syncDirty on every setItem even when the value was identical; 20s pull interval ran while tab hidden; focus+visibilitychange both pulled on return (double pull). Fix: skip identical writes, 10s min pull gap (manual Sync forces), no pull/beat while hidden.
+- Heartbeats (beat) must never drive sync indicators.
+- Perf fixtures can blow the localStorage quota (__snap_*); a quota error looks like a logic bug.
