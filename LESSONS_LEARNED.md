@@ -75,3 +75,8 @@ siren/fire are closure-private; drive them via window.alarmFireTest(uid,1,why) a
 - content-visibility:auto on job cards cuts layout when switching back to Current jobs.
 - Remaining cost is building ~120 card HTML strings per toggle; per-card patching is unsafe because renderDriver wrappers decorate the box afterwards.
 - history.pushState forces a layout (scroll save); it's not extra work, just earlier.
+
+## 2026-10-28 — multileg v1
+- LG lives inside an IIFE (not global); new code uses window.LGm reading st directly.
+- Calendar block end comes from spans(), which only knows Leg 2; calJobs wrapper extends to last leg time + duration.
+- Tests must stub alert/confirm or puppeteer hangs on saveJob dialogs.
