@@ -93,3 +93,6 @@ siren/fire are closure-private; drive them via window.alarmFireTest(uid,1,why) a
 
 ## 2026-10-28 — layout u v1
 - Leg 2/extra legs back inside #nsplitw (original spot); Organizer..Drop-offs moved (DOM move, same nodes, no copies) right under pickup date/time + Available windows.
+
+## 2026-10-28 — layout v v1 + labels
+- Driver box moved under Available windows; labels now "Vehicles free" / "Equipment free".
