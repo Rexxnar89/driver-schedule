@@ -53,3 +53,7 @@ siren/fire are closure-private; drive them via window.alarmFireTest(uid,1,why) a
 - nav2: a Back-button layer system (NAV/MOD) already existed. Extend its MOD registry rather than building a second one. Full-screen panels (abp, vhp, jlbox, calfsm) are left out of backdrop-tap dismissal because their own padding would count as "outside".
 - A layer with typed input asks before Back or a backdrop tap would lose it. If cancelled, Back re-pushes the history entry.
 - rep-move: move HTML blocks with a balanced-<div> scan, never a regex guess.
+
+## 2026-10-28 — org2 v1 (organizer slot follows position; N/A clears it)
+- Model the pickups as an array of {name,addr,client}, change the array, then write it back into the rows. Moving, inserting and clearing are much simpler that way than patching the DOM row by row.
+- N/A must not rely on auto-fill flags (they get lost across drafts and edits). It clears any slot whose name matches the organizer.

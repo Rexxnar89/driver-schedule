@@ -1468,28 +1468,36 @@ function ajAnother(){if(typeof EDIT!='undefined'&&EDIT){alert('You are editing a
  const m=$('draftmsg');if(m)m.textContent=ok?'✅ Previous job saved to 📝 Drafts. This is a new blank job.':'Form is already blank.';const b=$('ajmsg');if(b)b.textContent=ok?'✅ Saved to Drafts':'Already blank';scrollTo(0,0)}
 (function(){const h=$('njh');if(!h||$('ajbox'))return;h.insertAdjacentHTML('afterend','<div id="ajbox" style="margin:4px 0 8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center"><button type="button" id="ajbtn" class="btn ok" onclick="ajAnother()">➕ Create another job</button><button type="button" class="btn" onclick="window.kvDrafts&&kvDrafts()">📝 Drafts</button><small id="ajmsg" style="color:#555;overflow-wrap:break-word">Saves this job to Drafts and starts a blank one</small></div>')})();
 </script>
-<script>/* org1 v1: Organizer auto-fills pickup #1 (name, + address/phone from address book) while #norg1 = auto; switch to "someone else" or N/A. Manual edit of pickup #1 switches to "someone else". Syncs legacy #norgpos (orgpos=1 / ''). */
-(function(){const F={n:'',a:'',ph:''};let busy=0;
- const r1=()=>document.querySelector('#pks > div'),n1=()=>{const r=r1();return r&&r.querySelector('.pxn')},a1=()=>{const r=r1();return r&&r.querySelector('input.loc')};
- function pos(v){const S=$('norgpos');if(!S)return;try{pxPos()}catch(e){}S.value=v}
+<script>/* org2 v1 (replaces org1 v1; N/A clears organizer from any slot): Organizer auto-fills its pickup slot (default #1) with name + address-book address; job phone from address book. Slot follows "Organizer pickup position" (#norgpos): auto-filled data moves, vacated slot cleared only if it still holds auto-fill, hand-typed target is shifted down (insert), rows added as needed. #norg1 = Pickup #1 menu (auto/other/na). */
+(function(){const F={n:'',a:'',ph:''};let busy=0,ON=1,OI=0;
+ const rows=()=>{try{pxDecoAll()}catch(e){}return[...document.querySelectorAll('#pks > div')]};
+ const rd=r=>{const n=r.querySelector('.pxn'),a=r.querySelector('input.loc');return{n:n?n.value:'',a:a?a.value:'',c:a?a.dataset.client||'':''}};
+ function wr(r,v){const n=r.querySelector('.pxn'),a=r.querySelector('input.loc');if(n)n.value=v.n||'';if(a){const ch=a.value!==(v.a||'');a.value=v.a||'';if(v.c)a.dataset.client=v.c;else delete a.dataset.client;if(ch)a.dispatchEvent(new Event('input',{bubbles:true}))}try{pxHint(r)}catch(e){}}
+ function ensure(k){let R=rows();while(R.length<k){addRow('pks');R=rows()}return R}
+ const isAuto=v=>ON&&(v.n.trim()===F.n)&&(v.a.trim()===F.a||!F.a);
+ const blank=v=>!v.n.trim()&&!v.a.trim();
+ function pos(v){const S=$('norgpos');if(!S)return;try{pxPos()}catch(e){}if(v&&![...S.options].some(o=>o.value==v))S.insertAdjacentHTML('beforeend',`<option value="${v}">Pickup #${v}</option>`);S.value=v}
+ function menu(){const M=$('norg1');if(!M)return;M.value=ON&&OI===0?'auto':(!ON&&!$('norgpos').value?'na':'other')}
+ function orgVal(){const nm=nc.value.trim(),C=nm?pxByName(nm):[],c=C.length==1?C[0]:null;return{n:nm,a:c&&c.addr||'',c:c?c.id:''}}
  function phFill(){const P=$('njphone');if(!P)return;const nm=nc.value.trim(),C=nm?pxByName(nm):[],ph=C.length==1&&C[0].phone||'';if(P.value.trim()===F.ph||!P.value.trim()){busy=1;P.value=F.ph=ph;P.dispatchEvent(new Event('input',{bubbles:true}));busy=0}}
- function fill(){phFill();const M=$('norg1');if(!M||M.value!='auto')return;try{pxDecoAll()}catch(e){}const n=n1(),a=a1();if(!n||!a)return;busy=1;const nm=nc.value.trim();
-  if(n.value.trim()===F.n||!n.value.trim())n.value=F.n=nm;
-  const C=nm?pxByName(nm):[],c=C.length==1?C[0]:null,ad=c&&c.addr||'';
-  if(a.value.trim()===F.a||!a.value.trim()){a.value=F.a=ad;if(c)a.dataset.client=c.id;else delete a.dataset.client;a.dispatchEvent(new Event('input',{bubbles:true}))}
-    pos(nm?'1':'');try{pxHint(r1())}catch(e){}busy=0}
- function setMode(v,ui){const M=$('norg1');if(!M)return;M.value=v;if(v=='auto'){F.n=F.a='';fill()}else if(v=='na'){const n=n1(),a=a1();if(n&&n.value.trim()===F.n)n.value='';if(a&&F.a&&a.value.trim()===F.a){a.value='';a.dispatchEvent(new Event('input',{bubbles:true}))}F.n=F.a='';pos('')}else{F.n=F.a='';const S=$('norgpos');if(S&&S.value=='1')pos('')}
-  if(ui)try{draftSave()}catch(e){}}
- window.org1Set=setMode;
+ function fill(){phFill();if(!ON)return;busy=1;try{const R=ensure(OI+1),r=R[OI],cur=rd(r),o=orgVal();if(isAuto(cur)||blank(cur)){wr(r,{n:o.n,a:(cur.a.trim()===F.a||!cur.a.trim())?o.a:cur.a,c:o.c});F.n=o.n;F.a=(cur.a.trim()===F.a||!cur.a.trim())?o.a:F.a}pos(o.n?String(OI+1):'');menu()}finally{busy=0}}
+ /* move organizer auto-fill to slot k (1-based) or remove it (k=0) */
+ function moveTo(k){busy=1;try{let R=rows();const V=R.map(rd);let had=false;if(ON&&V[OI]&&isAuto(V[OI])){had=!blank(V[OI]);V[OI]={n:'',a:'',c:''}}
+  if(!k){const o=orgVal(),on=pxNorm(o.n);V.forEach((v,i)=>{if(on&&pxNorm(v.n)===on||ON&&i===OI&&isAuto(v))V[i]={n:'',a:'',c:''}});const P=$('njphone');if(P&&P.value.trim()&&(P.value.trim()===F.ph||P.value.trim()===((pxByName(o.n)[0]||{}).phone||'').trim())){P.value='';F.ph='';P.dispatchEvent(new Event('input',{bubbles:true}))}ON=0;F.n=F.a='';}else{const o=orgVal(),tgt=V[k-1];const val={n:o.n,a:o.a,c:o.c};if(!tgt||blank(tgt)){while(V.length<k)V.push({n:'',a:'',c:''});V[k-1]=val}else V.splice(k-1,0,val);ON=1;OI=k-1;F.n=o.n;F.a=o.a}
+  while(V.length>1&&blank(V[V.length-1])&&V.length>Math.max(k,1)&&V.length>R.length)V.pop();
+  R=ensure(V.length);V.forEach((v,i)=>wr(R[i],v));pos(k?String(k):'');menu();try{jobTitle()}catch(e){}try{draftSave()}catch(e){}}finally{busy=0}}
+ window.org1Set=(v,ui)=>{if(v=='auto')moveTo(1);else if(v=='na')moveTo(0);else{if(ON&&OI===0){ON=0;F.n=F.a='';const S=$('norgpos');if(S&&S.value=='1')pos('')}menu();try{draftSave()}catch(e){}}};
+ window.orgMove=moveTo;
  function ui(){if($('norg1'))return;const P=$('pks');if(!P)return;P.insertAdjacentHTML('beforebegin','<div id="org1box" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:2px 0 6px;overflow-wrap:break-word"><label for="norg1" style="margin:0;font-size:.875rem;font-weight:bold">Pickup #1:</label><select id="norg1" style="width:auto;max-width:100%" onchange="org1Set(this.value,1)"><option value="auto">Organizer (auto-filled)</option><option value="other">Someone else</option><option value="na">N/A – organizer not riding</option></select></div>')}
  ui();
- document.addEventListener('input',e=>{const t=e.target;if(!t||busy)return;if(t.id=='nc'){fill();return}const M=$('norg1');if(!M||M.value!='auto')return;if(t===n1()&&t.value.trim()!==F.n||t===a1()&&t.value.trim()!==F.a&&F.a!==''&&t.value.trim()!==''){M.value='other';F.n=F.a=''}},true);
+ document.addEventListener('input',e=>{const t=e.target;if(!t||busy)return;if(t.id=='nc'){fill();return}if(!ON)return;const r=rows()[OI];if(!r||!r.contains(t))return;const v=rd(r);if(v.n.trim()!==F.n||(F.a&&v.a.trim()&&v.a.trim()!==F.a)){ON=0;F.n=F.a='';menu()}},true);
  document.addEventListener('change',e=>{if(e.target&&e.target.id=='nc'&&!busy)fill()},true);
- const S=$('norgpos');S&&S.addEventListener('change',()=>{const M=$('norg1');if(M&&M.value=='auto'&&S.value!='1'){M.value=S.value?'other':'na';F.n=F.a=F.ph=''}});
+ const S=$('norgpos');S&&S.addEventListener('change',()=>{if(!busy)moveTo(+S.value||0)});
  const wrap=(k,f)=>{const o=window[k];if(typeof o=='function')window[k]=f(o)};
- wrap('formReset',o=>function(){const r=o.apply(this,arguments);const M=$('norg1');if(M)M.value='auto';F.n=F.a=F.ph='';return r});
- wrap('editJob',o=>function(u){const r=o.apply(this,arguments);try{const j=jobs.find(x=>x.uid==u),M=$('norg1');if(j&&M){const N=j.pxn||(SJ(j)||{}).pxn||[];M.value=String(j.orgpos||'')=='1'?'auto':(N[0]?'other':'na');const n=n1(),a=a1();F.n=M.value=='auto'&&n?n.value.trim():'';F.a=M.value=='auto'&&a?a.value.trim():'';F.ph='';if(M.value=='auto'&&!F.n)fill()}}catch(e){}return r});
- wrap('draftLoad',o=>function(){const r=o.apply(this,arguments);try{const M=$('norg1');if(M&&M.value=='auto'){const n=n1(),a=a1();F.n=n?n.value.trim():'';F.a=a?a.value.trim():'';const P=$('njphone');F.ph=P?P.value.trim():'';fill()}}catch(e){}return r});
+ function adopt(){const S=$('norgpos'),k=S?+S.value||0:0;OI=k?k-1:0;const r=rows()[OI],v=r?rd(r):{n:'',a:''},nm=nc.value.trim();if(k&&nm&&v.n.trim()===nm){ON=1;F.n=nm;F.a=v.a.trim()}else if(!k&&!nm&&blank(v)){ON=1;F.n=F.a=''}else{ON=0;F.n=F.a=''}const P=$('njphone');F.ph=P?P.value.trim():'';menu()}
+ wrap('formReset',o=>function(){const r=o.apply(this,arguments);ON=1;OI=0;F.n=F.a=F.ph='';const M=$('norg1');if(M)M.value='auto';return r});
+ wrap('editJob',o=>function(u){const r=o.apply(this,arguments);try{adopt();F.ph=''}catch(e){}return r});
+ wrap('draftLoad',o=>function(){const r=o.apply(this,arguments);try{adopt();if(ON)fill()}catch(e){}return r});
 })();
 </script>
 <script>/* syncstat v1: sync status pill (in header row next to Online/Activity/Drafts) + panel with last 10 syncs. Hooks kv-sync push/pull only; no extra network calls; DOM updated only on sync events + 30s tick. */
