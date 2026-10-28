@@ -365,7 +365,7 @@ function retUI(){try{retUI0()}finally{try{legUI()}catch(e){}}}
 function retUI0(){if(!$('nrd')||!ndt.value)return;$('nrreset').classList.toggle('hide',!RET_ED);if(RET_ED){if(!nrd.value)nrd.value=ndt.value.slice(0,10);$('nrhint').textContent='Your time (estimate not applied)';return}const o=new Date(ndt.value);let r,hint;
 if(formTT()=='split'){try{ttShow()}catch(e){}if(nrpt.value){r=new Date(nrpt.value);hint='Split return pickup · '+($('rpthint').textContent||'')}}
 else if(formTT()=='ow'){const dh=+window._paidH||(+neh.value?+neh.value/2:0),hh=RPI&&RPI.homeH||0,wh=+nwh.value||0;r=new Date(Math.round((+o+(dh+hh+wh)*36e5)/9e5)*9e5);hint=`est. home arrival: ${R2(dh)}h pickups→drop-offs + ${Math.round(hh*60)} min drive home`+(wh?` + ${wh}h wait`:'')}
-else{const dh=+window._paidH||(+neh.value?+neh.value/2:0),wh=+nwh.value||0;r=new Date(Math.round((+o+(dh+wh)*36e5)/9e5)*9e5);const arr=new Date(+o+dh*36e5);hint=`est. ${dh?arr.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+' drive-in ('+R2(dh)+'h)':'no route time yet'} + ${wh}h wait`}
+else{/* ret1h v1: Return home defaults to pickup + 1 hour (Date math, so it rolls over midnight); follows pickup until edited */r=new Date(+o+36e5);hint='Default: pickup + 1 hour. Change it if needed.'}
 if(r&&!isNaN(r)){retWrite(r,1);$('nrhint').textContent=hint}}
 function retEd(){if(!nrd.value)nrd.value=ndt.value.slice(0,10);if(!nrtm.value)return;RET_ED=1;retWrite(new Date(nrd.value+'T'+nrtm.value),0);$('nrreset').classList.remove('hide');$('nrhint').textContent='Your time (estimate not applied)';try{window.jobTitle()}catch(e){}clearTimeout(window._retT);window._retT=setTimeout(()=>estRoute(1),800);avail()}
 function retReset(){RET_ED=0;nrpt.dataset.ed='';nr.dataset.auto='1';retUI();try{window.jobTitle()}catch(e){}avail()}
@@ -1434,5 +1434,21 @@ function apShow(i){if(!i.isConnected)return;const r=apResolve(i.value),b=apBox(i
 document.addEventListener('input',e=>{const t=e.target;if(t.classList&&t.classList.contains('loc')){clearTimeout(t._apT);t._apT=setTimeout(()=>apShow(t),300)}});
 document.addEventListener('change',e=>{const t=e.target;if(t.classList&&t.classList.contains('loc'))setTimeout(()=>apShow(t),50)},true);
 document.addEventListener("focusout",e=>{const t=e.target;if(t.classList&&t.classList.contains("loc"))setTimeout(()=>apShow(t),200)});
+</script>
+
+<script>/* job-phone v1: phone per job, stored in the job's st record (key jph, synced via kv-sync; never in the repo) + tappable tel: link. split-leg2 v1: choosing Split trip type checks "Split job" (second leg) by default */
+function jPhone(j){try{return SJ(j).jph||''}catch(e){return''}}
+function jphSet(u,v){const s=ST();s[u]={...s[u],jph:v};LS.st=JSON.stringify(s)}
+function telA(v){return (v||'').split(/\s*[,;\/]\s*/).filter(Boolean).map(p=>{const d=p.replace(/[^\d+]/g,'');return d.length>=7?`<a href="tel:${d}" onclick="event.stopPropagation()" style="font-weight:bold;white-space:nowrap">📞 ${esc2(p)}</a>`:esc2(p)}).join(' · ')}
+(function(){
+ function ui(){if($('njphone'))return;const a=$('norgpos');if(!a)return;a.insertAdjacentHTML('afterend','<label style="display:block;margin-top:6px">Phone number</label><input id="njphone" type="tel" inputmode="tel" autocomplete="off" placeholder="Phone for this job (optional)"><div id="njphl" style="margin:2px 0 4px;overflow-wrap:break-word"></div>');const i=$('njphone');i.addEventListener('input',()=>{$('njphl').innerHTML=telA(i.value)})}
+ ui();document.addEventListener('DOMContentLoaded',ui);
+ const fill=v=>{ui();const i=$('njphone');if(i){i.value=v||'';$('njphl').innerHTML=telA(i.value)}};
+ const _e=editJob;editJob=function(u){const r=_e.apply(this,arguments);try{const j=jobs.find(x=>x.uid==u);fill(j?jPhone(j):'')}catch(e){}return r};
+ if(typeof cancelEdit=='function'){const _x=cancelEdit;cancelEdit=function(){const r=_x.apply(this,arguments);fill('');return r}}
+ const _s=saveJob;saveJob=async function(){const v=(($('njphone')||{}).value||'').trim();let uid=null;try{uid=formJob().uid}catch(e){}const r=await _s.apply(this,arguments);try{const j=jobs.find(x=>x.uid==uid||x.evuid==uid||(typeof EDIT!='undefined'&&EDIT&&x.uid==EDIT));if(j&&jPhone(j)!=v){jphSet(j.uid,v);render()}if(!EDIT)fill('')}catch(e){}return r};
+ const _c=card;card=function(j,act){let h=_c(j,act);const ph=jPhone(j);if(!ph)return h;const b=`<div class="jphone" style="margin:4px 8px;overflow-wrap:break-word">${telA(ph)}</div>`;const i=h.lastIndexOf('</div>');return i<0?h+b:h.slice(0,i)+b+h.slice(i)};
+ let man=0;document.addEventListener('change',e=>{const t=e.target;if(t.id=='nsplit'&&e.isTrusted)man=1;if(t.name=='ntt'){const c=$('nsplit');if(!c)return;if(t.value=='split'&&!man&&!c.checked){c.checked=true;c._auto=1;c.onchange&&c.onchange()}if(t.value!='split'){if(c._auto&&!man&&c.checked){c.checked=false;c.onchange&&c.onchange()}c._auto=0;man=0}}});
+})();
 </script>
 </body></html>

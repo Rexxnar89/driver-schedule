@@ -34,3 +34,8 @@ siren/fire are closure-private; drive them via window.alarmFireTest(uid,1,why) a
 
 ## 2026-10-28 — climport v2
 - Import used to match by address only, so a known name with a new address became a duplicate. It now matches the name first (case-insensitive), then the address. It only fills empty fields, appends phones and notes, and keeps a different address as "other address:" in the notes. It folds exact-name duplicates into the first entry and archives the extras (clientsArchive). Nothing is wiped.
+
+## 2026-10-28 — ret1h v1 / job-phone v1 / split-leg2 v1
+- Round-trip Return time defaults to pickup + 1 hour, computed with Date math so 23:30 rolls over to 00:30 the next day. It keeps following the pickup time until it is edited by hand (RET_ED); "Reset to estimate" makes it follow again.
+- The job phone number is stored in the job's st record (key jph, kv-sync), so customer phone numbers never appear in the repo.
+- A checkbox that was checked automatically must be unchecked automatically when the reason goes away (Split → Round trip), or it will quietly save an unwanted leg.
