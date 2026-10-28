@@ -80,3 +80,9 @@ siren/fire are closure-private; drive them via window.alarmFireTest(uid,1,why) a
 - LG lives inside an IIFE (not global); new code uses window.LGm reading st directly.
 - Calendar block end comes from spans(), which only knows Leg 2; calJobs wrapper extends to last leg time + duration.
 - Tests must stub alert/confirm or puppeteer hangs on saveJob dialogs.
+
+## 2026-10-28 — startfix v1 (cold start)
+- Startup paints Current jobs from LS.jobcache; the slow parts were the hidden "copy from job" list (copyOpts, toLocaleDateString per job) and the gas/sync work running in the same tick.
+- copyOpts now builds only when Create job is visible, else at idle; uses one cached Intl.DateTimeFormat (identical output).
+- loadGas re-render and the first sync pull (loadLive) wait for first paint + idle.
+- Profile startup by seeding jobcache too, or nothing renders at load.
