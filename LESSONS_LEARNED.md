@@ -96,3 +96,6 @@ siren/fire are closure-private; drive them via window.alarmFireTest(uid,1,why) a
 
 ## 2026-10-28 — layout v v1 + labels
 - Driver box moved under Available windows; labels now "Vehicles free" / "Equipment free".
+
+## 2026-10-28 — orgfix v1
+- Organizer autofill required exactly ONE address-book entry per name; clSeed (src jobs) + import often create duplicates, so nothing filled. Now first entry with an address (and first with a phone) wins, same as the address preview.

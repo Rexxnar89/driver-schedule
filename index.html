@@ -1491,8 +1491,8 @@ function ajAnother(){if(typeof EDIT!='undefined'&&EDIT){alert('You are editing a
  const blank=v=>!v.n.trim()&&!v.a.trim();
  function pos(v){const S=$('norgpos');if(!S)return;try{pxPos()}catch(e){}if(v&&![...S.options].some(o=>o.value==v))S.insertAdjacentHTML('beforeend',`<option value="${v}">Pickup #${v}</option>`);S.value=v}
  function menu(){const M=$('norg1');if(!M)return;M.value=ON&&OI===0?'auto':(!ON&&!$('norgpos').value?'na':'other')}
- function orgVal(){const nm=nc.value.trim(),C=nm?pxByName(nm):[],c=C.length==1?C[0]:null;return{n:nm,a:c&&c.addr||'',c:c?c.id:''}}
- function phFill(){const P=$('njphone');if(!P)return;const nm=nc.value.trim(),C=nm?pxByName(nm):[],ph=C.length==1&&C[0].phone||'';if(P.value.trim()===F.ph||!P.value.trim()){busy=1;P.value=F.ph=ph;P.dispatchEvent(new Event('input',{bubbles:true}));busy=0}}
+ function orgVal(){/* orgfix v1: duplicate name entries (jobs-seeded + imported) no longer block autofill; first entry with an address wins */const nm=nc.value.trim(),C=nm?pxByName(nm):[],c=C.find(x=>x.addr&&x.addr.trim())||(C.length==1?C[0]:null);return{n:nm,a:c&&c.addr||'',c:c?c.id:''}}
+ function phFill(){const P=$('njphone');if(!P)return;const nm=nc.value.trim(),C=nm?pxByName(nm):[],ph=((C.find(x=>x.phone&&x.phone.trim())||{}).phone)||'';if(P.value.trim()===F.ph||!P.value.trim()){busy=1;P.value=F.ph=ph;P.dispatchEvent(new Event('input',{bubbles:true}));busy=0}}
  function fill(){phFill();if(!ON)return;busy=1;try{const R=ensure(OI+1),r=R[OI],cur=rd(r),o=orgVal();if(isAuto(cur)||blank(cur)){wr(r,{n:o.n,a:(cur.a.trim()===F.a||!cur.a.trim())?o.a:cur.a,c:o.c});F.n=o.n;F.a=(cur.a.trim()===F.a||!cur.a.trim())?o.a:F.a}pos(o.n?String(OI+1):'');menu()}finally{busy=0}}
  /* move organizer auto-fill to slot k (1-based) or remove it (k=0) */
  function moveTo(k){busy=1;try{let R=rows();const V=R.map(rd);let had=false;if(ON&&V[OI]&&isAuto(V[OI])){had=!blank(V[OI]);V[OI]={n:'',a:'',c:''}}
