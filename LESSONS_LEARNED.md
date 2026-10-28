@@ -90,3 +90,6 @@ siren/fire are closure-private; drive them via window.alarmFireTest(uid,1,why) a
 ## 2026-10-28 — awin v1 (Available windows)
 - Panel under pickup date/time; repaints debounced 180ms + idle after avail(), only for the chosen day (~3ms).
 - Fit check reuses busyAt; free vehicles/equipment reuse VBUSY/EBUSY. vehCheck now fills VBUSY whenever a time is set, even with no vehicle chosen (UI unchanged).
+
+## 2026-10-28 — layout u v1
+- Leg 2/extra legs back inside #nsplitw (original spot); Organizer..Drop-offs moved (DOM move, same nodes, no copies) right under pickup date/time + Available windows.
