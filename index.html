@@ -1451,4 +1451,15 @@ function telA(v){return (v||'').split(/\s*[,;\/]\s*/).filter(Boolean).map(p=>{co
  let man=0;document.addEventListener('change',e=>{const t=e.target;if(t.id=='nsplit'&&e.isTrusted)man=1;if(t.name=='ntt'){const c=$('nsplit');if(!c)return;if(t.value=='split'&&!man&&!c.checked){c.checked=true;c._auto=1;c.onchange&&c.onchange()}if(t.value!='split'){if(c._auto&&!man&&c.checked){c.checked=false;c.onchange&&c.onchange()}c._auto=0;man=0}}});
 })();
 </script>
+
+<script>/* another-job v1: "Create another job" flushes the in-progress form into the existing shared Drafts (kv-sync 'drafts', kvDraftSync) and opens a blank form; blank form = no new draft, same form = same draft id */
+function ajSnap(){const v={};document.querySelectorAll('#newjob input[id],#newjob select[id],#newjob textarea[id]').forEach(e=>{if(e.closest('#pks,#dos,#salt,#ajbox'))return;v[e.id]=e.type=='checkbox'?e.checked:e.value});return{v,tt:formTT(),pks:stops('pks'),dos:stops('dos'),FW,RET_ED,RF:{...RF},nrpt:nrpt.value,nrptEd:nrpt.dataset.ed||'',nmEd:nm.dataset.ed||'',nehEd:neh.dataset.ed||'',t:Date.now()}}
+function ajHas(D){const v=D.v||{};return !!((D.pks||[]).join('').trim()||(D.dos||[]).join('').trim()||v.nc||v.npd||v.njphone||v.njnotes||v.nl2pk||v.nl2dz)}
+function ajAnother(){if(typeof EDIT!='undefined'&&EDIT){alert('You are editing a saved job. Tap Save (or Cancel) first, then Create another job.');return}
+ clearTimeout(window._dT);clearTimeout(window._kvdT);const D=ajSnap(),has=ajHas(D);let ok=false;
+ if(has){LS.draft=JSON.stringify(D);try{window.kvDraftSync&&window.kvDraftSync();ok=true}catch(e){alert('Could not save the draft: '+e.message);return}localStorage.removeItem('__curd')}
+ draftClear(false);try{const i=$('njphone');if(i){i.value='';$('njphl').innerHTML=''}}catch(e){}
+ const m=$('draftmsg');if(m)m.textContent=ok?'✅ Previous job saved to 📝 Drafts. This is a new blank job.':'Form is already blank.';const b=$('ajmsg');if(b)b.textContent=ok?'✅ Saved to Drafts':'Already blank';scrollTo(0,0)}
+(function(){const h=$('njh');if(!h||$('ajbox'))return;h.insertAdjacentHTML('afterend','<div id="ajbox" style="margin:4px 0 8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center"><button type="button" id="ajbtn" class="btn ok" onclick="ajAnother()">➕ Create another job</button><button type="button" class="btn" onclick="window.kvDrafts&&kvDrafts()">📝 Drafts</button><small id="ajmsg" style="color:#555;overflow-wrap:break-word">Saves this job to Drafts and starts a blank one</small></div>')})();
+</script>
 </body></html>

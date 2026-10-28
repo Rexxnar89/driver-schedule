@@ -39,3 +39,7 @@ siren/fire are closure-private; drive them via window.alarmFireTest(uid,1,why) a
 - Round-trip Return time defaults to pickup + 1 hour, computed with Date math so 23:30 rolls over to 00:30 the next day. It keeps following the pickup time until it is edited by hand (RET_ED); "Reset to estimate" makes it follow again.
 - The job phone number is stored in the job's st record (key jph, kv-sync), so customer phone numbers never appear in the repo.
 - A checkbox that was checked automatically must be unchecked automatically when the reason goes away (Split → Round trip), or it will quietly save an unwanted leg.
+
+## 2026-10-28 — another-job v1 (Create another job)
+- Search for an existing mechanism before building one: a shared Drafts store (kv-sync key `drafts`, kvDraftSync, curd/__curd, 📝 Drafts modal) already existed. My first version wrote a different schema to the same key, which would have corrupted it. Rewrote it to reuse kvDraftSync.
+- The draftClear wrapper deletes drafts[__curd], so remove __curd *before* draftClear when parking a job. Flush the debounced draftSave synchronously first (clear _dT/_kvdT) so nothing gets lost.
