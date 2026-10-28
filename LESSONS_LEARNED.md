@@ -86,3 +86,7 @@ siren/fire are closure-private; drive them via window.alarmFireTest(uid,1,why) a
 - copyOpts now builds only when Create job is visible, else at idle; uses one cached Intl.DateTimeFormat (identical output).
 - loadGas re-render and the first sync pull (loadLive) wait for first paint + idle.
 - Profile startup by seeding jobcache too, or nothing renders at load.
+
+## 2026-10-28 — awin v1 (Available windows)
+- Panel under pickup date/time; repaints debounced 180ms + idle after avail(), only for the chosen day (~3ms).
+- Fit check reuses busyAt; free vehicles/equipment reuse VBUSY/EBUSY. vehCheck now fills VBUSY whenever a time is set, even with no vehicle chosen (UI unchanged).
