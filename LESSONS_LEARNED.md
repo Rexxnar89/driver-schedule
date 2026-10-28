@@ -67,3 +67,11 @@ siren/fire are closure-private; drive them via window.alarmFireTest(uid,1,why) a
 ## 2026-10-28 — vehsvc v1 (Scheduled service range per vehicle)
 - Fields svcFrom/svcTo (datetime-local) live on the vehicle record, so the existing vsSaveNow/savevehicles sync carries them with no script change.
 - vBlock checks a single instant; Create job also checks overlap of the job span with the window so a job starting before service still flags.
+
+## 2026-10-28 — snagfix v1 (open/close/switch jank)
+- ST() re-parsed the whole job-state JSON on every SJ/LG/surfOf call (hundreds per render). Read-only paths now use STR(), cached by raw string; writers still use fresh ST(). LG returns copies so mutate-then-save code stays safe.
+- dhPairs() was recomputed 4x per render; memoized on (jobs, length, st raw, HOME) and cleared next task.
+- Owner "All jobs" list was rebuilt on every card toggle while hidden; now rebuilt only when Owner is visible (MutationObserver on reveal).
+- content-visibility:auto on job cards cuts layout when switching back to Current jobs.
+- Remaining cost is building ~120 card HTML strings per toggle; per-card patching is unsafe because renderDriver wrappers decorate the box afterwards.
+- history.pushState forces a layout (scroll save); it's not extra work, just earlier.
