@@ -73,6 +73,7 @@ function tab_(){
 
 function doGet(e){
   if ((e.parameter.secret||'') !== SECRET) return out_({ok:false,error:'bad secret'});
+  if (e.parameter.action === 'kvget') return out_(kvGet_(+e.parameter.since||0));
   if (e.parameter.action === 'jobs') return out_(jobs_(e.parameter.force === '1'));
   if (e.parameter.action === 'savedjobs') { const sj = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Saved Jobs'); if (!sj || sj.getLastRow() < 2) return out_({ok:true, jobs:{}}); const v = sj.getRange(2,1,sj.getLastRow()-1,3).getValues(); const o = {}; v.forEach(r => { try { o[r[0]] = JSON.parse(r[2]); } catch(x) {} }); return out_({ok:true, jobs:o}); }
   if (e.parameter.action === 'getsettings') { // app settings (e.g. owner PIN hash) from 'Settings' tab: key | JSON value
@@ -99,6 +100,7 @@ function doGet(e){
 function doPost(e){
   let b; try { b = JSON.parse(e.postData.contents); } catch(x) { return out_({ok:false,error:'bad json'}); }
   if (b.secret !== SECRET) return out_({ok:false,error:'bad secret'});
+  if (b.action === 'kvput' && Array.isArray(b.items)) return out_(kvPut_(b.items));
   if (b.action === 'savevehicles' && Array.isArray(b.items)) { // shared vehicle/equipment status, last-write-wins by ts
     const lockV = LockService.getScriptLock(); lockV.waitLock(10000);
     try {
@@ -199,3 +201,22 @@ function vehRead_(){
   if (!sh || sh.getLastRow() < 2) return [];
   return sh.getRange(2,1,sh.getLastRow()-1,8).getValues().map(r => { let rec = null; try { rec = JSON.parse(r[7]); } catch(x) {} return rec ? {key:r[0], kind:r[1], ts:Number(r[6])||0, rec} : null; }).filter(Boolean);
 }
+
+// ---- generic sync (kv-sync v1): 'Sync' tab  Key | Updated(ms) | By | Deleted | JSON ; last-write-wins by Updated
+function kvSheet_(){ const ss=SpreadsheetApp.getActiveSpreadsheet(); let sh=ss.getSheetByName('Sync'); if(!sh){ sh=ss.insertSheet('Sync'); sh.appendRow(['Key','Updated','By','Deleted','JSON']); } return sh; }
+function kvGet_(since){ const sh=kvSheet_(), n=sh.getLastRow(); if(n<2) return {ok:true,items:[],now:Date.now()};
+  const v=sh.getRange(2,1,n-1,5).getValues(), items=[];
+  v.forEach(r=>{ if(+r[1]>since) items.push({k:String(r[0]),ts:+r[1],by:String(r[2]),del:r[3]===true||r[3]==='TRUE',v:r[4]?String(r[4]):''}); });
+  return {ok:true,items:items,now:Date.now()}; }
+function kvPut_(items){ const lock=LockService.getScriptLock(); lock.waitLock(20000);
+  try{ const ss=SpreadsheetApp.getActiveSpreadsheet(), sh=kvSheet_(), n=sh.getLastRow(), idx={}; let now=Date.now();
+    if(n>=2) sh.getRange(2,1,n-1,5).getValues().forEach((r,i)=>idx[String(r[0])]={row:i+2,old:r});
+    const add=[], hist=[], out={};
+    items.slice(0,500).forEach(it=>{ if(!it||!it.k) return; const ts=now++; // server time stamps every write: last write to arrive wins
+      const row=[String(it.k),ts,String(it.by||''),!!it.del,it.del?'':String(it.v||'').slice(0,49000)], ex=idx[it.k];
+      if(ex){ if(ex.row>0){ hist.push([new Date(ts)].concat(ex.old)); sh.getRange(ex.row,1,1,5).setValues([row]); } else add[ex.ai]=row; ex.old=row; }
+      else { idx[it.k]={row:-1,ai:add.length,old:row}; add.push(row); }
+      out[it.k]=ts; });
+    if(add.length) sh.getRange(sh.getLastRow()+1,1,add.length,5).setValues(add);
+    if(hist.length){ let h=ss.getSheetByName('SyncHistory'); if(!h){ h=ss.insertSheet('SyncHistory'); h.appendRow(['Replaced at','Key','Updated','By','Deleted','JSON (losing/older version)']); } h.getRange(h.getLastRow()+1,1,hist.length,6).setValues(hist); }
+    return {ok:true,ts:out,now:Date.now()}; } finally { lock.releaseLock(); } }
