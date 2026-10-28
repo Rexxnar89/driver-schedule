@@ -63,3 +63,7 @@ siren/fire are closure-private; drive them via window.alarmFireTest(uid,1,why) a
 - Over-syncing causes: LS proxy called syncDirty on every setItem even when the value was identical; 20s pull interval ran while tab hidden; focus+visibilitychange both pulled on return (double pull). Fix: skip identical writes, 10s min pull gap (manual Sync forces), no pull/beat while hidden.
 - Heartbeats (beat) must never drive sync indicators.
 - Perf fixtures can blow the localStorage quota (__snap_*); a quota error looks like a logic bug.
+
+## 2026-10-28 — vehsvc v1 (Scheduled service range per vehicle)
+- Fields svcFrom/svcTo (datetime-local) live on the vehicle record, so the existing vsSaveNow/savevehicles sync carries them with no script change.
+- vBlock checks a single instant; Create job also checks overlap of the job span with the window so a job starting before service still flags.
