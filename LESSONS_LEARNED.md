@@ -31,3 +31,6 @@ siren/fire are closure-private; drive them via window.alarmFireTest(uid,1,why) a
 - Suggestion lists: anchor below the field and below any preview line, cap the height to the visualViewport, and scroll the field near the top on focus.
 - The address preview resolves only from the address book index or the existing GEOR cache, so it makes no new requests.
 - When moving a form block, move the whole node (radios + rptbox) so runtime insertAdjacentHTML anchors (nsplitw) move along with it.
+
+## 2026-10-28 — climport v2
+- Import used to match by address only, so a known name with a new address became a duplicate. It now matches the name first (case-insensitive), then the address. It only fills empty fields, appends phones and notes, and keeps a different address as "other address:" in the notes. It folds exact-name duplicates into the first entry and archives the extras (clientsArchive). Nothing is wiped.
