@@ -249,3 +249,8 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 ## 2026-10-29 v.24 cjampm
 - Open Windows chips only show "5 AM – 11:45 AM" (drop :00); fallback "5A" if a chip > 48% of row width. toLocaleTimeString may use U+202F before AM/PM: normalise whitespace before matching.
 - Regression still printed 2 with a module syntax error; always run a browser smoke test too.
+
+## 2026-10-29 (v.25)
+- Return-time edits can come from auto-fill without events; a cheap 300ms value-signature poll plus 150ms debounce catches them.
+- Default-open trial lives in one constant (AW_DEFAULT_OPEN) so revert is one line; RS() must use the same constant.
+- Per-form "default to Leg 2" needs a once-per-form flag reset in RS(), otherwise every repaint overrides the user's tab choice.
