@@ -284,3 +284,7 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - One debounced (100 ms) delegated refresh (dsRefresh) replaces scattered per-input hooks; it never dispatches events.
 - Every leg block + "Leg N" arrow on every driver bar; staggered labels avoid overlap.
 - Puppeteer tests must clear localStorage between scenarios (drafts leak).
+
+## 2026-10-29 — v.31 blank Available Windows + Vehicles on phone
+- v.30's global legSpansOf() called stOf(), which only exists inside the awin IIFE. Any saved multi-leg job threw "stOf is not defined" inside busyAt, killing paint(): no bars, no Vehicles & equipment. Tests missed it because test data had no saved legs. Fix: read STR() directly with try/guard. Always seed saved multi-leg state in browser tests, and never call IIFE-scoped helpers from global code.
+- Added date-only painting (npd set, no time): bars render for the day, no leg blocks, hint "Pick a time to place Leg 1".
