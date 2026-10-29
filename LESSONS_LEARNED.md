@@ -143,3 +143,8 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 ## 2026-10-28 — Mirror v2
 - To make IndexedDB-only keys readable synchronously, the app scripts are tagged type="text/x-ds" and started by a boot loader after MIR.ready; DOMContentLoaded/load listeners added late are replayed. Tests that scrape `<script>` must also match the x-ds tag.
 - Test mode uses a separate IndexedDB ('ds-mirror-test') so sandbox data never mixes with real data.
+
+## 2026-10-28 — tapfast v1 + menuhold v1
+- Date/time stutter was not a mirror bug: stOf re-parsed the whole `st` JSON on every busy check, and the avail/cells scan covered every job. Use the cached STR() for reads, limit the scan to a ±4-day window, memoize vehList.
+- Organizer lag: each keystroke ran fill(), which autofilled the pickup and dispatched input → avail rebuild + geocode. Debounce fill (150 ms), defer avail while typing (150 ms + idle), and hold geocoding until 700 ms after the last keystroke.
+- All suggestion menus share #sugg: close it only when the field that owns it asks. One shared hold rule (menuhold): a pick or programmatic input closes the menu, and only a new focus/tap reopens it.
