@@ -258,3 +258,7 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 ## 2026-10-29 (v.26)
 - "Only show legs that exist": gate every Leg N surface on legN() (split + mlLegs), clamp the selected tab when legs shrink, and hide arrows for a leg with no time instead of falling back to Leg 1's span (that mislabeled Leg 1's time as Leg 2).
 - Re-check shipped claims against the spec list before building the next version (v.25 missed "editing a leg opens its windows" and detail-arrow leg labels).
+
+## 2026-10-29 (v.27)
+- The visible vehicle picker on Create job is the #vesec per-leg select[data-dvv]; #nv is hidden and gets overwritten from it. Recommendations/"Use" must target the visible picker.
+- Driver-suggestion toggle stored in the mirror (MS 'drvsug'); off = recDrv auto-pick/banner and "Try instead" skipped at the source, not just hidden.
