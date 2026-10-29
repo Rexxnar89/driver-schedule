@@ -274,3 +274,13 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Plain `<script>` blocks at the end of the body can run BEFORE deferred `text/x-ds` blocks; put patch scripts as x-ds right after the code they wrap.
 - Split stash: snapshot Leg 2+ (fields, DV/XD/LV for n>=2) on uncheck, wipe, then draftSave so the draft is clean; restore on re-check; drop on save/reset.
 - Dead code check before delete: grep that no element creates the id (#freelist) and syntax-check every script after the cut.
+
+## 2026-10-29 — v.30 conflicts can never silently pass
+- Leg 2+ spans used a fixed 60 min and AW rows judged against Leg 1's times, so "fits" appeared while the driver was busy. Use each leg's real return (fallback 60 min, labeled est.) and judge rows on the selected leg.
+- Buffer counts as busy everywhere (fit, gold, sort, note, save). Every conflict needs override checkbox + reason; reason saved (ovrR/ovrD).
+- Duplicate/clone previously bypassed CF entirely — now needs its own override.
+- retUI clears SR_V outside split mode; read Leg 2 return fields directly (leg2Ret).
+- IIFE-scoped helpers (xBusy) must be exposed explicitly before global code calls them; a throw inside avail() left a stale "AVAILABLE".
+- One debounced (100 ms) delegated refresh (dsRefresh) replaces scattered per-input hooks; it never dispatches events.
+- Every leg block + "Leg N" arrow on every driver bar; staggered labels avoid overlap.
+- Puppeteer tests must clear localStorage between scenarios (drafts leak).
