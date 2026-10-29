@@ -233,3 +233,6 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 
 ## 2026-10-29 v.20 cjretabove
 - Return chip+box moved into #avs (display:contents) before .avt so order is Open Windows > Return > Available Windows > vehicles. Insert inside the contents wrapper to reorder without changing tray/hide logic.
+
+## 2026-10-29 v.21 cjbufclone
+- Buffer label+#nbuf moved (same elements, same listeners) before #owlab, so window calc still reads nbuf. Clone hint added under nclone in awhint style. Moving existing nodes keeps behavior; never clone inputs.
