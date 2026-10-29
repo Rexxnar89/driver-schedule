@@ -154,3 +154,8 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - A pairX shortcut in itemBusy made a clone default to the original's vehicle. Busy checks should not skip the source job.
 - Auto-update dirty check: `window.EDIT` is undefined because EDIT is a lexical global. Use `typeof EDIT!='undefined'&&EDIT`, and treat any non-empty text field in a visible #newjob as unsaved. Headless focus() does not stick, so tests need to type real input.
 - Keep sw.js VER and the ds-ver meta in step. Bump both on every release.
+
+## 2026-10-28 — syncsmooth v1 (two-device mock test)
+- Two simulated devices on a mock kv server showed no ping-pong. Echoes of a device's own writes are skipped by the server-ts check (TS), one edited row pushes exactly one item, and idle rounds push nothing.
+- What sync did cost: every Create job date change started a kv pull, a full jobs reload (ICS parse + render) and a vehicle pull. These are now coalesced to one per 60 s, wait 2.5 s after the last tap or key, and skip the jobs reload on Create job.
+- Idle CPU came from route estimates: photon misses were never cached, so they retried every pass, and LS.geo/phc were re-parsed on every call. Cache misses for 6 h and parse once per raw value (JC). Hidden-screen redraws (renderQuiet, sync renders) now wait until Create job closes.
