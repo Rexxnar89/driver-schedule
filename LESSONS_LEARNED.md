@@ -312,3 +312,9 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 
 ## 2026-10-29 — v.36: Leg 2 for "Split" trip type in Available Windows and alarms
 - Two leg systems exist: the Split-job checkbox (nl2t / saved legs) and the "Split" trip type, which keeps Leg 2's pickup in the return fields (nrpt / retT). Available Windows (legSp) and alarms (legInfo) only read the first, so Leg 2 never showed for Split trip type. Both now fall back to the return pickup.
+
+## 2026-10-29 v.37 (all-driver leg bars, anchor, FAB padding)
+- Available Windows: every driver bar shows each leg as start/end lines (from just above the ▼ tips) plus a see-through band in a per-leg color (blue, purple, teal, magenta), hatched buffer before/after, and a green/red strip for fits/clash on THAT driver. No text on the bar. Lines are sized after paint by measuring arrow tips; the bar no longer clips overflow. Old: archive/index-pre-v37-allbars.html.
+- Current jobs "17 px jump" was not the tapped button: a timer repaint (tick/nxtTop/sync) rebuilt #dcards and shifted the list. Fix: a MutationObserver on #dcards restores the anchored card (tapped card, else first visible) before paint. Lesson: when a bounce lands on a different button each run, it's time-based; probe by sampling card top over 60 s with no taps.
+- The "next job" copy in #nxttop shares the uid; the anchor lookup must skip #nxttop cards or it anchors to the wrong one.
+- Body gets bottom padding (96 px + safe area) and #awin 72 px so the floating A-/A/A+/🔊 and Find job buttons never cover the last card.
