@@ -128,3 +128,9 @@ siren/fire are closure-private; drive them via window.alarmFireTest(uid,1,why) a
 
 ## 2026-10-28 — trailer sync
 - Since b1edd56, vehicle/equipment pulls only ran on Owner/Create job, not on the Vehicles overlay or at app open, so a phone could miss others' adds and show the red not-synced label (VS.state stayed ''). Seeded defaults were stamped ts=now and could beat others' edits. Deletes never propagated. Fixed with a seed ts of 1, tombstones, a persistent push queue, a push 2.5 s after save, and a pull on open and on Vehicles open.
+
+## 2026-10-28 — Past jobs never sync by default
+Server defaults must be scoped (today..+90d); full history only on explicit request. Comments on one-line handlers must be /* */ or they swallow the rest of the line.
+
+## 2026-10-28 — Per-driver vehicles
+Defaults must be recomputed until the user picks by hand; a default cached before the date is set ignores conflicts.
