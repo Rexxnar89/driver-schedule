@@ -199,3 +199,8 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 
 ## 2026-10-29 — cjorder v1 (v2026-10-29.6)
 - A sticky element only sticks inside its parent box. To pin just the Roster/Vehicles bar, #avs is display:contents so the bar's containing block is the whole form. With display:contents, #avs has no box, so scroll to or measure its children (.avt), not #avs itself.
+
+## 2026-10-29 — cjfinal v1 (v2026-10-29.7)
+- Split jobs were missing "Free until" on the second job because the Vehicles ▾ list checked every item against newSpan() (only the first leg's window). Availability has to use each leg's own legTimes(n).
+- To reorder sections that paint() rebuilds with innerHTML, use a childList MutationObserver that moves the node, guarded so it only acts when the node is still in its old place (no loop). Keep minimize state in variables and reapply it after every rebuild.
+- When a spec says "confirm X already does Y", measure the DOM order before reporting. Leg 2 (#nsplitw) sits above Pickups, not under Drop-offs.
