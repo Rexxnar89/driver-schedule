@@ -1,0 +1,2 @@
+Removed from card() header in v2026-10-29.13:
+<button type="button" class="btn" style="margin-top:6px" onclick="cloneJob('${u}')">Clone for second vehicle and driver</button>
