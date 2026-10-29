@@ -166,3 +166,8 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Calendar was a forced layout (clientWidth/getComputedStyle read right after innerHTML), not HTML building. Use a cached width per screen size and check once in requestAnimationFrame.
 - First Create job open was a cold layout; one hidden idle warm-up halves it.
 - Verify "same look" by diffing rendered text of old vs new for the same taps (cmp.js) before shipping.
+
+## 2026-10-29 — droptap: display-only preview looked tappable
+- Bug: drop-off "📍 Map match" tap did nothing. In drop-offs, after the pickup is filled the field sits low on the screen, so #sugg is often hidden (sugPos hides it when the input is off the viewport) and the user sees only the green addr-preview (.adpv) box. That box had no handler at all. It wasn't menuhold, a re-render, or z-index.
+- Fix: droptap v1 makes .adpv tappable using one delegated capture listener (pointerdown preventDefault + click). It fills the address, fires input/change and closes the menu, so it works for rows and legs added later.
+- Lesson: anything that looks like a suggestion must be tappable, or be styled as plain info. Test with touch emulation on fields lower down the form, not just the first one.
