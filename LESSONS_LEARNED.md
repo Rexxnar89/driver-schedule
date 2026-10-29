@@ -159,3 +159,10 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Two simulated devices on a mock kv server showed no ping-pong. Echoes of a device's own writes are skipped by the server-ts check (TS), one edited row pushes exactly one item, and idle rounds push nothing.
 - What sync did cost: every Create job date change started a kv pull, a full jobs reload (ICS parse + render) and a vehicle pull. These are now coalesced to one per 60 s, wait 2.5 s after the last tap or key, and skip the jobs reload on Create job.
 - Idle CPU came from route estimates: photon misses were never cached, so they retried every pass, and LS.geo/phc were re-parsed on every call. Cache misses for 6 h and parse once per raw value (JC). Hidden-screen redraws (renderQuiet, sync renders) now wait until Create job closes.
+
+## 2026-10-28 — cjrender v1 (Create job render module, Calendar trim)
+- Most tap cost was the same work done many times in one tap: span() and busyAt() re-run for every driver and quarter-hour, toLocale*String re-formatting the same times, and a date tap firing avail twice (input + change). Per-task memo (cleared at end of the task) removes the repeats with no chance of stale data.
+- Heavy follow-ups (vehicle, equipment, gate, title, fare, suggested driver) run after paint, one small task each; saveJob flushes them first so saving never sees half-finished checks.
+- Calendar was a forced layout (clientWidth/getComputedStyle read right after innerHTML), not HTML building. Use a cached width per screen size and check once in requestAnimationFrame.
+- First Create job open was a cold layout; one hidden idle warm-up halves it.
+- Verify "same look" by diffing rendered text of old vs new for the same taps (cmp.js) before shipping.
