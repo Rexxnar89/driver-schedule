@@ -288,3 +288,10 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 ## 2026-10-29 — v.31 blank Available Windows + Vehicles on phone
 - v.30's global legSpansOf() called stOf(), which only exists inside the awin IIFE. Any saved multi-leg job threw "stOf is not defined" inside busyAt, killing paint(): no bars, no Vehicles & equipment. Tests missed it because test data had no saved legs. Fix: read STR() directly with try/guard. Always seed saved multi-leg state in browser tests, and never call IIFE-scoped helpers from global code.
 - Added date-only painting (npd set, no time): bars render for the day, no leg blocks, hint "Pick a time to place Leg 1".
+
+## 2026-10-29 — v.32: clash list, row flags, override near Save, per-leg drivers, no leg cap
+- Buffer clashes were real but invisible: legPrev output was discarded since v.29, spill() never returned 1, the busy driver sorted last and was hidden by "Drivers to show", and the priority auto-pick moved off them. Now one clashFor() feeds the row flags, the shared window._clash list, the near-Save "This job collides with:" list and bookBlock, all tied to the single #ovr/#ovrr override.
+- Legs 2+ without a pickup time silently vanished from Available Windows (legSp lists only timed legs); now they are named with a hint.
+- The v.29 leg strip MOVED each leg's driver select out of its leg box and hid its label, so there was no visible per-leg driver picker. Now each leg box keeps its own "Driver for Leg N" select; the strip shows a synced mirror.
+- Leg count was capped at 4 (MAXN, the addleg check, the strip loop, draft restore, merge, and single-digit nl\d regexes). All removed or widened; tested with 7 legs saved.
+- Lesson: a single-digit id regex is a hidden cap. Use \d+.
