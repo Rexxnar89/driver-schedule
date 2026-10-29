@@ -103,3 +103,9 @@ siren/fire are closure-private; drive them via window.alarmFireTest(uid,1,why) a
 ## 2026-10-28 dropsug
 - Leg inputs (nl{n}pk/dz) had no class loc, so they were outside the autocomplete. Add class loc and route it in sugShow; do not build a second autocomplete.
 - Organizer fill failed when the address book had duplicate names (C.length==1). Pick the first entry that has the field.
+
+## 2026-10-28 — t736 availability hub
+- When re-rendering a panel via innerHTML, move any native inputs you embedded (e.g. #nv/#neq) into a DocumentFragment first and re-append after, or they are destroyed and other code gets null refs.
+- Top-level `let` globals (e.g. CF) are NOT on `window`; test `typeof X` or DOM state instead of `window.X`.
+- Headless tests that wrap each line in try{} scope away `const`; use `window.x=` for values shared across lines and keep multi-line blocks on one line.
+- Collapsed "top N" lists must still always show the selected/active items.
