@@ -236,3 +236,6 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 
 ## 2026-10-29 v.21 cjbufclone
 - Buffer label+#nbuf moved (same elements, same listeners) before #owlab, so window calc still reads nbuf. Clone hint added under nclone in awhint style. Moving existing nodes keeps behavior; never clone inputs.
+
+## 2026-10-29 v.22 cjaddlegret
+- "+ Add leg" (#nlegadd) moved into #rbox bottom by a late plain script; visibility follows #nleg2 visibility (Split). place() only creates it once (guarded by #nlegx), so moving is stable. Old placement archived.
