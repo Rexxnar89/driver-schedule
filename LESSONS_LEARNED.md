@@ -180,3 +180,9 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 ## 2026-10-29 — wchips v1: window chips are time-only
 - Window chips (Who fits and the per-driver windows) now show only "9:00–11:30", colored by status: green = fits, amber = window too short. On a Who-fits chip the driver name moves into the expanded detail line, which also has the "Use this driver" button.
 - Lesson: when you strip a label down, move the details into an expand step rather than dropping them. Otherwise one tap acts on a choice the user can't see.
+
+## 2026-10-29 — cjtop v1: window chips at the top (revised spec)
+- Revised spec replaced the strip between Pickups and Drop-offs (archived in archive/index-pre-cjtop.html). #avs now sits right under the date/time picker. It is one compact row: time-only window chips colored green (holds the job) or amber (too short), a status pill and a "Roster ▾" toggle.
+- Tapping a chip lists the drivers free in that window, each with "Use this driver" (window.awPick). The roster holds the existing #awstrip and #awin (with the vehicle/trailer picker) plus the Status override. They were moved there, not copied.
+- Status: Full = no drivers free; Tight = drivers free but no vehicle; otherwise Open. Thresholds can be changed with localStorage ds-avs.
+- Lesson: re-read the latest spec before building. A spec revised mid-build supersedes the queued one.
