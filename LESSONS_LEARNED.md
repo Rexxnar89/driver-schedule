@@ -224,3 +224,4 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Return box: compact (label and inputs on one row; home and shared-ride notes in a "More" expander). It was already directly below Available Windows (wday > owlab > avs > rchip > rbox).
 - Driver audit: nd, nl2d and nl3d+ are never disabled. Lock, edit and clone keep them editable, and the saved legs keep their per-leg drivers.
 - 2026-10-29 v.13: removed the 'Clone for second vehicle and driver' button from the card header (it should never be on minimized cards); cloneJob stays for Create job ⧉ Clone job. Snippet in archive/snippet-card-clone-button.txt.
+- 2026-10-29 v.14: the expanded-detail free span (.wbs .fw) now uses the roster's single free color rgba(56,142,60,.45) with a #388e3c border instead of each driver's color. Roster bars already used it. Names stay on each row.
