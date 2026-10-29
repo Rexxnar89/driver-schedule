@@ -190,3 +190,9 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 ## 2026-10-29 — cjveh v1: Vehicles ▾ list in the top chip bar
 - "Vehicles ▾" next to "Roster ▾" lists every vehicle and every piece of equipment as Free, Assigned to <driver · time> or blocked status, for newSpan(). It reuses itemBusy/itemState, exported from t736 as window.awItemBusy/awItemState.
 - Lesson: t736 helpers are scoped to its IIFE, and a try/catch silently swallowed the ReferenceError, so every item showed Free. Always test a known conflict, not only the all-free case.
+
+## 2026-10-29 — cjsticky v1 (v2026-10-29.5)
+- Keep UI open state in JS variables and reassert it on every repaint; debounce toggles (450 ms) and stop pointer/touch events at the button so outside-tap helpers and ghost clicks can't flip panels shut.
+- When code rebuilds a container with innerHTML, remember which `<details>` were open (by summary text) and reopen them with a MutationObserver.
+- "Free until" uses an exported awNextUse that applies the same job filters as itemBusy and dvUses. Equipment matching relies on job text (jTxt: vehicle+title+desc), so test with realistic job text, not bare fields.
+- Sticky bar: put a 1px sentinel before it and use an IntersectionObserver to toggle .pin. Cap the expanded sections at max-height:50vh with overflow:auto.
