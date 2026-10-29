@@ -119,3 +119,6 @@ siren/fire are closure-private; drive them via window.alarmFireTest(uid,1,why) a
 ## 2026-10-28 — perf v1
 - On a 4x-throttled 390px phone profile with 219 jobs, startup was already ~0.55 s to scrollable because only ~28 cards render. The real lag came from sync triggers and the never-cleared 700 ms pxDeco intervals, not from rendering.
 - The service worker caches static assets only. HTML is network-first so new deploys still arrive, and script.google is never cached.
+
+## 2026-10-28 — scoped ranges
+- The Current jobs sync range comes from the preview's own picker (dvRange), so it never drifts from what is on screen. An explicit pick syncs right away, keyed per scope in SYNCAT so a repeat pick within 5 min is free.
