@@ -148,3 +148,9 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Date/time stutter was not a mirror bug: stOf re-parsed the whole `st` JSON on every busy check, and the avail/cells scan covered every job. Use the cached STR() for reads, limit the scan to a ±4-day window, memoize vehList.
 - Organizer lag: each keystroke ran fill(), which autofilled the pickup and dispatched input → avail rebuild + geocode. Debounce fill (150 ms), defer avail while typing (150 ms + idle), and hold geocoding until 700 ms after the last keystroke.
 - All suggestion menus share #sugg: close it only when the field that owns it asks. One shared hold rule (menuhold): a pick or programmatic input closes the menu, and only a new focus/tap reopens it.
+
+## 2026-10-28 — drafts DV, multi-equipment, clone vehicle, auto-update
+- Drafts must also save XD/LV/DV (equipment, leg times, per-driver vehicle), or a restored draft quietly loses them.
+- A pairX shortcut in itemBusy made a clone default to the original's vehicle. Busy checks should not skip the source job.
+- Auto-update dirty check: `window.EDIT` is undefined because EDIT is a lexical global. Use `typeof EDIT!='undefined'&&EDIT`, and treat any non-empty text field in a visible #newjob as unsaved. Headless focus() does not stick, so tests need to type real input.
+- Keep sw.js VER and the ds-ver meta in step. Bump both on every release.
