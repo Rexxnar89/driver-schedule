@@ -207,3 +207,6 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 
 ## 2026-10-29 — cjlock v1 (v2026-10-29.8)
 - A helper defined inside P() (DC) is not visible to sibling functions; module-level helpers go at the top of the IIFE. Per Jeffrey's rule, every lock has an override: tapping the lock, picking another window, or editing the time unlocks it.
+
+## 2026-10-29 — leg2move v1 (v2026-10-29.9)
+- The form-order IIFE re-lays out ranges after place() runs, so moving a node in place() alone gets undone. Pin it at the end of the order pass too, and check the DOM in a test, not just the code.
