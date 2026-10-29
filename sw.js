@@ -10,7 +10,7 @@ self.addEventListener('message',e=>{const m=e.data||{};
 self.addEventListener('notificationclick',e=>{e.notification.close();e.waitUntil((async()=>{const L=await self.clients.matchAll({type:'window',includeUncontrolled:true});for(const c of L){if('focus' in c){c.postMessage({type:'alarmclick',tag:e.notification.tag});return c.focus()}}return self.clients.openWindow(self.registration.scope)})())});
 /* perf v1: icons/images/json cached stale-while-revalidate so they never reload per screen; HTML network-first; Apps Script never cached */
 /* autoupdate v1: bump VER with each release (matches <meta name=ds-ver> in index.html); old caches are deleted on activate */
-const VER='2026-10-29.23',SC='ds-static-'+VER;
+const VER='2026-10-29.24',SC='ds-static-'+VER;
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(K=>Promise.all(K.filter(k=>k.startsWith('ds-static-')&&k!=SC).map(k=>caches.delete(k))))));
 self.addEventListener('fetch',e=>{const r=e.request,u=new URL(r.url);if(r.method!='GET'||u.origin!=location.origin)return;
  if(r.mode=='navigate'||/\.html?$/.test(u.pathname)){e.respondWith(fetch(r).then(x=>{const c=x.clone();caches.open(SC).then(k=>k.put(r,c));return x}).catch(()=>caches.match(r)));return}
