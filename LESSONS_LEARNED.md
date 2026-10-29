@@ -196,3 +196,6 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - When code rebuilds a container with innerHTML, remember which `<details>` were open (by summary text) and reopen them with a MutationObserver.
 - "Free until" uses an exported awNextUse that applies the same job filters as itemBusy and dvUses. Equipment matching relies on job text (jTxt: vehicle+title+desc), so test with realistic job text, not bare fields.
 - Sticky bar: put a 1px sentinel before it and use an IntersectionObserver to toggle .pin. Cap the expanded sections at max-height:50vh with overflow:auto.
+
+## 2026-10-29 — cjorder v1 (v2026-10-29.6)
+- A sticky element only sticks inside its parent box. To pin just the Roster/Vehicles bar, #avs is display:contents so the bar's containing block is the whole form. With display:contents, #avs has no box, so scroll to or measure its children (.avt), not #avs itself.
