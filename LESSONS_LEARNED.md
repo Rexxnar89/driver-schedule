@@ -186,3 +186,7 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Tapping a chip lists the drivers free in that window, each with "Use this driver" (window.awPick). The roster holds the existing #awstrip and #awin (with the vehicle/trailer picker) plus the Status override. They were moved there, not copied.
 - Status: Full = no drivers free; Tight = drivers free but no vehicle; otherwise Open. Thresholds can be changed with localStorage ds-avs.
 - Lesson: re-read the latest spec before building. A spec revised mid-build supersedes the queued one.
+
+## 2026-10-29 — cjveh v1: Vehicles ▾ list in the top chip bar
+- "Vehicles ▾" next to "Roster ▾" lists every vehicle and every piece of equipment as Free, Assigned to <driver · time> or blocked status, for newSpan(). It reuses itemBusy/itemState, exported from t736 as window.awItemBusy/awItemState.
+- Lesson: t736 helpers are scoped to its IIFE, and a try/catch silently swallowed the ReferenceError, so every item showed Free. Always test a known conflict, not only the all-free case.
