@@ -171,3 +171,8 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Bug: drop-off "📍 Map match" tap did nothing. In drop-offs, after the pickup is filled the field sits low on the screen, so #sugg is often hidden (sugPos hides it when the input is off the viewport) and the user sees only the green addr-preview (.adpv) box. That box had no handler at all. It wasn't menuhold, a re-render, or z-index.
 - Fix: droptap v1 makes .adpv tappable using one delegated capture listener (pointerdown preventDefault + click). It fills the address, fires input/change and closes the menu, so it works for rows and legs added later.
 - Lesson: anything that looks like a suggestion must be tappable, or be styled as plain info. Test with touch emulation on fields lower down the form, not just the first one.
+
+## 2026-10-29 — cjlayout v1: Create job layout
+- Trip type now sits right under Organizer/phone. Return time is a chip ("Return 3:30 PM ▾") under the pickup date/time and expands on tap. A new #avs availability strip sits between Pickups and Drop-offs.
+- #avs shows date · time · free counts plus Open/Tight/Full. Tight means ≤1 driver or ≤1 vehicle free; you can change that with localStorage ds-avs {"tightD","tightV"}, and the Status select overrides it per job. Tapping the strip opens the existing #awin and #awstrip; they were moved into it, not copied. stripP() publishes window._awst.
+- Lesson: insert near doTog headers carefully. doTog only hides the header's nextElementSibling, so new blocks go before the next header.
