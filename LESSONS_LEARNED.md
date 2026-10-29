@@ -326,3 +326,8 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 ## 2026-10-29 (v.39)
 - Alarms were stored in the job's shared state (ST[uid].alarms). sheetSave uploaded the whole state, and loadSavedSheet merged it into every phone, so one person's alarm rang on every device. Fix: each device gets a local id (localStorage.dsdev). Alarms are tagged _dev, and AL() only returns this device's alarms. Alarms are removed from state before it's uploaded and when sheet state comes in. Untagged alarms set before v.39 are ignored and have to be set again.
 - Current-jobs bounce mid-job: the 20 s kv pull, the 10-min loadLive, saved-jobs pulls and timer render/renderQuiet/renderDriver/nxtTop rebuilt the list while a job was underway. Fix (jobhold): while a job is started (as/ap) and not Done, hold pulls and any rebuild not caused by a tap in the last 2.5 s. Pushes keep running. Held work runs when a leg/job completes, when no job is active, on manual Sync, or after a 2 h cap.
+
+## 2026-10-29 (v.40)
+- Screen shift on tap: anchor the tapped button (not the card) and correct only non-user scrolls; let a real finger/wheel scroll release the anchor. Test taps with real touch events, never fast timers.
+- Merged job collapsed on calendar after edit: the return-home time typed in Leg 1 (end of the whole day) stretched Leg 1 over Leg 2, and the v38 overlap-merge joined the pieces into one block. Fix: clip Leg 1 at the next leg start and move the overshoot to the last piece. Also the merged-in child job must never count as a clash with its own parent.
+- Miles: Leg 2+ stops join the route only when Leg 2+ sections exist; the Leg-1-only path must stay byte-for-byte the same. Drop consecutive repeated stops to avoid double counting.
