@@ -74,14 +74,18 @@ function tab_(){
 function doGet(e){
   if ((e.parameter.secret||'') !== SECRET) return out_({ok:false,error:'bad secret'});
   if (e.parameter.action === 'kvget') return out_(kvGet_(+e.parameter.since||0));
-  if (e.parameter.action === 'jobs') return out_(jobs_(e.parameter.force === '1'));
-  if (e.parameter.action === 'savedjobs') { const sj = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Saved Jobs'); if (!sj || sj.getLastRow() < 2) return out_({ok:true, jobs:{}}); const v = sj.getRange(2,1,sj.getLastRow()-1,3).getValues(); const o = {}; v.forEach(r => { try { o[r[0]] = JSON.parse(r[2]); } catch(x) {} }); return out_({ok:true, jobs:o}); }
+  if (e.parameter.action === 'jobs') { // scoped v1: optional from/to (ms) returns only events in that range (recurring events always kept)
+    const o = jobs_(e.parameter.force === '1'), f = +e.parameter.from||0, t = +e.parameter.to||0;
+    if (o.ok && f && t) { o.cals = o.cals.map(c => ({...c, ics: rangeIcs_(c.ics, f, t)})); o.range = [f, t]; }
+    return out_(o);
+  }
+  if (e.parameter.action === 'savedjobs') { const sj = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Saved Jobs'); const now0 = Date.now(), sn = +e.parameter.since||0; if (!sj || sj.getLastRow() < 2) return out_({ok:true, jobs:{}, now:now0, since:sn}); const v = sj.getRange(2,1,sj.getLastRow()-1,3).getValues(); const o = {}; v.forEach(r => { if (sn && r[1] instanceof Date && r[1].getTime() <= sn) return; try { o[r[0]] = JSON.parse(r[2]); } catch(x) {} }); return out_({ok:true, jobs:o, now:now0, since:sn}); } // scoped v1: since= returns only rows updated after it
   if (e.parameter.action === 'getsettings') { // app settings (e.g. owner PIN hash) from 'Settings' tab: key | JSON value
     const st = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Settings'); const o = {};
     if (st && st.getLastRow() >= 2) st.getRange(2,1,st.getLastRow()-1,2).getValues().forEach(r => { if (r[0]) { try { o[r[0]] = JSON.parse(r[1]); } catch(x) {} } });
     return out_({ok:true, settings:o});
   }
-  if (e.parameter.action === 'getvehicles') return out_({ok:true, items:vehRead_()});
+  if (e.parameter.action === 'getvehicles') { const sn = +e.parameter.since||0; return out_({ok:true, items:vehRead_().filter(x => !sn || x.ts > sn), now:Date.now(), since:sn}); } // scoped v1: changed-only
   if (e.parameter.action === 'rows') { // read-only: All Drivers rows for shared earnings totals
     const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TAB);
     if (!sh || sh.getLastRow() < 2) return out_({ok:true, headers:HEADERS, rows:[]});
@@ -220,3 +224,17 @@ function kvPut_(items){ const lock=LockService.getScriptLock(); lock.waitLock(20
     if(add.length) sh.getRange(sh.getLastRow()+1,1,add.length,5).setValues(add);
     if(hist.length){ let h=ss.getSheetByName('SyncHistory'); if(!h){ h=ss.insertSheet('SyncHistory'); h.appendRow(['Replaced at','Key','Updated','By','Deleted','JSON (losing/older version)']); } h.getRange(h.getLastRow()+1,1,hist.length,6).setValues(hist); }
     return {ok:true,ts:out,now:Date.now()}; } finally { lock.releaseLock(); } }
+
+// scoped v1: keep only VEVENTs whose DTSTART falls in [f,t) (ms); events with RRULE/RECURRENCE-ID are always kept
+function rangeIcs_(ics, f, t){
+  if (!ics) return ics; const out = []; let ev = null;
+  ics.split(/\r?\n/).forEach(l => {
+    if (l === 'BEGIN:VEVENT') { ev = [l]; return; }
+    if (ev) { ev.push(l); if (l === 'END:VEVENT') { const b = ev.join('\n'); const m = b.match(/DTSTART[^:]*:(\d{8})(T(\d{6}))?/);
+      let keep = /RRULE|RECURRENCE-ID/.test(b) || !m;
+      if (!keep) { const d = m[1], tm = m[3]||'000000'; const ms = new Date(+d.slice(0,4), +d.slice(4,6)-1, +d.slice(6,8), +tm.slice(0,2), +tm.slice(2,4)).getTime(); keep = ms >= f - 864e5 && ms < t + 864e5; }
+      if (keep) out.push(b); ev = null; } return; }
+    out.push(l);
+  });
+  return out.join('\n');
+}

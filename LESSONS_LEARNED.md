@@ -109,3 +109,9 @@ siren/fire are closure-private; drive them via window.alarmFireTest(uid,1,why) a
 - Top-level `let` globals (e.g. CF) are NOT on `window`; test `typeof X` or DOM state instead of `window.X`.
 - Headless tests that wrap each line in try{} scope away `const`; use `window.x=` for values shared across lines and keep multi-line blocks on one line.
 - Collapsed "top N" lists must still always show the selected/active items.
+
+## 2026-10-28 — sync quiet + scoped sync
+- Every localStorage write scheduled a push (syncDirty 2.5 s, act 1.5 s), saveJob awaited vsPull up to 3 s, and focus/visibility fired pull, vsPull and loadLive. Each one flashed #kvdot and the top-right #rspin spinner. Sync should run from one idle scheduler and never from a tap or save.
+- Global `let`/`const` bindings (VS, LASTIN, jobs) are NOT on window. Use `typeof X!='undefined'` across script tags, not `window.X`.
+- Changed-only pulls need the client to keep the remote ts map (LS.vsR). Otherwise every local item looks newer and gets re-pushed.
+- Test harnesses must never print POST bodies: they contain the sync secret.
