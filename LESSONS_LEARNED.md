@@ -318,3 +318,7 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Current jobs "17 px jump" was not the tapped button: a timer repaint (tick/nxtTop/sync) rebuilt #dcards and shifted the list. Fix: a MutationObserver on #dcards restores the anchored card (tapped card, else first visible) before paint. Lesson: when a bounce lands on a different button each run, it's time-based; probe by sampling card top over 60 s with no taps.
 - The "next job" copy in #nxttop shares the uid; the anchor lookup must skip #nxttop cards or it anchors to the wrong one.
 - Body gets bottom padding (96 px + safe area) and #awin 72 px so the floating A-/A/A+/🔊 and Find job buttons never cover the last card.
+
+## 2026-10-29 (v.38)
+- Calendar: calJobs drew one block per job, from the first span to the end of the last leg, so a merged job hid its gap; the merged-in job also showed again on its own. Fix: draw each merged piece as its own block labeled (i/n), skip jobs with mergedInto, and dedupe.
+- Drive time to job (min): pre-job travel buffer = drive + 10 min before Leg 1 (max with Buffer). It is used in busyAt/clashFor, the hatched pre-buffer and the warnings ("42 drive + 10"). Saved per job as ST.drvm. Put new Available Windows inputs INSIDE #awbuf: awin repaints wipe sibling nodes.
