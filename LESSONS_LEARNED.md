@@ -266,3 +266,11 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 ## 2026-10-29 — v.28 drvsec + paxflash
 - A script that creates a wrapper and moves nodes must insert the wrapper into the DOM *before* any later lookup by id (D('x') on a detached node returns null, throws, and leaves moved controls stranded in a detached div — showed up as "nd is not defined").
 - Never rewrite <option> text on a timer: it makes open dropdowns flash/close on mobile. Mark options event-driven, only when text differs, and skip while the select is focused.
+
+## 2026-10-29 — v.29 (awlegs, leg strip, Open Windows removed, buffer viz, gold priority, split stash)
+- Moving live <select>s (strip) beats copying: one id each; when a builder re-renders (#nlegx draw), forward writes to the fresh twin and swap via MutationObserver.
+- A `display:flex` rule silently beats the `[hidden]` attribute; always add `[hidden]{display:none}` for flex rows.
+- Removing a section that other code anchors on (#owlab): hide it and keep it as an anchor instead of deleting, so placement code keeps working.
+- Plain `<script>` blocks at the end of the body can run BEFORE deferred `text/x-ds` blocks; put patch scripts as x-ds right after the code they wrap.
+- Split stash: snapshot Leg 2+ (fields, DV/XD/LV for n>=2) on uncheck, wipe, then draftSave so the draft is clean; restore on re-check; drop on save/reset.
+- Dead code check before delete: grep that no element creates the id (#freelist) and syntax-check every script after the cut.
