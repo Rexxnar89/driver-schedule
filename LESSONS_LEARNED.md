@@ -176,3 +176,7 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Trip type now sits right under Organizer/phone. Return time is a chip ("Return 3:30 PM ▾") under the pickup date/time and expands on tap. A new #avs availability strip sits between Pickups and Drop-offs.
 - #avs shows date · time · free counts plus Open/Tight/Full. Tight means ≤1 driver or ≤1 vehicle free; you can change that with localStorage ds-avs {"tightD","tightV"}, and the Status select overrides it per job. Tapping the strip opens the existing #awin and #awstrip; they were moved into it, not copied. stripP() publishes window._awst.
 - Lesson: insert near doTog headers carefully. doTog only hides the header's nextElementSibling, so new blocks go before the next header.
+
+## 2026-10-29 — wchips v1: window chips are time-only
+- Window chips (Who fits and the per-driver windows) now show only "9:00–11:30", colored by status: green = fits, amber = window too short. On a Who-fits chip the driver name moves into the expanded detail line, which also has the "Use this driver" button.
+- Lesson: when you strip a label down, move the details into an expand step rather than dropping them. Otherwise one tap acts on a choice the user can't see.
