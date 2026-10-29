@@ -262,3 +262,7 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 ## 2026-10-29 (v.27)
 - The visible vehicle picker on Create job is the #vesec per-leg select[data-dvv]; #nv is hidden and gets overwritten from it. Recommendations/"Use" must target the visible picker.
 - Driver-suggestion toggle stored in the mirror (MS 'drvsug'); off = recDrv auto-pick/banner and "Try instead" skipped at the source, not just hidden.
+
+## 2026-10-29 — v.28 drvsec + paxflash
+- A script that creates a wrapper and moves nodes must insert the wrapper into the DOM *before* any later lookup by id (D('x') on a detached node returns null, throws, and leaves moved controls stranded in a detached div — showed up as "nd is not defined").
+- Never rewrite <option> text on a timer: it makes open dropdowns flash/close on mobile. Mark options event-driven, only when text differs, and skip while the select is focused.
