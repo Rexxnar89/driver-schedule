@@ -1,5 +1,5 @@
 // node tests/regression.js — checks the app's trip math against Mike's Gas_Earnings_2026 Trips row for 2026-10-21
-const fs=require('fs');const src=[...fs.readFileSync(__dirname+'/../index.html','utf8').matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]).join('\n');
+const fs=require('fs');const src=[...fs.readFileSync(__dirname+'/../index.html','utf8').matchAll(/<script(?: type="text\/x-ds")?>([\s\S]*?)<\/script>/g)].map(m=>m[1]).join('\n');
 const pick=n=>{const m=src.match(new RegExp('function '+n+'\\([^]*?\\n'));if(!m)throw 'missing '+n;return m[0]};
 const env=`var R2=x=>Math.round((x+1e-9)*100)/100;var CFG={mpg:12,wait:12.5,wear:0.2,rates:[{from:'2000-01-01',rate:1.10},{from:'2026-10-14',rate:1.35},{from:'2026-10-15',rate:1.30}]};var JR={};function ratios(){return{mi:1.1,t:1.1}};function ymd(d){return d.toISOString().slice(0,10)};function gasFor(){return{gas:4.08,date:'2026-10-21',exact:1}};`;
 const rf=src.match(/function rateFor\([^]*?\n/);eval(env+(rf?rf[0]:"function rateFor(d){let r=1.1;CFG.rates.forEach(x=>{if(ymd(d)>=x.from)r=x.rate});return r}")+pick('calc')+pick('projMi')+pick('trip'));

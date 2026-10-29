@@ -139,3 +139,7 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Moving a key out of localStorage breaks any code that reads it with localStorage.getItem directly. Only move keys that are read through the LS proxy (jobcache, srows); keep small keys in localStorage too so direct reads stay correct.
 - IndexedDB is async: anything read at boot from an IDB-only key needs a re-hydrate + re-render hook (MIR.ready) or the first load after migration shows nothing.
 - `let` globals (jobs) are not on window; test with `typeof jobs`.
+
+## 2026-10-28 — Mirror v2
+- To make IndexedDB-only keys readable synchronously, the app scripts are tagged type="text/x-ds" and started by a boot loader after MIR.ready; DOMContentLoaded/load listeners added late are replayed. Tests that scrape `<script>` must also match the x-ds tag.
+- Test mode uses a separate IndexedDB ('ds-mirror-test') so sandbox data never mixes with real data.
