@@ -295,3 +295,6 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - The v.29 leg strip MOVED each leg's driver select out of its leg box and hid its label, so there was no visible per-leg driver picker. Now each leg box keeps its own "Driver for Leg N" select; the strip shows a synced mirror.
 - Leg count was capped at 4 (MAXN, the addleg check, the strip loop, draft restore, merge, and single-digit nl\d regexes). All removed or widened; tested with 7 legs saved.
 - Lesson: a single-digit id regex is a hidden cap. Use \d+.
+
+## 2026-10-29 — v.33: red clash stretch on AW bars
+- The red overlap/buffer stretch (old v.10–v.28 big-bar idea) was requested mid-run but missed in v.32. Now drawn per row from the shared clash list (r.cl): exact overlap, or the part of the leg inside the other job buffer. Lesson: re-read steering messages against the final diff before reporting.
