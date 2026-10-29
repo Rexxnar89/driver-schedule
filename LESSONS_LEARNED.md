@@ -226,3 +226,4 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - 2026-10-29 v.13: removed the 'Clone for second vehicle and driver' button from the card header (it should never be on minimized cards); cloneJob stays for Create job ⧉ Clone job. Snippet in archive/snippet-card-clone-button.txt.
 - 2026-10-29 v.14: the expanded-detail free span (.wbs .fw) now uses the roster's single free color rgba(56,142,60,.45) with a #388e3c border instead of each driver's color. Roster bars already used it. Names stay on each row.
 - 2026-10-29 v.15: removed the Return 'More' expander. The section is either fully open or fully closed, and the ▴ chip is its only collapse.
+- 2026-10-29 v.16: leg-2 labels now say 'Leg 2 pickup time' and 'Leg 2 return time' (also the hint text and the add-leg note). The 'second vehicle' clone wording is kept because it isn't about legs.
