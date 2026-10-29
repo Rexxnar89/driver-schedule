@@ -99,3 +99,7 @@ siren/fire are closure-private; drive them via window.alarmFireTest(uid,1,why) a
 
 ## 2026-10-28 — orgfix v1
 - Organizer autofill required exactly ONE address-book entry per name; clSeed (src jobs) + import often create duplicates, so nothing filled. Now first entry with an address (and first with a phone) wins, same as the address preview.
+
+## 2026-10-28 dropsug
+- Leg inputs (nl{n}pk/dz) had no class loc, so they were outside the autocomplete. Add class loc and route it in sugShow; do not build a second autocomplete.
+- Organizer fill failed when the address book had duplicate names (C.length==1). Pick the first entry that has the field.
