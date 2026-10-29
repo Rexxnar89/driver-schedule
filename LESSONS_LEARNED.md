@@ -304,3 +304,8 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Moving an input into a container that is re-rendered via innerHTML needs a re-seat after every paint, and focus must be captured BEFORE innerHTML runs (activeElement is lost after).
 - Old helper scripts (cjbufmove, form reorder) silently moved the field back; search for all code that repositions an element before moving it.
 - `if(m.lg&&k)return;` from v.30 suppressed end arrows for legs; check old suppressions when markers go missing.
+
+## 2026-10-29 — v.35: Current jobs bounce, drop-off Go, merge X/back
+- Card actions (tog, setSt, secTog etc.) re-render the whole list via render/renderQuiet; on a lower card, expanding re-flowed the list and the page jumped ~650–850px. Fix: remember the tapped card and, after any render, scroll by the card's offset so it stays put (wrapped render/renderQuiet/renderDriver/allPaint).
+- Measure bounce with real touch taps and re-query elements after each render; stale handles give false results.
+- Modals should push a history state so phone Back closes them instead of leaving the page.
