@@ -217,3 +217,9 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 
 ## 2026-10-29 — cjclone v1 (v2026-10-29.11)
 - A form-level Clone reuses saveJob plus cloneJob instead of copying either. For a new job, find the saved uid by comparing job uids before and after the save. For an edited job, only continue if savedmsg shows Saved, so a failed check never clones stale data.
+
+## 2026-10-29 — v2026-10-29.12 (cjtray, cjbounce, cjret, driver audit)
+- Available Windows (renamed from Open Windows) is a tray that starts minimized. RO=true is the default and resets on RS. The roster (.aw) and per-driver vehicles (.vp) are hidden with `#avs.trc`. The one ▾/▴ toggle is on the label, and the duplicate roster-header toggle was removed.
+- Current Jobs bounce: the Danger zone hard-coded `secw closed` snapped shut on every rebuild. Its open state now persists per job (dzo:uid in LS.secs). #dcards now goes through dcSet(), which skips identical HTML and re-anchors the element at the top of the screen when the HTML changes. Measured over 60 s: before, scrollY drifted on all 20 samples and Danger zone closed; after, scrollY drifted on 0 samples and Danger zone stayed open.
+- Return box: compact (label and inputs on one row; home and shared-ride notes in a "More" expander). It was already directly below Available Windows (wday > owlab > avs > rchip > rbox).
+- Driver audit: nd, nl2d and nl3d+ are never disabled. Lock, edit and clone keep them editable, and the saved legs keep their per-leg drivers.
