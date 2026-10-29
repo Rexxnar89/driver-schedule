@@ -210,3 +210,7 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 
 ## 2026-10-29 — leg2move v1 (v2026-10-29.9)
 - The form-order IIFE re-lays out ranges after place() runs, so moving a node in place() alone gets undone. Pin it at the end of the order pass too, and check the DOM in a test, not just the code.
+
+## 2026-10-29 — cjbar v1 (v2026-10-29.10)
+- The expanded window detail now reuses the original driver-bar pieces (tlMarks ▼ arrows, tlOv job span) instead of new markup. Shade the buffer only at edges caused by a job, not at the day edge (H0/H1 exported as window.awH).
+- Removing a UI piece (the strip v1 sticky strip) must keep any data it fed (window._awst feeds the window chips), so split the data into awSum() before deleting the DOM.
