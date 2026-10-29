@@ -309,3 +309,6 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Card actions (tog, setSt, secTog etc.) re-render the whole list via render/renderQuiet; on a lower card, expanding re-flowed the list and the page jumped ~650–850px. Fix: remember the tapped card and, after any render, scroll by the card's offset so it stays put (wrapped render/renderQuiet/renderDriver/allPaint).
 - Measure bounce with real touch taps and re-query elements after each render; stale handles give false results.
 - Modals should push a history state so phone Back closes them instead of leaving the page.
+
+## 2026-10-29 — v.36: Leg 2 for "Split" trip type in Available Windows and alarms
+- Two leg systems exist: the Split-job checkbox (nl2t / saved legs) and the "Split" trip type, which keeps Leg 2's pickup in the return fields (nrpt / retT). Available Windows (legSp) and alarms (legInfo) only read the first, so Leg 2 never showed for Split trip type. Both now fall back to the return pickup.
