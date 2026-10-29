@@ -122,3 +122,6 @@ siren/fire are closure-private; drive them via window.alarmFireTest(uid,1,why) a
 
 ## 2026-10-28 — scoped ranges
 - The Current jobs sync range comes from the preview's own picker (dvRange), so it never drifts from what is on screen. An explicit pick syncs right away, keyed per scope in SYNCAT so a repeat pick within 5 min is free.
+
+## 2026-10-28 — discounts
+- A `const` declaration chain in card() blocked appending to `money`. Check whether a variable is const before using += on it in someone else's chain.
