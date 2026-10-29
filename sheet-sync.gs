@@ -73,9 +73,13 @@ function tab_(){
 
 function doGet(e){
   if ((e.parameter.secret||'') !== SECRET) return out_({ok:false,error:'bad secret'});
+  if (e.parameter.action === 'abver') return out_(abVer_()); // address book stamp: {ver,n}
+  if (e.parameter.action === 'abget') { const v = abVer_(); if (e.parameter.ver && e.parameter.ver === v.ver) return out_({ok:true, same:true, ver:v.ver}); const sn = +e.parameter.since||0; return out_({ok:true, same:false, ver:v.ver, items:kvGet_(sn).items.filter(x => /^c:clients/.test(x.k))}); }
   if (e.parameter.action === 'kvget') return out_(kvGet_(+e.parameter.since||0));
   if (e.parameter.action === 'jobs') { // scoped v1: optional from/to (ms) returns only events in that range (recurring events always kept)
-    const o = jobs_(e.parameter.force === '1'), f = +e.parameter.from||0, t = +e.parameter.to||0;
+    const o = jobs_(e.parameter.force === '1'); let f = +e.parameter.from||0, t = +e.parameter.to||0;
+    const dm = String(e.parameter.date||'').match(/^(\d{4})-(\d{2})-(\d{2})$/); if (dm) { f = new Date(+dm[1], +dm[2]-1, +dm[3]).getTime(); t = f + 864e5; } // single day
+    if (e.parameter.scope === 'upcoming') { const d0 = new Date(); d0.setHours(0,0,0,0); f = d0.getTime(); t = f + 400*864e5; } // today onward
     if (o.ok && f && t) { o.cals = o.cals.map(c => ({...c, ics: rangeIcs_(c.ics, f, t)})); o.range = [f, t]; }
     return out_(o);
   }
@@ -230,11 +234,16 @@ function rangeIcs_(ics, f, t){
   if (!ics) return ics; const out = []; let ev = null;
   ics.split(/\r?\n/).forEach(l => {
     if (l === 'BEGIN:VEVENT') { ev = [l]; return; }
-    if (ev) { ev.push(l); if (l === 'END:VEVENT') { const b = ev.join('\n'); const m = b.match(/DTSTART[^:]*:(\d{8})(T(\d{6}))?/);
+    if (ev) { ev.push(l); if (l === 'END:VEVENT') { const b = ev.join('\n'); const m = b.match(/DTSTART[^:]*:(\d{8})(T(\d{6}))?(Z?)/);
       let keep = /RRULE|RECURRENCE-ID/.test(b) || !m;
-      if (!keep) { const d = m[1], tm = m[3]||'000000'; const ms = new Date(+d.slice(0,4), +d.slice(4,6)-1, +d.slice(6,8), +tm.slice(0,2), +tm.slice(2,4)).getTime(); keep = ms >= f - 864e5 && ms < t + 864e5; }
+      if (!keep) { const d = m[1], tm = m[3]||'000000'; const ms = new Date(+d.slice(0,4), +d.slice(4,6)-1, +d.slice(6,8), +tm.slice(0,2), +tm.slice(2,4)).getTime(); const mg = m[4] ? 12*36e5 : 0; /* UTC stamps: 12h slack; local/floating: exact */ keep = ms >= f - mg && ms < t + mg; }
       if (keep) out.push(b); ev = null; } return; }
     out.push(l);
   });
   return out.join('\n');
 }
+
+// address book version: count + newest Updated of Sync rows with key c:clients* (cheap stamp; data fetched only when it differs)
+function abVer_(){ const sh=kvSheet_(), n=sh.getLastRow(); if(n<2) return {ok:true,ver:'0:0',n:0};
+  const v=sh.getRange(2,1,n-1,2).getValues(); let c=0, m=0; v.forEach(r=>{ if(/^c:clients/.test(String(r[0]))){ c++; m=Math.max(m,+r[1]||0); } });
+  return {ok:true, ver:c+':'+m, n:c}; }
