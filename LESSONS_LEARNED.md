@@ -204,3 +204,6 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Split jobs were missing "Free until" on the second job because the Vehicles ▾ list checked every item against newSpan() (only the first leg's window). Availability has to use each leg's own legTimes(n).
 - To reorder sections that paint() rebuilds with innerHTML, use a childList MutationObserver that moves the node, guarded so it only acts when the node is still in its old place (no loop). Keep minimize state in variables and reapply it after every rebuild.
 - When a spec says "confirm X already does Y", measure the DOM order before reporting. Leg 2 (#nsplitw) sits above Pickups, not under Drop-offs.
+
+## 2026-10-29 — cjlock v1 (v2026-10-29.8)
+- A helper defined inside P() (DC) is not visible to sibling functions; module-level helpers go at the top of the IIFE. Per Jeffrey's rule, every lock has an override: tapping the lock, picking another window, or editing the time unlocks it.
