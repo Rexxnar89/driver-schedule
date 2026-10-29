@@ -115,3 +115,7 @@ siren/fire are closure-private; drive them via window.alarmFireTest(uid,1,why) a
 - Global `let`/`const` bindings (VS, LASTIN, jobs) are NOT on window. Use `typeof X!='undefined'` across script tags, not `window.X`.
 - Changed-only pulls need the client to keep the remote ts map (LS.vsR). Otherwise every local item looks newer and gets re-pushed.
 - Test harnesses must never print POST bodies: they contain the sync secret.
+
+## 2026-10-28 — perf v1
+- On a 4x-throttled 390px phone profile with 219 jobs, startup was already ~0.55 s to scrollable because only ~28 cards render. The real lag came from sync triggers and the never-cleared 700 ms pxDeco intervals, not from rendering.
+- The service worker caches static assets only. HTML is network-first so new deploys still arrive, and script.google is never cached.
