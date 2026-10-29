@@ -254,3 +254,7 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Return-time edits can come from auto-fill without events; a cheap 300ms value-signature poll plus 150ms debounce catches them.
 - Default-open trial lives in one constant (AW_DEFAULT_OPEN) so revert is one line; RS() must use the same constant.
 - Per-form "default to Leg 2" needs a once-per-form flag reset in RS(), otherwise every repaint overrides the user's tab choice.
+
+## 2026-10-29 (v.26)
+- "Only show legs that exist": gate every Leg N surface on legN() (split + mlLegs), clamp the selected tab when legs shrink, and hide arrows for a leg with no time instead of falling back to Leg 1's span (that mislabeled Leg 1's time as Leg 2).
+- Re-check shipped claims against the spec list before building the next version (v.25 missed "editing a leg opens its windows" and detail-arrow leg labels).
