@@ -125,3 +125,6 @@ siren/fire are closure-private; drive them via window.alarmFireTest(uid,1,why) a
 
 ## 2026-10-28 — discounts
 - A `const` declaration chain in card() blocked appending to `money`. Check whether a variable is const before using += on it in someone else's chain.
+
+## 2026-10-28 — trailer sync
+- Since b1edd56, vehicle/equipment pulls only ran on Owner/Create job, not on the Vehicles overlay or at app open, so a phone could miss others' adds and show the red not-synced label (VS.state stayed ''). Seeded defaults were stamped ts=now and could beat others' edits. Deletes never propagated. Fixed with a seed ts of 1, tombstones, a persistent push queue, a push 2.5 s after save, and a pull on open and on Vehicles open.
