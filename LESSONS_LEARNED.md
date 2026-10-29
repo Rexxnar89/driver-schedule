@@ -298,3 +298,9 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 
 ## 2026-10-29 — v.33: red clash stretch on AW bars
 - The red overlap/buffer stretch (old v.10–v.28 big-bar idea) was requested mid-run but missed in v.32. Now drawn per row from the shared clash list (r.cl): exact overlap, or the part of the leg inside the other job buffer. Lesson: re-read steering messages against the final diff before reporting.
+
+## 2026-10-29 — v.34: buffer box inside Available Windows, buffer banner, leg end arrows
+- A clash only on non-picked drivers was hidden behind "Show more" because auto-pick chose a free driver; warnings must have an always-visible summary (banner at top of Available Windows).
+- Moving an input into a container that is re-rendered via innerHTML needs a re-seat after every paint, and focus must be captured BEFORE innerHTML runs (activeElement is lost after).
+- Old helper scripts (cjbufmove, form reorder) silently moved the field back; search for all code that repositions an element before moving it.
+- `if(m.lg&&k)return;` from v.30 suppressed end arrows for legs; check old suppressions when markers go missing.
