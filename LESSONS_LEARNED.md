@@ -239,3 +239,9 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 
 ## 2026-10-29 v.22 cjaddlegret
 - "+ Add leg" (#nlegadd) moved into #rbox bottom by a late plain script; visibility follows #nleg2 visibility (Split). place() only creates it once (guarded by #nlegx), so moving is stable. Old placement archived.
+
+## 2026-10-29 v.23 splitsync + cjvesec
+- Split first-check bug: draft restore/reset set #nsplit.checked without firing change, so Leg 2 stayed hidden while ticked; first tap unticked. splitsync keeps #nleg2 in step with the checkbox. Draft restore also rebuilds legs 3-4 (restore only fills ids that already exist).
+- Never write "*/" inside a /* */ comment (nl3*/nl4* closed the comment and broke the script).
+- Vehicles+equipment (.vp) moved out of #awin into #vesec below Available Windows; delegated listeners widened to #vesec and #awin styles mirrored at runtime.
+- + Add leg button lives at bottom of #rbox (Split only); leg sections stay under Drop-offs.
