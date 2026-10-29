@@ -214,3 +214,6 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 ## 2026-10-29 — cjbar v1 (v2026-10-29.10)
 - The expanded window detail now reuses the original driver-bar pieces (tlMarks ▼ arrows, tlOv job span) instead of new markup. Shade the buffer only at edges caused by a job, not at the day edge (H0/H1 exported as window.awH).
 - Removing a UI piece (the strip v1 sticky strip) must keep any data it fed (window._awst feeds the window chips), so split the data into awSum() before deleting the DOM.
+
+## 2026-10-29 — cjclone v1 (v2026-10-29.11)
+- A form-level Clone reuses saveJob plus cloneJob instead of copying either. For a new job, find the saved uid by comparing job uids before and after the save. For an edited job, only continue if savedmsg shows Saved, so a failed check never clones stale data.
