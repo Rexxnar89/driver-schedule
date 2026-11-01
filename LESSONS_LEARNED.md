@@ -331,3 +331,9 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Screen shift on tap: anchor the tapped button (not the card) and correct only non-user scrolls; let a real finger/wheel scroll release the anchor. Test taps with real touch events, never fast timers.
 - Merged job collapsed on calendar after edit: the return-home time typed in Leg 1 (end of the whole day) stretched Leg 1 over Leg 2, and the v38 overlap-merge joined the pieces into one block. Fix: clip Leg 1 at the next leg start and move the overshoot to the last piece. Also the merged-in child job must never count as a clash with its own parent.
 - Miles: Leg 2+ stops join the route only when Leg 2+ sections exist; the Leg-1-only path must stay byte-for-byte the same. Drop consecutive repeated stops to avoid double counting.
+
+## 2026-11-01 (v.41)
+- "Per-phone" data must not live in a synced record. v.39 tagged alarms with a device id but still stored them inside the shared 'st' record, so every phone downloaded them: any phone on an older cached copy rang them, and another phone editing the job overwrote them. Alarms now live in 'myal', a local-only key the sync never sends.
+- Audit every path that can sound an alarm, not just the scheduler: the "next leg surfaced" hook rang a full TIME TO DRIVE alarm on whoever tapped Complete leg, even with no alarm set.
+- Version-string edits: a regex replace on ds-ver also hit the update checker's own pattern. Check the diff for every occurrence.
+- /tmp is wiped between sessions; keep browser tests in the repo (tests/browser/).
