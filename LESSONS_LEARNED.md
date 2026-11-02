@@ -350,3 +350,8 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - The calendar import treated any event whose first line contained "available till" as BLOCKED time. Jeffrey's weekly event "Available TILL 5:00PM Thursdays" runs Mon 6:30 AM to Thu 5 PM, so his available days (Mon–Thu) were painted as unavailable. The Fri–Sun "unavailable" event blocked the rest, so the whole week showed unavailable. Not a v.42 regression: the rule dates from 2026-10-21 (bf94488).
 - Fix: "available" wording is never a block. Only x / unavailable / no drives block. tests/avail43.js checks that the blocked weekdays come out as Thu–Sun (Thu evening through Sunday) only.
 - A word like "available" in a title is the opposite of "unavailable": never match it as a block keyword.
+
+## 2026-11-02 — v.44: job hours on cards + day boxes
+- Each card's "Ends" line shows the job length: start to end, or for split/legged jobs the sum of the leg spans with gaps left out, plus a per-leg breakdown like "(1h + 1h + 1h)". Lengths under 60 min show as "45 min", longer ones as hours to 0.1, e.g. "4.5 hrs".
+- Every day's cards now sit in a bordered box (days with no DAYSTY style get green). The header shows the day's total hours. Leg cards (uid "X~M2") are counted once: when leg cards are in the same list, the parent counts only its first-leg span. Use the uid pattern, because _legOf is not set on these cards.
+- No content-visibility (see v.42). tap42: 0 blank screens.
