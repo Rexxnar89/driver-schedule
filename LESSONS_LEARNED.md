@@ -337,3 +337,11 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Audit every path that can sound an alarm, not just the scheduler: the "next leg surfaced" hook rang a full TIME TO DRIVE alarm on whoever tapped Complete leg, even with no alarm set.
 - Version-string edits: a regex replace on ds-ver also hit the update checker's own pattern. Check the diff for every occurrence.
 - /tmp is wiped between sessions; keep browser tests in the repo (tests/browser/).
+
+## 2026-11-02 — v.42: blank screen / jumping on card buttons and inputs
+- ROOT CAUSE of blank screen: `content-visibility:auto; contain-intrinsic-size:auto 110px/140px` on `.jc` job cards. Every re-render (innerHTML) creates *new* card elements, which measure at the placeholder size until painted, so a ~13,000px list of open cards collapsed to ~1,200px for a frame. The page got shorter, scroll clamped = blank screen, then a jump. Never use content-visibility on lists that are rebuilt under the user's finger. It is still allowed on #cllist/#fblist rows.
+- dcSet's index-path scroll anchor jumped up to 8000px after re-sorts (Complete/Done move cards). Removed. tapAnchor (v40) handles anchoring, and a no-blank guard now clears a stale body minHeight.
+- sugTop now scrolls only as much as needed (no jump on name/address focus). AW repaint anchors to the tapped row. Changing the date/time now retargets Leg 1, so AW and its chips re-render right away.
+- jobhold flush coalesces the render calls into one. topstab keeps content still when banners above the viewport change height.
+- Test with real taps at 390px and record scrollY/height per frame (tests/browser/tap42.js, in42.js, aw42.js). Forcing `details.open` in tests is an artifact: click the summary instead.
+- Last-resort drivers (Owner tab; Kaci by default) sort last and stay hidden in limited lists.
