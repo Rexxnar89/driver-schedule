@@ -345,3 +345,8 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - jobhold flush coalesces the render calls into one. topstab keeps content still when banners above the viewport change height.
 - Test with real taps at 390px and record scrollY/height per frame (tests/browser/tap42.js, in42.js, aw42.js). Forcing `details.open` in tests is an artifact: click the summary instead.
 - Last-resort drivers (Owner tab; Kaci by default) sort last and stay hidden in limited lists.
+
+## 2026-11-02 — v.43: driver shown unavailable all week
+- The calendar import treated any event whose first line contained "available till" as BLOCKED time. Jeffrey's weekly event "Available TILL 5:00PM Thursdays" runs Mon 6:30 AM to Thu 5 PM, so his available days (Mon–Thu) were painted as unavailable. The Fri–Sun "unavailable" event blocked the rest, so the whole week showed unavailable. Not a v.42 regression: the rule dates from 2026-10-21 (bf94488).
+- Fix: "available" wording is never a block. Only x / unavailable / no drives block. tests/avail43.js checks that the blocked weekdays come out as Thu–Sun (Thu evening through Sunday) only.
+- A word like "available" in a title is the opposite of "unavailable": never match it as a block keyword.
