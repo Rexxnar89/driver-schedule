@@ -362,3 +362,9 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - v.46: each job form and card has an optional Pickup miles box immediately above Wait hrs. It is a note only — it is not passed to `calc`/`trip`/`fare`. It is stored on the job as `pkm` (ST + saveEst/formJob, sheet notes, Proton description) without shifting the A–N export columns. A light `Usual: ~X mi` hint uses the median of at least two past readings with the same first-pickup address (IQR outliers dropped). The hint never auto-fills the box or the charge.
 - Split how many ways (people/groups) already existed as a fare split, separate from Split trip type / split legs. Below it, a checklist (one box per person; names from passenger `pxn` when present, else Person N) adds each checked share to `Paid $X of $Y` plus who is unpaid. Checked state is saved as `spPaid`.
 - Browser harness: allow `127.0.0.1` as well as `localhost` in request interceptors (a 127.0.0.1 page was aborted and looked hung). tap42 and banners45 now have an overall timeout, `protocolTimeout`, `waitForFunction` boot instead of a fixed 3.5s, and a guaranteed `process.exit`. tap42 still flags large scroll jumps from Edit/Duplicate/Cancel (those leave the card); the pass that matters is 0 blank screens.
+
+## 2026-11-11 — v.46 split: -up shares, fare stays the charge
+- Rounding each share up to the nearest $5 must not raise the fare, charge, calc, or export totals. $104 ÷ 3 → $35 each, but the job still shows Expected (charge) $104.00.
+- Paid tally can go over the fare; then show extra: Paid $105.00 of $104.00 (+$1.00 extra). Two paid shares: Paid $70.00 of $104.00.
+- Split line: Fare $104.00 ÷ 3 = $35.00 each (no inflated split total). splitCalc.st stays the real fare (c).
+- A share already on a $5 multiple stays as-is ($100/4 = $25).

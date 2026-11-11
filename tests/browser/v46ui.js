@@ -22,7 +22,7 @@ const killer=setTimeout(()=>{console.log('V46UI TIMEOUT');try{_b&&_b.close()}cat
   const mk=(id,pkm,from)=>({uid:id,evuid:id,start:new Date(+t-(id==='CUR'?0:864e5*2)),endT:new Date(+t+2*36e5),driver:'BB',client:'Rider '+id,title:'Rider '+id,raw:'Rider '+id,from:from||'100 Main St, Shreve, OH',to:'2 B Ave',pax:2,split:3});
   ['H1','H2'].forEach((id,i)=>{const j=mk(id,0);jobs.push(j);setSt(id,'pkm',i?14:12);setSt(id,'emi',80);setSt(id,'hm','')});
   const cur=mk('CUR');jobs.push(cur);
-  setSt('CUR','pkm',13);setSt('CUR','emi',80);setSt('CUR','hm','');setSt('CUR','split',3);cur.split=3;setSt('CUR','spPaid',[1,0,0]);setSt('CUR','pxn',['Alex','Blair']);
+  setSt('CUR','pkm',13);setSt('CUR','emi',80);setSt('CUR','hm','');setSt('CUR','split',3);cur.split=3;setSt('CUR','spPaid',[1,1,0]);setSt('CUR','pxn',['Alex','Blair']);
   setSt('CUR','legs',[{pk:'2 B Ave',dz:'100 Main St, Shreve, OH',t:new Date(+t+3*36e5).toISOString().slice(0,16),drv:'BB',done:0}]);
   try{if(![...drv.options].some(o=>o.value=='BB'))drv.insertAdjacentHTML('beforeend','<option value="BB">BB</option>')}catch(e){}
   drv.value='BB';EXP.add('CUR');render();
@@ -55,13 +55,14 @@ const killer=setTimeout(()=>{console.log('V46UI TIMEOUT');try{_b&&_b.close()}cat
  const card=await pg.evaluate(()=>{
   const hint=[...document.querySelectorAll('#dcards .pkmhint')].map(x=>x.textContent);
   const pkm=[...document.querySelectorAll('#dcards label')].map(x=>x.textContent).filter(t=>/Pickup miles/.test(t));
-  const paid=(document.body.innerText.match(/Paid \$[\d.]+ of \$[\d.]+/g)||[]);
+  const paid=(document.body.innerText.match(/Paid \$[\d.]+ of \$[\d.]+(?: \(\+\$[\d.]+ extra\))?/g)||[]);
+  const splitLine=(document.body.innerText.match(/Fare \$[\d.]+ ÷ \d+ = \$[\d.]+ each/g)||[]);
   const unpaid=(document.body.innerText.match(/Unpaid: [^\n]+/g)||[]);
   const shares=[...document.querySelectorAll('#dcards .sppaid label')].map(x=>x.textContent.replace(/\s+/g,' ').trim());
   const boxes=document.querySelectorAll('#dcards .sppaid input[type=checkbox]').length;
   const exp=(()=>{try{const j=jobs.find(x=>x.uid=='CUR');return trip(SJ(j),j.start,j.uid).exp}catch(e){return null}})();
   const expNo=(()=>{try{const j=jobs.find(x=>x.uid=='CUR');const s={...SJ(j)};delete s.pkm;return trip(s,j.start,j.uid).exp}catch(e){return null}})();
-  return {hint,pkm,paid,unpaid,shares,boxes,exp,expNo,same:exp===expNo};
+  return {hint,pkm,paid,unpaid,shares,boxes,splitLine,exp,expNo,same:exp===expNo,extra:typeof splitPaidMsg=='function'?splitPaidMsg(105,104):''};
  });
  const checks=[];
  const add=(n,p)=>{checks.push({n,p:!!p});console.log(n,p?'ok':'FAIL')};
@@ -71,9 +72,11 @@ const killer=setTimeout(()=>{console.log('V46UI TIMEOUT');try{_b&&_b.close()}cat
  add('card hint Usual',card.hint.some(t=>/Usual: ~\d/.test(t)));
  add('card has pickup miles field',card.pkm.length>0);
  add('Paid $X of $Y shown',card.paid.length>0);
- add('of-total is the $104.00 charge',card.paid.some(t=>/ of \$104\.00$/.test(t)));
- add('one share paid is $34.66 not $34.67',card.paid.some(t=>t.startsWith('Paid $34.66 of')));
- add('shares are 34.66 + 34.66 + 34.68',/\$34\.66/.test((card.shares||[])[0]||'')&&/\$34\.66/.test((card.shares||[])[1]||'')&&/\$34\.68/.test((card.shares||[])[2]||''));
+ add('Paid $70.00 of $104.00 (fare, not $105)',card.paid.some(t=>t==='Paid $70.00 of $104.00'));
+ add('split line is Fare $104.00 ÷ 3 = $35.00 each',(card.splitLine||[]).some(t=>t==='Fare $104.00 ÷ 3 = $35.00 each'));
+ add('all three shares $35.00',(card.shares||[]).length===3&&card.shares.every(t=>/\$35\.00/.test(t)));
+ add('extra label when over fare',card.extra==='Paid $105.00 of $104.00 (+$1.00 extra)');
+ add('charge still $104',card.exp===104);
  add('Unpaid names shown',card.unpaid.length>0);
  add('3 split checkboxes',card.boxes===3);
  add('charge unchanged by pkm',card.same);

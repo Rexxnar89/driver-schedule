@@ -46,18 +46,29 @@ const two=pkmUsual('1 Main St'); // includes self 99; 10,11,12,200,99 — outlie
 // n=4: Q1 at 0.25*3=0.75 → 10.75, Q3 at 2.25 → 12+0.25*(200-12)=59, IQR~48, lo=-61, hi=131, 200 dropped, median of 10,11,12=11
 // Good - we already tested with except self.
 
-// split paid shares: each share rounds down to a cent, last share absorbs the remainder, sum equals the charge
-const sm=src.match(/function splitShares\(t,n\)\{[^\n]+\n/);
-if(!sm){console.log('missing splitShares');process.exit(1)}
-eval(sm[0]);
-const S=splitShares(104,3);
-const sum=S.shares.reduce((a,b)=>a+b,0);
-const passS=S.shares[0]===3466&&S.shares[1]===3466&&S.shares[2]===3468&&sum===10400&&S.c===10400;
-console.log('splitShares 104/3',S.shares.map(x=>(x/100).toFixed(2)).join(' + '),'=',(sum/100).toFixed(2),passS?'ok':'FAIL');
+// split: each share rounds UP to the nearest $5; the fare total is unchanged; extra is only in the paid tally
+const pickFn=n=>{const m=src.match(new RegExp('function '+n+'\\([^\\n]+\\n'));if(!m)throw 'missing '+n;return m[0]};
+eval(pickFn('splitCalc')+pickFn('splitShares')+pickFn('splitPaidMsg')+pickFn('splitTxt').replace(/=splitN\(\)/, "=''"));
+const S=splitCalc(104,3);
+const passS=S.each===3500&&S.c===10400&&S.st===10400;
+console.log('splitCalc 104/3 each',S.each/100,'fare',S.c/100,passS?'ok':'FAIL');
 ok=ok&&passS;
-const S2=splitShares(100,3),sum2=S2.shares.reduce((a,b)=>a+b,0);
-ok=ok&&S2.shares[0]===3333&&S2.shares[1]===3333&&S2.shares[2]===3334&&sum2===10000;
-console.log('splitShares 100/3',S2.shares.join(','),sum2===10000?'ok':'FAIL');
+const Sh=splitShares(104,3),sum=Sh.shares.reduce((a,b)=>a+b,0);
+ok=ok&&Sh.shares.every(x=>x===3500)&&sum===10500&&Sh.c===10400&&Sh.st===10400;
+console.log('splitShares equal $35, fare stays $104',Sh.shares.map(x=>x/100).join('+'),'fare',Sh.c/100,ok?'ok':'FAIL');
+const stay=splitCalc(100,4);
+ok=ok&&stay.each===2500&&stay.c===10000; // already a $5 multiple
+console.log('100/4 stays $25 each',stay.each/100,stay.each===2500?'ok':'FAIL');
+const stay2=splitCalc(30,2);
+ok=ok&&stay2.each===1500&&stay2.c===3000;
+console.log('30/2 stays $15 each',stay2.each===1500?'ok':'FAIL');
+const txt=splitTxt(104,3);
+ok=ok&&txt==='Fare $104.00 ÷ 3 = $35.00 each';
+console.log('splitTxt',txt,txt==='Fare $104.00 ÷ 3 = $35.00 each'?'ok':'FAIL');
+ok=ok&&splitPaidMsg(35,104)==='Paid $35.00 of $104.00';
+ok=ok&&splitPaidMsg(70,104)==='Paid $70.00 of $104.00';
+ok=ok&&splitPaidMsg(105,104)==='Paid $105.00 of $104.00 (+$1.00 extra)';
+console.log('paid msgs',splitPaidMsg(70,104),'|',splitPaidMsg(105,104),splitPaidMsg(105,104).includes('+$1.00 extra')?'ok':'FAIL');
 
 // form still has the note box above wait, and charge formula does not mention pkm
 ok=ok&&/id="npkm"[\s\S]{0,250}id="nwh"/.test(src);
