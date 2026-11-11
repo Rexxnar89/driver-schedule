@@ -46,12 +46,18 @@ const two=pkmUsual('1 Main St'); // includes self 99; 10,11,12,200,99 — outlie
 // n=4: Q1 at 0.25*3=0.75 → 10.75, Q3 at 2.25 → 12+0.25*(200-12)=59, IQR~48, lo=-61, hi=131, 200 dropped, median of 10,11,12=11
 // Good - we already tested with except self.
 
-// split paid math
-function splitCalc(t,n){const c=Math.round(t*100),st=Math.ceil(c/n)*n;return{c,st,each:st/n}};
-const S=splitCalc(100,3);
-const paid=R2(2*(S.each/100));
-console.log('split 3 ways two paid',paid,'of',S.st/100, S.each===S.st/3?'ok':'FAIL');
-ok=ok&&S.each===S.st/3;
+// split paid shares: each share rounds down to a cent, last share absorbs the remainder, sum equals the charge
+const sm=src.match(/function splitShares\(t,n\)\{[^\n]+\n/);
+if(!sm){console.log('missing splitShares');process.exit(1)}
+eval(sm[0]);
+const S=splitShares(104,3);
+const sum=S.shares.reduce((a,b)=>a+b,0);
+const passS=S.shares[0]===3466&&S.shares[1]===3466&&S.shares[2]===3468&&sum===10400&&S.c===10400;
+console.log('splitShares 104/3',S.shares.map(x=>(x/100).toFixed(2)).join(' + '),'=',(sum/100).toFixed(2),passS?'ok':'FAIL');
+ok=ok&&passS;
+const S2=splitShares(100,3),sum2=S2.shares.reduce((a,b)=>a+b,0);
+ok=ok&&S2.shares[0]===3333&&S2.shares[1]===3333&&S2.shares[2]===3334&&sum2===10000;
+console.log('splitShares 100/3',S2.shares.join(','),sum2===10000?'ok':'FAIL');
 
 // form still has the note box above wait, and charge formula does not mention pkm
 ok=ok&&/id="npkm"[\s\S]{0,250}id="nwh"/.test(src);

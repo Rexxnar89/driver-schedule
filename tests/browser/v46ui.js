@@ -57,10 +57,11 @@ const killer=setTimeout(()=>{console.log('V46UI TIMEOUT');try{_b&&_b.close()}cat
   const pkm=[...document.querySelectorAll('#dcards label')].map(x=>x.textContent).filter(t=>/Pickup miles/.test(t));
   const paid=(document.body.innerText.match(/Paid \$[\d.]+ of \$[\d.]+/g)||[]);
   const unpaid=(document.body.innerText.match(/Unpaid: [^\n]+/g)||[]);
+  const shares=[...document.querySelectorAll('#dcards .sppaid label')].map(x=>x.textContent.replace(/\s+/g,' ').trim());
   const boxes=document.querySelectorAll('#dcards .sppaid input[type=checkbox]').length;
   const exp=(()=>{try{const j=jobs.find(x=>x.uid=='CUR');return trip(SJ(j),j.start,j.uid).exp}catch(e){return null}})();
   const expNo=(()=>{try{const j=jobs.find(x=>x.uid=='CUR');const s={...SJ(j)};delete s.pkm;return trip(s,j.start,j.uid).exp}catch(e){return null}})();
-  return {hint,pkm,paid,unpaid,boxes,exp,expNo,same:exp===expNo};
+  return {hint,pkm,paid,unpaid,shares,boxes,exp,expNo,same:exp===expNo};
  });
  const checks=[];
  const add=(n,p)=>{checks.push({n,p:!!p});console.log(n,p?'ok':'FAIL')};
@@ -70,6 +71,9 @@ const killer=setTimeout(()=>{console.log('V46UI TIMEOUT');try{_b&&_b.close()}cat
  add('card hint Usual',card.hint.some(t=>/Usual: ~\d/.test(t)));
  add('card has pickup miles field',card.pkm.length>0);
  add('Paid $X of $Y shown',card.paid.length>0);
+ add('of-total is the $104.00 charge',card.paid.some(t=>/ of \$104\.00$/.test(t)));
+ add('one share paid is $34.66 not $34.67',card.paid.some(t=>t.startsWith('Paid $34.66 of')));
+ add('shares are 34.66 + 34.66 + 34.68',/\$34\.66/.test((card.shares||[])[0]||'')&&/\$34\.66/.test((card.shares||[])[1]||'')&&/\$34\.68/.test((card.shares||[])[2]||''));
  add('Unpaid names shown',card.unpaid.length>0);
  add('3 split checkboxes',card.boxes===3);
  add('charge unchanged by pkm',card.same);
