@@ -368,3 +368,8 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Paid tally can go over the fare; then show extra: Paid $105.00 of $104.00 (+$1.00 extra). Two paid shares: Paid $70.00 of $104.00.
 - Split line: Fare $104.00 ÷ 3 = $35.00 each (no inflated split total). splitCalc.st stays the real fare (c).
 - A share already on a $5 multiple stays as-is ($100/4 = $25).
+
+## 2026-11-12 — v.46 split gap is free; later-leg miles default from Leg 1
+- A split/multi-leg job's Proton endT or the old calendar wrapper could treat start→last-leg as one busy block. Only each leg plus its buffers should block Available Windows, clashes, and vehicle/item time. The calendar shows separate linked blocks with the gap visible.
+- calJobs must emit one entry per spans() interval. Do not re-extend x.e across later legs.
+- Leg 2+ Miles prefills from the Leg 1 Miles field (not automatically from the ROUND TRIP emi, which would double existing estimates). Changing Leg 1 updates later legs only while they still hold the auto-filled value. Charge switches to the sum of leg miles once Leg 1 (or a later leg) has a value; single-leg jobs stay on emi/hm/routed estimate.

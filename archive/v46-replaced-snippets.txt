@@ -15,3 +15,26 @@ const loc=T.d[T.d.length-1]||T.p[0]||'';
 
 inp wait:
 inp('wh','Wait hrs (blank = none)','0.25',s.wh)+'<!--SPL-->'
+
+===== 2026-11-12 v.46 split-gap + leg miles =====
+
+calJobs (envelope first-to-last):
+function calJobs(a,b){const off=calOff();return jobs.filter(j=>j.start&&!off.includes(j.driver||'?')).map(j=>{let s=j.start,e;try{const S=spans(j);s=S[0][0];e=S[S.length-1][1]}catch(x){}if(!e||e<=s)e=new Date(+s+36e5);return{j,s,e}}).filter(x=>x.s<b&&x.e>a)}
+
+multileg v1 wrapper (extended calendar block across the gap):
+/* multileg v1: calendar block spans all legs */(function(){const o=calJobs;calJobs=function(a,b){const r=o(a,b),seen=new Set(r.map(x=>x.j));jobs.forEach(j=>{if(!j.start||seen.has(j))return;const L=LGm(j.uid);if(L){const t=L.map(l=>+new Date(l.t)).filter(x=>x);if(t.length&&Math.max(...t)>+a&&+j.start<+b){const x=o(new Date(+j.start-1),new Date(+j.start+1)).find(y=>y.j===j);if(x)r.push(x)}}});r.forEach(x=>{const L=LGm(x.j.uid);if(!L)return;L.forEach(l=>{const t=+new Date(l.t);if(t){const e=t+((+l.d||60)*6e4);if(e>+x.e)x.e=new Date(e)}})});return r}})();
+
+spans (non-split returned the full start→end envelope):
+function spans(j){if(j._legOf&&j._le&&+j._le>+j.start)return[[j.start,new Date(j._le)]];if(j.block&&j.endT&&j.endT>j.start)return[[j.start,j.endT]];const S=SJ(j),[a,b0]=span(j);if(S.retOf&&S.leaveBy)return[[new Date(Math.min(+S.leaveBy,+a)),S.srT&&+S.srT>+a?new Date(+S.srT):b0]];if(ttOf(j)=='ow')return[[a,owEnd(j)]];if(ttOf(j)!='split')return[[a,b0]];const first=S.rhT&&+S.rhT>+a?new Date(+S.rhT):new Date(+a+((+S.eh||1)+(+S.homeH||0))*36e5),L=[[a,first]];if(S.rpt&&!S.hasRet){const r=new Date(S.rpt);L.push([new Date(S.leaveBy?+S.leaveBy:+r-36e5),S.srT&&+S.srT>+r?new Date(+S.srT):new Date(+r+36e5)])}return L}
+
+xBusy used span(j) envelope for extra drivers:
+try{const[x,y]=span(j);if(+x-m<+b&&+y+m>+a)r.push(1)}
+
+itemBusy used min-start/max-end envelope:
+/* v30: job's full span (pickup->return, every leg) plus buffer */const env=j=>{let lo=+j.start,hi=+j.start+36e5;try{spans(j).forEach(([x,y])=>{lo=Math.min(lo,+x);hi=Math.max(hi,+y)});legSpansOf(j).forEach(l=>{hi=Math.max(hi,l.b)})}catch(e){}return[lo,hi]}
+
+jLegMins only used spans() for trip-type split, then always appended every saved leg:
+function jLegMins(j,e){if(!e){try{e=projTimes(j,SJ(j)).pe}catch(_){}}if(!j.start||!e||isNaN(e))return[];let per=[];if(ttOf(j)=='split'){try{const sp=spans(j)||[];per=sp.map(x=>(+x[1]-+x[0])/6e4).filter(x=>x>0)}catch(_){}}if(!per.length)per=[(+e-+j.start)/6e4];try{legSpansOf(j).forEach(l=>per.push((l.b-l.a)/6e4))}catch(_){}return per.filter(x=>x>0)}
+
+projMi (job-level only; no per-leg miles):
+function projMi(s,u){const hm=+s.hm||0,e=+s.emi||0,J=JR[u];if(hm)return{mi:R2(hm*2),src:'halfway '+hm+' × 2'};if(e)return{mi:e,src:s.emiEd?'your edited round-trip estimate':'routed round-trip estimate'};if(J&&J.rt!=null)return{mi:R2(J.rt*ratios().mi),src:'routed round trip'};return{mi:0,src:''}}
