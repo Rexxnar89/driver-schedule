@@ -38,3 +38,17 @@ function jLegMins(j,e){if(!e){try{e=projTimes(j,SJ(j)).pe}catch(_){}}if(!j.start
 
 projMi (job-level only; no per-leg miles):
 function projMi(s,u){const hm=+s.hm||0,e=+s.emi||0,J=JR[u];if(hm)return{mi:R2(hm*2),src:'halfway '+hm+' × 2'};if(e)return{mi:e,src:s.emiEd?'your edited round-trip estimate':'routed round-trip estimate'};if(J&&J.rt!=null)return{mi:R2(J.rt*ratios().mi),src:'routed round trip'};return{mi:0,src:''}}
+
+
+===== 2026-11-12 v.46 avail cards + completed-leg sort =====
+
+dayCards (Done-only split, no next-open sort):
+function dayCards(L,k){const cx=j=>!!j.canceled,dn=j=>!cx(j)&&SJ(j).st=='Done',A=L.filter(j=>!dn(j)&&!cx(j)),D=L.filter(dn),X=L.filter(cx);
+
+busyAt did not skip 'available till' events (so a long availability span could block the driver).
+.filter(j=>!j.canceled&&!pairX(j)&&
+
+TD was start-on-day only:
+const TD=mine.filter(j=>j.start&&j.start>=t0&&j.start<t1)
+
+Upcoming grouping was start.toDateString() only (multi-day availability appeared only on the first day).
