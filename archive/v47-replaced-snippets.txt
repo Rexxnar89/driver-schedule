@@ -1,0 +1,72 @@
+===== 2026-11-17 v.47 alarm chain + weather: main (v.46) snippets replaced =====
+
+<meta name="ds-ver" content="2026-11-12.46">
+
+=====
+
+<small>default 5 · 0–5 early = On time · after start = Late</small></div>
+
+=====
+
+const AL=u=>MYAL()[u]||{};
+
+=====
+
+const fire=(j,x,why)=>{const m=msg(j,x,why);
+
+=====
+
+<div id="alarmov" data-k="${E(j.uid+'|~|'+x.n)}"
+
+=====
+
+siren(/^PREP/.test(why||'')?'prep':true)};
+
+=====
+
+legInfo(j).forEach(x=>[x.n,x.n+'p'].forEach(k=>{const d=A[x.n],a=k==x.n?d:(A[k]&&A[k].on&&d&&d.lead?{...A[k],lead:d.lead+8,why:'PREP ALARM — get ready, leave in 8 min'}:null);
+
+=====
+
+saveAL(j.uid,A);fire(j,x,a.why)}})}catch(e){console.log('alarm tick',e)}};
+
+=====
+
+// alarm calculator: Departure = arrival - (travel + 11); Prep = 8 min before Drive
+const PREP=8,EARLY=11,
+
+=====
+
+po=!!(A[x.n+'p']&&A[x.n+'p'].on),T=new Date(x.t),R=d&&d.lead?new Date(+T-(d.lead+PREP)*6e4):null;
+
+=====
+
+`${PREP} min prep · set a departure or custom alarm first`}</div>
+
+=====
+
+Departure alarm = arrival − (travel + 11 min). Prep alarm = 8 min before departure.
+
+=====
+
+window.alarmPrep=(u,n)=>{const A={...AL(u)},k=n+'p';A[k]=A[k]&&A[k].on?{on:0}:{on:1,fired:''};saveAL(u,A);try{renderQuiet?renderQuiet():render()}catch(e){}plan();alarmOpen(u)};
+
+=====
+
+const d=T-A[k].lead*6e4,P=A[k+'p']&&A[k+'p'].on;return L+'Depart '+tf(new Date(d))+(P?' · Prep '+tf(new Date(d-8*6e4)):'')}
+
+=====
+
+document.body.appendChild(m);L.forEach(x=>alarmCalc(u,x.n))};
+
+=====
+
+alarmOpen('${Q(u)}')">${E(lab)}</button>`;const i=h.lastIndexOf('</div>');return i<0?h+b:h.slice(0,i)+b+h.slice(i)};
+
+=====
+sw.js
+const VER='2026-11-12.46',SC='ds-static-'+VER;
+
+=====
+tests/browser/al41.js
+alarmStop(1);const snz=_alAL('AL41')[1]&&_alAL('AL41')[1].snz;
