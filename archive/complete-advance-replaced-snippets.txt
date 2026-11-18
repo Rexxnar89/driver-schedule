@@ -1,0 +1,8 @@
+complete-advance v1 — replaced snippets (2026-11-18)
+
+1) completeJob (index.html) was left in place as:
+function completeJob(u){const rq=renderQuiet;renderQuiet=()=>{};try{saveCard(u)}finally{renderQuiet=rq}setSt(u,'st','Done')}
+
+A later script block `/* complete-advance v1 */` assigns window.completeJob so today jobs collapse and advance (or land on #caday .donesec when last), and other-day jobs still run this same saveCard + setSt path with no EXP/scroll/note changes.
+
+2) renderDriver today + upcoming HTML: the TODAY box and the Upcoming/Previous filter box were siblings after a dashed <hr>. They are now wrapped as #caday (existing navy TODAY header/body, plus Complete day and #canote) and #cafind (🔍 Find job header, in-page search #cafq, then the existing Upcoming/Previous controls). The dashed hr was removed because each section has its own header and border. The inner TODAY header/body and the Upcoming/Previous controls were not redesigned.
