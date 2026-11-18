@@ -83,9 +83,9 @@ const FC=(()=>{const n=384,time=[],T=[],C=[],P=[],G=[],V=[];for(let i=0;i<n;i++)
   && /58°|60°/.test(L.pts.join(' ')) && /72°|71°|70°/.test(L.pts.join(' '))
   && D.pts.length>=1 && D.pts.length<=3 && !D.urg && !D.also && !D.cold && !D.legs.length
   && /55°/.test(D.wx) && /Partly cloudy/.test(D.wx||D.all||'')
-  && /Thunderstorm/.test(S.urg||S.wx) && /High wind/.test(S.also||'') && /Fog/.test(S.also||'')
+  && /Thunderstorm/.test(S.urg||'') && !/Thunderstorm|Storms/.test(S.all||'') && /High wind/.test(S.also||'') && /Fog/.test(S.also||'')
   && !(S.urg||'').includes('High wind') && (S.hiddenWords||[]).length==0 && !/warm the car/.test(S.wx)
-  && /Below freezing/.test(I.cold||'') && /Freezing rain/.test(I.urg||I.wx) && (I.hiddenWords||[]).length==0
+  && /Below freezing/.test(I.cold||'') && /Freezing rain/.test(I.urg||'') && !/Freezing rain/.test(I.all||'') && /24°|23°/.test(I.all||I.wx||'') && (I.hiddenWords||[]).length==0
   && r.wxReq>=1 && r.wxReq<=3 && r.wxCoords.every(x=>/latitude=40\.8&longitude=-81\.9/.test(x)) && !errs.length;
  console.log(ok?'WX48 PASS':'WX48 FAIL');
  clearTimeout(killer);await b.close();process.exit(ok?0:1)})().catch(e=>{console.log('WX48 ERROR',e&&e.message);process.exit(1)});
