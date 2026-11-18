@@ -1,0 +1,1 @@
+const plan=()=>{try{if(!SWR||Notification.permission!='granted')return;const list=due().filter(d=>d.at>Date.now()&&d.a.fired!=d.key).map(d=>({...msg(d.j,d.x,d.a.why),tag:'al|'+d.j.uid+'|'+d.k,at:d.at}));(navigator.serviceWorker.controller||SWR.active)?.postMessage({type:'schedule',list})}catch(e){}};

@@ -8,6 +8,9 @@ self.addEventListener('message',e=>{const m=e.data||{};
   e.waitUntil((async()=>{const old=await self.registration.getNotifications({includeTriggered:false});old.forEach(n=>n.data&&n.data.sched&&n.close());
    for(const a of m.list||[])if(a.at>Date.now())await self.registration.showNotification(a.title,{...opts(a),showTrigger:new TimestampTrigger(a.at),data:{url:self.registration.scope,sched:1}})})())}});
 self.addEventListener('notificationclick',e=>{e.notification.close();e.waitUntil((async()=>{const L=await self.clients.matchAll({type:'window',includeUncontrolled:true});for(const c of L){if('focus' in c){c.postMessage({type:'alarmclick',tag:e.notification.tag});return c.focus()}}return self.clients.openWindow(self.registration.scope)})())});
+/* closed-app Android push v1: show immediately from the payload (kind + clock time only; no network). */
+const pushNote=(kind,at)=>{const t=new Date(+at||Date.now()).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});return kind=='heat'?{title:'Warm the car',body:'Heat-up at '+t}:kind=='prep'?{title:'Get ready',body:'Prep at '+t}:{title:'Time to leave',body:'Leave at '+t}};
+self.addEventListener('push',e=>{let kind='leave',at=Date.now();try{const d=e.data&&e.data.json();if(d&&d.kind)kind=d.kind;if(d&&d.at)at=+d.at}catch(err){}const n=pushNote(kind,at);e.waitUntil(self.registration.showNotification(n.title,opts({body:n.body,tag:'al|push|'+kind+'|'+at,at:+at})))});
 /* perf v1: icons/images/json cached stale-while-revalidate so they never reload per screen; HTML network-first; Apps Script never cached */
 /* autoupdate v1: bump VER with each release (matches <meta name=ds-ver> in index.html); old caches are deleted on activate */
 const VER='2026-11-17.47',SC='ds-static-'+VER;

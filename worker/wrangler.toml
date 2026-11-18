@@ -1,0 +1,18 @@
+# Driver Schedule closed-app alarm sender (Cloudflare Workers Free).
+# Do not put VAPID_PRIVATE_KEY in this file. Use: npx wrangler secret put VAPID_PRIVATE_KEY
+# Fill in the KV namespace id after: npx wrangler kv namespace create SCHED
+
+name = "driver-schedule-push"
+main = "src/index.js"
+compatibility_date = "2026-11-18"
+
+[triggers]
+crons = ["* * * * *"]
+
+# Optional contact used in the VAPID JWT "sub" claim (not a secret).
+[vars]
+VAPID_SUBJECT = "mailto:rexxnar89@users.noreply.github.com"
+
+[[kv_namespaces]]
+binding = "SCHED"
+id = "YOUR_KV_NAMESPACE_ID"

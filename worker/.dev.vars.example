@@ -1,0 +1,6 @@
+# Copy to .dev.vars for local wrangler dev only. Never commit .dev.vars.
+# Generate keys with: node scripts/gen-vapid.js
+# Then set the private key as a deployed secret: npx wrangler secret put VAPID_PRIVATE_KEY
+VAPID_PRIVATE_KEY=
+VAPID_PUBLIC_KEY=
+VAPID_SUBJECT=mailto:rexxnar89@users.noreply.github.com
