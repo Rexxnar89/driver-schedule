@@ -381,3 +381,12 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Weather: Open-Meteo hourly (temp, code, precip %, gusts mph, visibility), via the app's existing geo() cache; only coords rounded to 0.1° leave the phone for weather. Cached in MS `wxc` (≤8 locations, refresh ≥1 h, 10 min backoff on failure), loaded on demand from card render / alarm dialog; no timers. Hour lookup uses floor (8:30 → 8:00 hour).
 - Hazard thresholds live in `WXW`; max 3 symbols, most severe first; tap shows words. Hazards show regardless of temperature, and in the alarm dialog as "Heads up: … expected at departure."
 - tests/browser/chain47.js mocks Open-Meteo and geo — never let a browser test call the real weather/geocoder with addresses. testmode.js/tap42.js fail on main too (live-sync/network dependent and detached frame); compare against a main worktree before blaming a change.
+
+## 2026-11-18 — priority-driver (not live): job-level Priority driver
+- Job field `pd` (driver name, or '' for Any) is saved with the job JSON (`formJob` / LS.saved / Saved Jobs sheet). Apps Script `savejob` already stores opaque JSON — no sheet-sync.gs change and no redeploy.
+- UI: "Any driver" is a checkbox (`#priany`, default checked) *above* the Priority driver dropdown (`#pri`), not a button or the main control. Picking a name unchecks the box; re-checking clears the dropdown. The old `#drvany` chip was removed.
+- "Any driver" means any non-last-resort driver. The exclusive list is the Owner-tab Last-resort drivers setting (`lastres`; default Kaci Always). There is no separate exclusive list and no "Casey" in the code. Last-resort drivers still sort last / stay hidden in limited lists unless they are the explicit priority.
+- `priSort` / `priName` are used in Available Windows, recDrv auto-pick, assignment dropdowns, and calendar driver chips. recDrv will not auto-pick a last-resort driver when Any is on, even if they are the only one free.
+- Do not nest a `<script>` tag inside a `type="text/x-ds"` script — the first `</script>` closes the outer block and truncates the rest of that file. Insert the IIFE as plain JS.
+- `lrIs` is defined late; call `fillDrv`/`priFill` at the end of the last-resort script so option order is correct on first paint.
+- Version left at 2026-11-17.47 (bump at merge). Tests: `tests/prio48.js` + `tests/browser/prio48.js` (390px, multi-leg). Screenshots: /workspace/v48prio/.

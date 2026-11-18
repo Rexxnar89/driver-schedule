@@ -1,0 +1,22 @@
+Replaced by priority-driver (v.48 pending merge). Full pre-change copy: archive/index-pre-priority-driver.html
+
+===== formJob end =====
+rr:repRule()||(EJ&&EJ.rr)||'',at:Date.now()}}
+
+===== drvOpts =====
+function drvOpts(sel,all){return (all?`<option value="">All drivers</option>`:'')+allDrv().map(d=>`<option ${d==sel?'selected':''}>${d}</option>`).join('')}
+
+===== LRx =====
+const LRx=n=>n!=cur&&window.lrIs&&lrIs(n,sL)?1:0;
+
+===== pri score =====
+const pri=n==cur&&window._drvPri!==0&&!hit&&!nb2;return{n,C,hit,nb:nb2,cl,asg:myL.length>0,fw,rec,pri,sc:(pri?1000:0)+(hit?0:nb2?5:100)+(rec?20:0)+free/4+(n==cur?.5:0)}
+
+===== Any button =====
+r.innerHTML='<button type="button" class="chip" id="drvany">Any driver</button><small id="drvnote"></small>'
+
+===== strip label =====
+row.querySelector('span').textContent=nL>1?'Leg '+n:'Priority driver'
+
+===== _drvPri init =====
+window._drvPri=1;
