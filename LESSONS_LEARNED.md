@@ -381,3 +381,11 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Weather: Open-Meteo hourly (temp, code, precip %, gusts mph, visibility), via the app's existing geo() cache; only coords rounded to 0.1° leave the phone for weather. Cached in MS `wxc` (≤8 locations, refresh ≥1 h, 10 min backoff on failure), loaded on demand from card render / alarm dialog; no timers. Hour lookup uses floor (8:30 → 8:00 hour).
 - Hazard thresholds live in `WXW`; max 3 symbols, most severe first; tap shows words. Hazards show regardless of temperature, and in the alarm dialog as "Heads up: … expected at departure."
 - tests/browser/chain47.js mocks Open-Meteo and geo — never let a browser test call the real weather/geocoder with addresses. testmode.js/tap42.js fail on main too (live-sync/network dependent and detached frame); compare against a main worktree before blaming a change.
+
+## 2026-11-18 — v.48 (branch v48-actual-end, not live): Actual end under Actuals
+- The "Actual end" / Finished picker (`timesEnd`, `.aend`) lived at the end of the Times section, immediately after the Drop-offs fold (`doFold` / `wtFold`) in `numBlock` (`index.html` ~line 169). Jeffrey (voice, Nov 18 ~10:03–10:04am ET) asked to move that value from under Drop-offs to under Actuals and leave everything else as-is.
+- Moved the single `timesEnd(j,s,uq,ed,_PT)` call off the `SEC_T` concatenation and onto the end of the Actuals body `h` (after the existing `L('Finished',s.af)` summary row, ~line 173). No other Times, Drop-offs, or Actuals fields changed. The raw Finished summary line was already in Actuals and was left in place.
+- Version bumped to 2026-11-18.48 (`<meta name=ds-ver>` and `sw.js` `VER` only; did not touch the update-checker regex).
+- Archived the pre-change file as `archive/index-pre-actual-end.html`.
+- Screenshots at 390px with a multi-leg job (not in the repo): `/workspace/v48/before_times.png`, `before_actuals.png`, `after_times.png`, `after_actuals.png`. Not merged or deployed — Jeffrey reviews first.
+- Tests: regression PASS; chain47 and the other 390px browser suites PASS; known main failures unchanged (conflict, errsum, vehicle-status, tap42, return-time). testmode skipped (hits live sync). rate.json / gas.json untouched.
