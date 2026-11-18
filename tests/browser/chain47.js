@@ -66,7 +66,7 @@ const FC=(()=>{const n=384,time=[],T=[],C=[],P=[],G=[],V=[];for(let i=0;i<n;i++)
   &&/Heat 8:05 AM · Prep 8:20 AM · Depart 8:30 AM/.test(r.custom.t.join(' '))&&r.custom.after.h==11&&r.custom.after.p==8
   &&/36°/.test((m.wx||[]).join(' '))&&!/Below freezing/.test((m.wx||[]).join(' '))&&/warm the car/.test((m.wx||[]).join(' '))
   &&/Below freezing/.test((f.wx||[]).join(' '))&&/🌨/.test((f.sym||[]).join(''))
-  &&(h.sym||[]).length==1&&/^⛈️💨🌫️\|/.test(h.sym[0])&&!/warm the car/.test((h.wx||[]).join(' '))
+  &&/Thunderstorm/.test((h.wx||[]).join(' '))&&/High wind/.test((h.wx||[]).join(' '))&&/Fog/.test((h.wx||[]).join(' '))&&!/warm the car/.test((h.wx||[]).join(' '))
   &&/40° or below/.test(r.dlgCold||'')&&/Turn on heat-up alarm/.test(r.dlgCold||'')&&r.oneTap.on&&/Heat-up alarm is on/.test(r.oneTap.txt||'')
   &&/Heads up: thunderstorm, high wind and fog \/ low visibility expected at departure/.test(r.dlgHaz||'')&&!/40° or below/.test(r.dlgHaz||'')
   &&r.settings[0]=='11'&&r.settings[1]=='8'&&r.settings[2]=='40'
