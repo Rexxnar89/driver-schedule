@@ -407,3 +407,10 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - `lrIs` is defined late; call `fillDrv`/`priFill` at the end of the last-resort script so option order is correct on first paint.
 - Tests: `tests/prio48.js` + `tests/browser/prio48.js` (390px, multi-leg). Screenshots: /workspace/v48prio/.
 
+
+## 2026-11-18 — v.48 live: Actual end under Actuals + weather layout + Priority driver
+- Jeffrey approved all three branches live at 10:46am ET. Pulled main first (42aadbf, Rate Nov 18 1.60); rate.json and gas.json were never overwritten.
+- First trimmed a weather-layout duplicate on a freezing-rain day: the overall line and the urgent box both said "Freezing rain". The overall line now keeps the temperature and drops the urgent name; the urgent box keeps "Freezing rain" (also Thunderstorm / Snow). Commit 69db7b8 on weather-layout; wx48 asserts Ice Demo overall has no "Freezing rain".
+- Merged into main (conflicts only in LESSONS_LEARNED.md; index.html auto-merged and was checked for all three features plus version 2026-11-18.48): 80c52c1 actual-end, 4a8ab53 weather-layout, 9aa6cf4 priority-driver, then 8b529c2 (prio48 unit test now expects 2026-11-18.48 instead of the pre-merge 2026-11-17.47 pin).
+- Tests on the merge: regression PASS; actual-end placement PASS; chain47, wx48, prio48 PASS (390px, multi-leg); other 390px suites PASS. Known pre-existing failures unchanged (conflict, errsum, vehicle-status, tap42, return-time). testmode skipped.
+- Pushed 8b529c2 to main. GitHub Pages build succeeded 11:03am ET. Live https://rexxnar89.github.io/driver-schedule/ serves meta and sw.js 2026-11-18.48 and contains timesEnd under Actuals, hideC/wxJob weather layout, and pri-driver / #priany. Screenshots: /workspace/v48/live_closed_card.png, live_create_form.png.
