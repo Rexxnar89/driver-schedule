@@ -397,3 +397,13 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Archived the pre-change file as `archive/index-pre-actual-end.html`.
 - Screenshots at 390px with a multi-leg job (not in the repo): `/workspace/v48/before_times.png`, `before_actuals.png`, `after_times.png`, `after_actuals.png`.
 - Tests: regression PASS; chain47 and the other 390px browser suites PASS; known main failures unchanged (conflict, errsum, vehicle-status, tap42, return-time). testmode skipped (hits live sync). rate.json / gas.json untouched.
+
+## 2026-11-18 — priority-driver (later folded into v.48): job-level Priority driver
+- Job field `pd` (driver name, or '' for Any) is saved with the job JSON (`formJob` / LS.saved / Saved Jobs sheet). Apps Script `savejob` already stores opaque JSON — no sheet-sync.gs change and no redeploy.
+- UI: "Any driver" is a checkbox (`#priany`, default checked) *above* the Priority driver dropdown (`#pri`), not a button or the main control. Picking a name unchecks the box; re-checking clears the dropdown. The old `#drvany` chip was removed.
+- "Any driver" means any non-last-resort driver. The exclusive list is the Owner-tab Last-resort drivers setting (`lastres`; default Kaci Always). There is no separate exclusive list and no "Casey" in the code. Last-resort drivers still sort last / stay hidden in limited lists unless they are the explicit priority.
+- `priSort` / `priName` are used in Available Windows, recDrv auto-pick, assignment dropdowns, and calendar driver chips. recDrv will not auto-pick a last-resort driver when Any is on, even if they are the only one free.
+- Do not nest a `<script>` tag inside a `type="text/x-ds"` script — the first `</script>` closes the outer block and truncates the rest of that file. Insert the IIFE as plain JS.
+- `lrIs` is defined late; call `fillDrv`/`priFill` at the end of the last-resort script so option order is correct on first paint.
+- Tests: `tests/prio48.js` + `tests/browser/prio48.js` (390px, multi-leg). Screenshots: /workspace/v48prio/.
+
