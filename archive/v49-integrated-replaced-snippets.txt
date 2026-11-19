@@ -1,0 +1,35 @@
+===== v49-integrated: combined scroll-jump-fix + complete-advance + upcoming-job nosnap. Version not bumped (2026-11-18.48). =====
+
+===== wxFill (pre, complete-advance/v.48) =====
+const wxFill=()=>document.querySelectorAll('.wxchip').forEach(s=>{const j0=jobs.find(z=>z.uid==s.dataset.wxu),j=j0&&s.dataset.wxleg?{...j0,_legOf:j0.uid,_leg:+s.dataset.wxleg}:j0,h=j?wxJob(j):'';s.innerHTML=h;s.style.display=h?'block':'none'});
+const wxRun=()=>{const q=[...WXQ];WXQ.clear();Promise.all(q.map(wxLoad)).then(wxFill)};
+const wxH=j=>{const R=wxRange(j);if(!R)return '';if(!WXQ.size)Promise.resolve().then(wxRun);R.all.forEach(x=>WXQ.add(x.a));const u=j._legOf||j.uid,h=wxJob(j);return`<d
+
+===== wxH (pre, complete-advance/v.48) =====
+const wxH=j=>{const R=wxRange(j);if(!R)return '';if(!WXQ.size)Promise.resolve().then(wxRun);R.all.forEach(x=>WXQ.add(x.a));const u=j._legOf||j.uid,h=wxJob(j);return`<div class="wxchip wxblock" data-wxu="${E(u)}"${j._legOf?` data-wxleg="${j._leg}"`:''} style="display:${h?'block':'none'};max-width:100%;margin:4px 0 0">${h}</div>`};
+/* alarm dialog: cold note (<= Settings cold) and/or hazard heads-up at departure, independent of temperature; heat-up one-tap offered for cold, ice or snow (never auto
+
+===== fix (pre, complete-advance/v.48) =====
+const fix=()=>{if(!A||own)return;const t=cur();if(t==null){guard();return}const d=t-A.top;if(Math.abs(d)<=1){guard();return}if(Math.abs(d)>innerHeight*1.5&&A.k&&/complete|done/i.test(A.k.t)){/* tapped item moved far (re-sorted/completed): keep the screen still */if(Math.abs(scrollY-A.sy)>1){own=1;scrollTo(0,A.sy);own=0}guard();return}own=1;scrollBy(0,d);own=0;A.sy=scrollY;guard()};let pq=0,UI=0;let ty=null;addEventListener('touchstart',e=>{ty=e.touches&&e.touches[0]?e.touches[0].clientY:null},{p
+
+===== scroll listener (pre, complete-advance/v.48) =====
+addEventListener('scroll',()=>{if(own||pq)return;pq=1;requestAnimationFrame(()=>{pq=0;if(own)return;if(Date.now()-T<6000&&A&&A.k){/* only a real finger/wheel scroll after the tap re-bases; scrolls caused by the re-render (clamp, browser anchoring) are corrected instead */if(!(UI>T&&Date.now()-UI<1500)){fix();return}/* finger scroll after the tap ends that tap's anchor */T=0;A=null;document.body.style.minHeight=''}pickVis()})},{passive:true});let MN=0;const mo=new MutationObserver(()=>{MN++;if(wi
+
+===== openNext (pre, complete-advance/v.48) =====
+function openNext(u){const j=jobs.find(x=>x.uid==u)||upcoming().find(x=>x.uid==u);if(!j)return;EXP.add(u);sessionStorage.exp=JSON.stringify([...EXP]);const f=()=>[...document.querySelectorAll('#dcards .jh')].find(h=>(h.getAttribute('onclick')||'').includes(u));if(f())renderDriver();else setDV('jump',ymd(j.start));setTimeout(()=>{const h=f();if(h)h.closest('.jc').scrollIntoView({block:'start'})},80)}
+const DAYSTY={Tomorrow:['#00838f','#e0f7fa'],Yesterday:['#6d4c41','#efebe9'],Today:['#1f3a5f','#e
+
+===== flashCard (pre, complete-advance/v.48) =====
+function flashCard(uid){const sel=[...document.querySelectorAll('.jc')].filter(c=>c.offsetParent).find(c=>{const h=c.querySelector('.jh');return h&&(h.getAttribute('onclick')||'').includes(uid)});if(!sel)return false;sel.scrollIntoView({block:'center'});sel.style.transition='box-shadow .3s';sel.style.boxShadow='0 0 0 4px #ffd54f,0 0 18px #ffb300';setTimeout(()=>{sel.style.boxShadow=''},2500);return true}
+
+function formReset(){window.DV={};window._dvTxt='';{const o=$('dupban');if(o)o.remove()}con
+
+===== tog (pre, complete-advance/v.48) =====
+function tog(u){if(EXPALL){EXPALL=false;sessionStorage.expall='';jobs.forEach(j=>EXP.add(j.uid))}EXP.has(u)?EXP.delete(u):EXP.add(u);sessionStorage.exp=JSON.stringify([...EXP]);renderQuiet()}
+function expAll(v){EXPALL=v;sessionStorage.expall=v?'1':'';if(!v){EXP.clear();sessionStorage.exp='[]'}renderQuiet()}
+function expBar(){return`<div style="text-align:right;margin:4px 0"><button class="btn" style="padding:4px 10px" onclick="expAll(true)">Expand all</button><button class="btn" style="padding:4
+
+===== caScroll (pre, complete-advance/v.48) =====
+function caScroll(el){if(!el)return;if(!el.hasAttribute('tabindex'))el.setAttribute('tabindex','-1');el.scrollIntoView({behavior:'smooth',block:'start'});try{el.focus({preventScroll:true})}catch(e){}}
+function caJump(u){if(u){const el=caCard(u);if(el){caScroll(el);return}}const sec=D('caday')&&D('caday').querySelector('.donesec')||document.querySelector('#dcards .donesec');if(sec)caScroll(sec)}
+function caExpSave(){try{sessionStorage.exp=JSON.stringify([...EXP]);sessionStorage.expall=EXPALL?'1':
