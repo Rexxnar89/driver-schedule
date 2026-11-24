@@ -471,3 +471,12 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Lesson: never collapse many placeholders at once under the user's finger; keep the space until real content replaces it.
 - Lesson: test slow networks by delaying the mocked response past the app's own timeout (9.5s > 8s), not just "slow".
 - Tests: new `tests/browser/wxtimeout51.js` FAILS on v.50 (card moved 56px, height −1931px, no weather back) and PASSES on v.51 (0px); `bounce50.js` (now opens the Upcoming tab) FAILS on v.50 (93px) and PASSES (0px).
+
+## 2026-11-24 — v.52: Upcoming jumps to the top "when I reach Thursday"
+- Jeffrey (5:35pm ET, live v.51): every time he reaches Thursday under Upcoming it jumps to the top; "just currently".
+- Real data (read-only, live site): this week's recurring "Available till 5:00PM" event runs Mon Nov 23 6:30am – Thu Nov 26 5pm, so Upcoming shows it on Wednesday (Tomorrow) AND Thursday; next week's copy shows on Mon/Tue. These availability cards have no tog() uid.
+- Root cause: tapAnchor (v40) remembered the card in view by uid only. Reaching Thursday made Thursday's availability card the anchor (uid null); the next repaint (weather, timers, any class change) looked up the first uid-less card = Wednesday's copy near the top, and fix() scrolled by -4,000…-13,000px to "keep it still". Reproduced on live with real data: slow finger scroll, 5 jumps to sy≈750 from Thu/Mon/Tue.
+- Fix: anchor = uid + which copy (index among visible cards with that uid): `same/fc(u,i)/ix(c)` in tapAnchor.
+- Lesson: never identify a DOM item by a key that can repeat (multi-day events, legs, uid-less cards); store the occurrence index too or keep the element.
+- Lesson: reproduce with the user's real (read-only) data when a bug is tied to a day — fixtures missed the multi-day availability card.
+- Tests: new `tests/browser/dupcard52.js` FAILS on v.51 (jump -4581px) and PASSES on v.52 (0px). Real-data slow scroll on the fix: 0 drops.

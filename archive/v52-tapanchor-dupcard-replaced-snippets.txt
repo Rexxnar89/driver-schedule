@@ -1,0 +1,11 @@
+v.52 (2026-11-24) replaced snippets — tapAnchor (v40) found cards by uid only.
+A multi-day "available" event (e.g. weekly Mon 6:30am – Thu 5pm) shows one card per day it covers, and those
+cards have no tog() uid (uo()==null), as do any other uid-less cards. When the later copy (Thursday) became the
+card in view, pickVis anchored {u:null}; the next repaint looked up the FIRST uid-less card (Wednesday's copy near
+the top of Upcoming) and fix() "corrected" by -4,000 to -13,000px = jump to the top.
+
+const fc=u=>[...document.querySelectorAll('#driver .jc')].find(c=>c.offsetParent&&!c.closest('#nxttop')&&uo(c)==u);
+const set=(u,k,el,sy)=>{const c=fc(u);if(c)k.off=el.getBoundingClientRect().top-c.getBoundingClientRect().top;A={u,k,top:el.getBoundingClientRect().top,sy:sy==null?scrollY:sy}};
+pickVis: A=v?{u:uo(v),k:null,top:v.getBoundingClientRect().top,sy:scrollY}:null};
+onDown:  if(el&&c.contains(el))set(u,keyOf(c,el),el);else A={u,k:null,top:c.getBoundingClientRect().top,sy:scrollY}};
+cur()/guard0: fc(A.u)
