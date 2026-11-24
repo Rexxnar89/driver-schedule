@@ -106,6 +106,55 @@ async function ghostScrollClick(pg, selectorFind){
   }, selectorFind);
 }
 
+
+// Android Chrome: pointerdown, a tiny move under the 10px threshold, then
+// pointercancel (native scroll takes over and pointermove stops), a window
+// scroll, touchend, then a synthetic click at the original point. waitMs
+// covers a pause longer than the old 400ms arm window before the click.
+async function androidGhostClick(pg, selectorFind, waitMs){
+  return pg.evaluate(async (finder, waitMs)=>{
+    const el=eval(finder);
+    if(!el)return {ok:false,why:'no-target'};
+    const r=el.getBoundingClientRect();
+    const x=r.left+Math.min(40,r.width/2), y=r.top+Math.min(20,r.height/2);
+    const sy0=scrollY;
+    const exp0=(typeof EXP!='undefined')?[...EXP]:[];
+    const into=[];
+    const siv=Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView=function(){into.push((this.id||this.className||'')+':'+(this.textContent||'').replace(/\s+/g,' ').slice(0,40));return siv.apply(this,arguments)};
+    const fire=(type,cx,cy)=>{
+      el.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,clientX:cx,clientY:cy,pointerId:1,pointerType:'touch',isPrimary:true,buttons:type==='pointerup'||type==='pointercancel'||type==='click'?0:1,view:window}));
+    };
+    fire('pointerdown',x,y);
+    try{
+      const t=new Touch({identifier:1,target:el,clientX:x,clientY:y});
+      el.dispatchEvent(new TouchEvent('touchstart',{bubbles:true,cancelable:true,touches:[t],changedTouches:[t]}));
+    }catch(e){}
+    fire('pointermove',x,y-6);
+    el.dispatchEvent(new PointerEvent('pointercancel',{bubbles:true,cancelable:true,clientX:x,clientY:y-6,pointerId:1,pointerType:'touch',isPrimary:true,buttons:0,view:window}));
+    const max=Math.max(0,document.documentElement.scrollHeight-innerHeight);
+    scrollTo(0, Math.min(max, sy0+220));
+    const sy1=scrollY;
+    try{
+      const t=new Touch({identifier:1,target:el,clientX:x,clientY:y-6});
+      el.dispatchEvent(new TouchEvent('touchend',{bubbles:true,cancelable:true,touches:[],changedTouches:[t]}));
+    }catch(e){}
+    if(waitMs)await new Promise(r=>setTimeout(r,waitMs));
+    el.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,clientX:x,clientY:y,view:window}));
+    await new Promise(r=>setTimeout(r,200));
+    const exp1=(typeof EXP!='undefined')?[...EXP]:[];
+    const sy2=scrollY;
+    Element.prototype.scrollIntoView=siv;
+    return {
+      ok:true,sy0,sy1,sy2,
+      jumpedBack: sy2<sy1-40,
+      expChanged: JSON.stringify(exp0)!==JSON.stringify(exp1),
+      exp1,into,
+      text:(el.innerText||'').replace(/\s+/g,' ').slice(0,80)
+    };
+  }, selectorFind, waitMs||0);
+}
+
 (async()=>{
   const b=await p.launch({executablePath:'/usr/bin/google-chrome',args:['--no-sandbox','--disable-dev-shm-usage'],protocolTimeout:60000});
   _b=b;
@@ -144,6 +193,32 @@ async function ghostScrollClick(pg, selectorFind){
     console.log('NXT',JSON.stringify(r2));
   }
 
+  // Android: pointercancel + scroll, no pointermove past 10px
+  const showUp=async()=>{
+    await pg.evaluate(()=>{
+      const card=[...document.querySelectorAll('#driver .jc')].find(c=>/Upcoming Multi/.test(c.innerText||''));
+      if(card)card.scrollIntoView({block:'center'});
+    });
+    await W(200);
+  };
+  const showNxt=async()=>{
+    await pg.evaluate(()=>{
+      const n=document.querySelector('#nxttop .nxtjob')||[...document.querySelectorAll('#cafind .nxtjob, #driver .nxtjob')].find(x=>/after tomorrow|Next job/i.test(x.innerText||''))||[...document.querySelectorAll('#cafind .nxtjob, #driver .nxtjob,#nxttop .nxtjob')].find(x=>{const r=x.getBoundingClientRect();return r.height>0});
+      if(n)n.scrollIntoView({block:'center'});
+    });
+    await W(200);
+  };
+  await showUp();
+  const r3=await androidGhostClick(pg, findUp, 0);
+  console.log('ANDROID_CARD',JSON.stringify(r3));
+  await showNxt();
+  const findNxtOrTop="document.querySelector('#nxttop .nxtjob')||[...document.querySelectorAll('#cafind .nxtjob, #driver .nxtjob')].find(n=>/after tomorrow|Next job/i.test(n.innerText||''))||[...document.querySelectorAll('#cafind .nxtjob, #driver .nxtjob,#nxttop .nxtjob')].find(n=>{const r=n.getBoundingClientRect();return r.bottom>0&&r.top<innerHeight})";
+  const r4=await androidGhostClick(pg, findNxtOrTop, 0);
+  console.log('ANDROID_NXT',JSON.stringify(r4));
+  await showUp();
+  const r5=await androidGhostClick(pg, findUp, 500);
+  console.log('ANDROID_DELAY',JSON.stringify(r5));
+
   const bad=[];
   if(!info.hasUp)bad.push('upcoming multi-leg card not in the driver list');
   if(!r1.ok)bad.push('card target missing: '+(r1.why||''));
@@ -153,7 +228,17 @@ async function ghostScrollClick(pg, selectorFind){
   if(r2.ok&&r2.expChanged)bad.push('Next-job pointer ghost click expanded a job');
   if(r2.ok&&r2.jumpedBack)bad.push('Next-job pointer ghost click snapped the view (sy '+r2.sy1+' → '+r2.sy2+')');
   if(r2.ok&&r2.into&&r2.into.length)bad.push('unprompted scrollIntoView from Next-job pointer: '+JSON.stringify(r2.into));
+  const chk=(r,label)=>{
+    if(!r||!r.ok){bad.push(label+' target missing: '+((r&&r.why)||''));return}
+    if(r.expChanged)bad.push(label+' ghost click expanded/collapsed a job');
+    if(r.jumpedBack)bad.push(label+' snapped the view (sy '+r.sy1+' → '+r.sy2+')');
+    if(r.into&&r.into.length)bad.push(label+' unprompted scrollIntoView: '+JSON.stringify(r.into));
+  };
+  chk(r3,'Android pointercancel on upcoming job');
+  chk(r4,'Android pointercancel on Next-job / #nxttop');
+  chk(r5,'Android pointercancel + 500ms pause on upcoming job');
   if(errs.length)bad.push('page errors '+errs.slice(0,3).join(' | '));
+
 
   console.log(bad.length?'UPSNAP49 FAIL\n'+bad.join('\n'):'UPSNAP49 PASS');
   await b.close();clearTimeout(killer);
