@@ -15,7 +15,7 @@ const FC=(()=>{const n=384,time=[],T=[],C=[],P=[],G=[],V=[];
   for(let i=0;i<n;i++){time.push(Math.round(+t0/1e3)+i*3600);T.push(50+(i%8));C.push(i%11===0?66:i%9===0?95:i%7===0?61:2);P.push(20);G.push(15);V.push(20000)}
   return{hourly:{time,temperature_2m:T,weather_code:C,precipitation_probability:P,wind_gusts_10m:G,visibility:V}}})();
 
-async function boot(b, delay){
+async function boot(b, delay, tab){
   const pg=await (await b.createBrowserContext()).newPage();
   pg.setDefaultTimeout(20000);
   await pg.emulate({viewport:{width:390,height:844,isMobile:true,hasTouch:true,deviceScaleFactor:2},userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1'});
@@ -65,6 +65,8 @@ async function boot(b, delay){
     try{if(![...drv.options].some(o=>o.value=='BB'))drv.insertAdjacentHTML('beforeend','<option value="BB">BB</option>')}catch(e){}
     drv.value='BB';render();
   });
+  // v50 tabs: open the requested tab (Upcoming holds the long multi-day list; Current holds today only)
+  if(tab)await pg.evaluate(t=>{if(typeof upWin=='function')show(t)},tab);
   await W(200);
   return {pg,errs};
 }
@@ -85,7 +87,8 @@ async function scrollPhase(pg, dir, steps, label, midFn){
     const after=before&&before.u?await pg.evaluate(u=>({tracked:window.__posU(u),vis:window.__cardAt()}),before.u):{tracked:null,vis:await pg.evaluate(()=>window.__cardAt())};
     if(after.tracked&&before){
       const dTop=after.tracked.top-before.top,dSy=after.tracked.sy-before.sy,residual=dTop+dSy,dH=after.tracked.docH-before.docH;
-      const atEnd=(dir>0&&before.sy>=Math.max(0,before.docH-844)-2)||(dir<0&&before.sy<=2);
+      /* a step clamped by the top/bottom of the page is not a jump (short pages end mid-step) */
+      const atEnd=(dir>0&&before.sy>=Math.max(0,before.docH-844)-2)||(dir<0&&before.sy<=2)||(dir>0&&after.tracked.sy>=Math.max(0,after.tracked.docH-844)-1)||(dir<0&&after.tracked.sy<=1);
       const rec={i,label,u:after.tracked.u,dTop:Math.round(dTop),dSy:Math.round(dSy),residual:Math.round(residual),dH:Math.round(dH),sy:after.tracked.sy,docH:after.tracked.docH,wx:after.tracked.wx};
       if(Math.abs(residual)>LIMIT)jumps.push({...rec,why:'visual'});
       else if(!atEnd&&Math.abs(dH)<20&&Math.abs(dSy)<STEP_PX*0.4)jumps.push({...rec,why:'undone-scroll'});
@@ -98,7 +101,7 @@ async function scrollPhase(pg, dir, steps, label, midFn){
 (async()=>{
   const b=await p.launch({executablePath:'/usr/bin/google-chrome',args:['--no-sandbox','--disable-dev-shm-usage'],protocolTimeout:60000});
   _b=b;
-  const hold=await boot(b, WX_DELAY);
+  const hold=await boot(b, WX_DELAY, 'up');
   await hold.pg.evaluate(()=>{window.__sj.own=1;scrollTo(0,1800);window.__sj.own=0});
   await W(80);
   await hold.pg.evaluate(()=>{window.__sj.own=1;scrollTo(0,scrollY+1);scrollTo(0,scrollY-1);window.__sj.own=0});
@@ -117,11 +120,13 @@ async function scrollPhase(pg, dir, steps, label, midFn){
   console.log('HOLD',JSON.stringify(holdInfo));
   await hold.pg.browserContext().close();
 
-  const sc=await boot(b, WX_DELAY);
+  const bad=[];
+  for(const TAB of ['up','driver']){
+  const sc=await boot(b, WX_DELAY, TAB);
   const tScroll=Date.now();
   const STEPS=Math.max(20, Math.round(10000/STEP_MS));
-  const down=await scrollPhase(sc.pg, +1, STEPS, 'down-with-weather');
-  const up=await scrollPhase(sc.pg, -1, STEPS, 'up-with-loop', async pg=>{
+  const down=await scrollPhase(sc.pg, +1, STEPS, TAB+':down-with-weather');
+  const up=await scrollPhase(sc.pg, -1, STEPS, TAB+':up-with-loop', async pg=>{
     await pg.evaluate(()=>{
       const lb=document.getElementById('livebar');
       if(lb){lb.innerHTML='✔ LIVE from Proton · '+jobs.length+' jobs · Last updated '+new Date().toLocaleTimeString();lb.style.background='#c8e6c9'}
@@ -131,19 +136,19 @@ async function scrollPhase(pg, dir, steps, label, midFn){
   });
   const elapsed=Date.now()-tScroll;
   const extra=await sc.pg.evaluate(()=>({into:window.__sj.into,calls:window.__sj.calls.filter(c=>c.kind==='scrollIntoView'||c.kind==='scrollTo'||(c.kind==='focus'&&!/ps=true/.test(c.args)))}));
-  console.log('DOWN',down.end,'jumps',down.jumps.length, JSON.stringify(down.jumps.slice(0,8)));
-  console.log('UP',up.end,'jumps',up.jumps.length, JSON.stringify(up.jumps.slice(0,8)));
-  console.log('ELAPSED_MS',elapsed,'INTO',extra.into,'ERRS',sc.errs);
-
-  const bad=[];
+  console.log(TAB,'DOWN',down.end,'jumps',down.jumps.length, JSON.stringify(down.jumps.slice(0,8)));
+  console.log(TAB,'UP',up.end,'jumps',up.jumps.length, JSON.stringify(up.jumps.slice(0,8)));
+  console.log(TAB,'ELAPSED_MS',elapsed,'INTO',extra.into,'ERRS',sc.errs);
+  if(down.end.wx<Math.min(10,Math.ceil(down.end.cards/2)))bad.push(TAB+' down: weather did not render on cards');
+  if(down.jumps.length)bad.push(TAB+' down: '+down.jumps.length+' unprompted visual jumps '+JSON.stringify(down.jumps.slice(0,5)));
+  if(up.jumps.length)bad.push(TAB+' up: '+up.jumps.length+' unprompted visual jumps '+JSON.stringify(up.jumps.slice(0,5)));
+  if(extra.into.length)bad.push(TAB+' unprompted scrollIntoView '+JSON.stringify(extra.into));
+  if(sc.errs.length)bad.push(TAB+' page errors '+sc.errs.slice(0,3).join(' | '));
+  if(elapsed<15000)bad.push(TAB+' scroll phase too short '+elapsed+'ms');
+  await sc.pg.browserContext().close();
+  }
   if(!h0||!h1)bad.push('hold: could not track a mid-list card');
   if(Math.abs(holdJump)>LIMIT)bad.push('hold: card jumped '+holdJump+'px when weather arrived (scrollY delta '+holdInfo.dSy+')');
-  if(down.end.wx<10)bad.push('down: weather did not render on cards');
-  if(down.jumps.length)bad.push('down: '+down.jumps.length+' unprompted visual jumps '+JSON.stringify(down.jumps.slice(0,5)));
-  if(up.jumps.length)bad.push('up: '+up.jumps.length+' unprompted visual jumps '+JSON.stringify(up.jumps.slice(0,5)));
-  if(extra.into.length)bad.push('unprompted scrollIntoView '+JSON.stringify(extra.into));
-  if(sc.errs.length)bad.push('page errors '+sc.errs.slice(0,3).join(' | '));
-  if(elapsed<15000)bad.push('scroll phase too short '+elapsed+'ms');
 
   console.log(bad.length?'SCROLLJUMP48 FAIL\n'+bad.join('\n'):'SCROLLJUMP48 PASS');
   await b.close();clearTimeout(killer);

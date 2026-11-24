@@ -85,8 +85,8 @@ const ok=(name,cond,extra)=>{results.push({name,pass:!!cond,extra});console.log(
      hasUndo:!!(note&&/Undo/.test(note.innerText||'')),
      donesec:!!done,doneTxt:(done&&done.innerText||'').replace(/\s+/g,' ').slice(0,80),
      hasCaday:!!caday,hasCafind:!!cafind,
-     cadayH:(caday&&(caday.querySelector('b, .cadayh, [style*="1f3a5f"]')?.textContent||caday.innerText||'')).slice(0,80),
-     cafindH:(cafind&&(cafind.querySelector('.cafindh')?.textContent||'')).trim(),
+     cadayH:((caday&&(caday.querySelector('b, .cadayh, [style*="1f3a5f"]')?.textContent||caday.innerText||''))||'').slice(0,80),
+     cafindH:((cafind&&(cafind.querySelector('.cafindh')?.textContent||''))||'').trim(),
      hasCafq:!!document.getElementById('cafq'),
      hasDayBtn:!!document.getElementById('cadaybtn'),
      caov:!!document.getElementById('caov'),
@@ -106,12 +106,16 @@ const ok=(name,cond,extra)=>{results.push({name,pass:!!cond,extra});console.log(
  // --- sections exist and are distinct ---
  let st=await state();
  ok('today section #caday present', st.hasCaday && st.hasDayBtn && /TODAY/.test(st.cadayH||''), {h:st.cadayH});
- ok('find section #cafind present', st.hasCafind && st.hasCafq && /Find job/.test(st.cafindH||''), {h:st.cafindH});
- ok('sections are distinct (two headers/borders)', st.hasCaday && st.hasCafind && st.hasDayBtn && st.hasCafq, st);
+ // v50 tabs: Today lives on the Current tab, Find on its own Find tab (only the open tab is rendered)
  await shot('sections_page.png');
  await shot('sections_page_full.png',null,true);
  await shot('section_today.png','#caday');
+ await pg.evaluate(()=>show('find'));await W(300);
+ const stF=await state();
+ ok('find section #cafind present (Find tab)', stF.hasCafind && stF.hasCafq && /Find job/.test(stF.cafindH||''), {h:stF.cafindH});
+ ok('sections are distinct (Current: Today only, Find: Find only)', st.hasCaday && !st.hasCafind && st.hasDayBtn && stF.hasCafind && !stF.hasCaday && stF.hasCafq, {cur:[st.hasCaday,st.hasCafind],find:[stF.hasCaday,stF.hasCafind]});
  await shot('section_find.png','#cafind');
+ await pg.evaluate(()=>{show('driver');scrollTo(0,0)});await W(300);
  await pg.evaluate(()=>{const el=document.getElementById('caday');if(el)el.scrollIntoView({block:'start'})});
  await W(400);
  await hideAlarms();

@@ -159,6 +159,8 @@ async function androidGhostClick(pg, selectorFind, waitMs){
   const b=await p.launch({executablePath:'/usr/bin/google-chrome',args:['--no-sandbox','--disable-dev-shm-usage'],protocolTimeout:60000});
   _b=b;
   const {pg,errs}=await boot(b);
+  // v50 tabs: upcoming jobs and the Next-job-after-tomorrow pointer live on the Upcoming tab
+  await pg.evaluate(()=>{if(typeof upWin=='function')show('up')});await W(200);
   // scroll the Upcoming section into view (green Find / Upcoming box)
   await pg.evaluate(()=>{
     const up=document.querySelector('#cafind, [onclick*="setDV(\'dir\',\'up\')"]')||[...document.querySelectorAll('b,div,button')].find(x=>/Upcoming/i.test(x.textContent||'')&&x.offsetParent);
@@ -196,6 +198,7 @@ async function androidGhostClick(pg, selectorFind, waitMs){
   // Android: pointercancel + scroll, no pointermove past 10px
   const showUp=async()=>{
     await pg.evaluate(()=>{
+      if(typeof upWin=='function'&&DTAB!='up')show('up');
       const card=[...document.querySelectorAll('#driver .jc')].find(c=>/Upcoming Multi/.test(c.innerText||''));
       if(card)card.scrollIntoView({block:'center'});
     });
@@ -203,6 +206,7 @@ async function androidGhostClick(pg, selectorFind, waitMs){
   };
   const showNxt=async()=>{
     await pg.evaluate(()=>{
+      if(typeof upWin=='function')show('driver'); /* v50: the #nxttop banner is on Current */
       const n=document.querySelector('#nxttop .nxtjob')||[...document.querySelectorAll('#cafind .nxtjob, #driver .nxtjob')].find(x=>/after tomorrow|Next job/i.test(x.innerText||''))||[...document.querySelectorAll('#cafind .nxtjob, #driver .nxtjob,#nxttop .nxtjob')].find(x=>{const r=x.getBoundingClientRect();return r.height>0});
       if(n)n.scrollIntoView({block:'center'});
     });

@@ -45,7 +45,7 @@ const FC=(()=>{const n=384,time=[],T=[],C=[],P=[],G=[],V=[];for(let i=0;i<n;i++)
   document.getElementById('alarmdlg')?.remove();drv.value='BB';render()},
   {m1:+at(1,9),m1e:+at(1,10),m2:new Date(+at(1,14)-at(1,14).getTimezoneOffset()*6e4).toISOString().slice(0,16),
    l:+at(2,8),le:+at(2,15),d:+at(3,10),de:+at(3,11),h:+at(1,16),he:+at(1,17),f:+at(1,6),fe:+at(1,7)});
- await W(1500);await pg.evaluate(()=>render());await W(800);
+ await W(1500);await pg.evaluate(()=>{/* v50 tabs: these jobs are tomorrow onward, so they live on the Upcoming tab */if(typeof upWin=='function')show('up');render()});await W(800);
  // cards must stay closed — weather is visible without tapping the job open
  r.opened=await pg.evaluate(()=>[...document.querySelectorAll('.card.jc.open')].some(c=>/Test Rider|Long Haul|Mild Day|Storm Demo|Ice Demo/.test(c.innerText)));
  const grab=()=>pg.evaluate(()=>[...document.querySelectorAll('.card')].filter(c=>/Test Rider|Long Haul|Mild Day|Storm Demo|Ice Demo/.test(c.innerText)).map(c=>{

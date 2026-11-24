@@ -33,7 +33,7 @@ const FC=(()=>{const n=384,time=[],T=[],C=[],P=[],G=[],V=[];for(let i=0;i<n;i++)
   alarmSet('MULTI',1,30);alarmPrep('MULTI',1);alarmHeat('MULTI',1);alarmSet('MULTI',2,20);alarmPrep('MULTI',2);alarmHeat('MULTI',2);
   alarmSet('FRZ',1,15);alarmSet('HAZ',1,20);document.getElementById('alarmdlg')?.remove();drv.value='BB';render()},
   {m1:+at(1,9),m1e:+at(1,10),m2:new Date(+at(1,14)-at(1,14).getTimezoneOffset()*6e4).toISOString().slice(0,16),f:+at(1,6),fe:+at(1,7),h:+at(2,15),he:+at(2,16)});
- await W(1500);await pg.evaluate(()=>render());await W(800);
+ await W(1500);await pg.evaluate(()=>{/* v50 tabs: these jobs are tomorrow onward, so they live on the Upcoming tab */if(typeof upWin=='function')show('up');render()});await W(800);
  const cards=()=>pg.evaluate(()=>[...document.querySelectorAll('.card')].filter(c=>/Test Rider|Freeze Demo|Storm Demo/.test(c.innerText)).map(c=>({t:c.innerText.replace(/\s+/g,' ').slice(0,400),al:[...c.querySelectorAll('button')].map(x=>x.textContent).filter(x=>/⏰/.test(x)),wx:[...c.querySelectorAll('.wxchip')].map(x=>x.innerText.replace(/\s+/g,' ')),sym:[...c.querySelectorAll('.wxsym')].map(x=>x.textContent+'|'+x.title)})));
  r.cards=await cards();
  const shot=async(rx,f)=>{await pg.evaluate(rx=>{const c=[...document.querySelectorAll('.card')].find(c=>new RegExp(rx).test(c.innerText));if(c){const b=[...c.querySelectorAll('button')].find(x=>/⏰/.test(x.textContent));(b||c).scrollIntoView({block:b?'end':'center'});if(b)window.scrollBy(0,180)}},rx);await W(300);await pg.screenshot({path:OUT+'/'+f})};

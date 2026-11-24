@@ -1,0 +1,42 @@
+v50 tabs (Current / Upcoming / Find / Owner): original code replaced on 2026-11-24. Restore by swapping each snippet back.
+
+### nav buttons
+<button onclick="show('driver')">Current jobs</button><button onclick="show('cal')">Calendar</button><button onclick="show('owner')">Owner</button>
+
+### show() head
+function show(s){try{setTimeout(()=>scrOpen(s),0)}catch(e){}
+
+### show() tail
+['driver','owner','newjob'].forEach(x=>$(x).classList.toggle('hide',x!=s));if(s=='newjob'){jobTitle();avail()}}
+
+### DVW (insert DTAB helpers)
+function DVW(){try{return{dir:'up',span:'7',
+
+### renderDriver Current only
+let h=todayRead(d)+(d?`<button type="button" class="btn" style="margin:6px 0" onclick="toOpen()">
+
+### renderDriver Find only
+h+=`<div id="cafind" class="casec cafind"><div class="cafindh">🔍 Find job</div>
+
+### nxtTop
+e.innerHTML=DVW().dir=='prev'?'':nxtLine(nxtSoon(),'Next job:','No upcoming jobs')}
+
+### openNext
+function openNext(u){if(window.dsScrollClick&&dsScrollClick())return;const j=jobs.find(x=>x.uid==u)||upcoming().find(x=>x.uid==u);if(!j)return;EXP.add(u);sessionStorage.exp=JSON.stringify([...EXP]);const f=()=>[...document.querySelectorAll('#driver .jh')].find(h=>(h.getAttribute('onclick')||'').includes(u));const go=()=>{if(f())(window.dsKeepView||(fn=>fn()))(()=>renderDriver());else setDV('jump',ymd(j.start));setTimeout(()=>{const h=f();if(h)(window.dsOwnScroll||(fn=>fn()))(()=>{h.closest('.jc').scrollIntoView({block:'start'})});if(window.dsClearAnchor)dsClearAnchor()},80)};go()}
+
+
+### flashCard
+function flashCard(uid){const sel=[...document.querySelectorAll('#driver .jc,.jc')].filter(c=>c.offsetParent).find(c=>{const h=c.querySelector('.jh');return h&&(h.getAttribute('onclick')||'').includes(uid)});if(!sel)return false;
+
+### curTab
+const curTab=()=>['newjob','owner','cal','driver'].find(x=>{const e=document.getElementById(x);return e&&!e.classList.contains('hide')})||'driver';
+
+### viewRange
+const t1=new Date(+D+864e5),W=dvRange(DVW(),D,t1);return[Math.min(+D,+W.from),Math.max(+t1,+W.to)]}
+
+### css
+#caday.casec,#cafind.casec{margin-top:10px}
+### legsurf wrapper head
+const _rd=renderDriver;renderDriver=function(){_rd.apply(this,arguments);try{const d=$('drv').value,box=$('dcards');if(!box)return;
+### Find day grouping (now dayGroup(SL,W))
+const days={};SL.forEach(j=>{if(isAvailEvt(j)){for(let d=new Date(+W.from);d<W.to;d.setDate(d.getDate()+1)){if(overlapsDay(j,d)){const k=d.toDateString();(days[k]=days[k]||[]).push(j)}}}else{const k=j.start.toDateString();(days[k]=days[k]||[]).push(j)}});
