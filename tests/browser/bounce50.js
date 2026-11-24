@@ -61,6 +61,7 @@ function meteoBody(){
     drv.value='BB';
     try{if(typeof EXPALL!='undefined'){EXPALL=false;sessionStorage.expall=''}EXP.clear();sessionStorage.exp='[]'}catch(e){}
     render();
+    if(typeof DTAB!='undefined')show('up'); // v.50+: upcoming jobs live on their own tab
   },{
     t8:+at(0,8),t10:+at(0,10),t11:+at(0,11),t13:+at(0,13),t15:+at(0,15),t17:+at(0,17),t12iso:iso(at(0,12)),
     tm8:+at(1,8),tm10:+at(1,10),tm13:+at(1,13),tm16:+at(1,16),tm14iso:iso(at(1,14)),

@@ -1,0 +1,18 @@
+v.51 (2026-11-24) replaced snippets — Upcoming tab view jump when the weather fetch times out.
+
+1) index.html weather store (now adds WXN retry count, WXT one retry timer per place):
+const WXA={},WXP={},WXF={},WXQ=new Set();
+
+2) wxLoad: flat 10-minute block after any failure (now wxBack(k): 30s,1,2,4,8, then 10 min):
+if(C[k]&&Date.now()-C[k].ts<36e5||Date.now()-(WXF[k]||0)<6e5)return;
+... if(!h||!Array.isArray(h.time)){WXF[k]=Date.now();return}const C2=wxc(); ...
+... catch(e){WXF[k]=Date.now()}finally{delete WXP[k]} ...
+
+3) wxFill: a chip with no weather was hidden (display:none). On an 8s timeout every
+   52px placeholder vanished at once (~2400px on 7 days) and the view jumped:
+h=j?wxJob(j):'';if(s.innerHTML!==h)s.innerHTML=h;s.classList.toggle('wxwait',!h);const show=h?'block':'none';
+
+4) bounce50 (dsKeepView x2 and tapAnchor pickVis) anchor pick — took the first card with any sliver showing:
+const el=[...root.querySelectorAll('.jc')].find(x=>{if(!x.offsetParent||x.closest('#nxttop'))return 0;const r=x.getBoundingClientRect();return r.bottom>60&&r.top<innerHeight});
+const el=[...document.querySelectorAll('#driver .jc')].find(x=>{if(!x.offsetParent||x.closest('#nxttop'))return 0;const r=x.getBoundingClientRect();return r.bottom>60&&r.top<innerHeight});
+const v=[...document.querySelectorAll('#driver .jc')].find(x=>{if(!x.offsetParent||x.closest('#nxttop'))return 0;const r=x.getBoundingClientRect();return r.bottom>60&&r.top<innerHeight});
