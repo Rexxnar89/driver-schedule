@@ -518,3 +518,7 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 ## v.58 (2026-11-25) — Please reset odometer
 - One "Odometer reading (mi)" box under "Please reset odometer" first thing under the open card header (.jh). Putting it above the header made the tapped header jump on open/close (tabs50 HISTSNAP +112px), so it sits right below the header bar, saved as odoReset via setSt. Not in setSt's sync list and not read by exLine, so it stays off the sheet; nothing else reads it, so legs, totals, charge and the typed-miles line can't change.
 - Jeffrey dropped the second "forgot to reset" box at the end of the call; only one box exists.
+
+## v.58.1 (2026-11-25) — opening Drafts hung; heading labels
+- Opening a shared draft (📝 Drafts → Open) never returned. The draftLoad wrap in the extra-legs module did `for (let n=3; n<=MAXN; n++)` to rebuild legs 3+, and v32 set `MAXN=1/0` (no cap). That loop is infinite, so the Open button looked dead and the Create job form never appeared. The original draftLoad body is fine. Fix: walk only keys that exist, same as splitsync's legsFromDraft: `for (let n=3; ('nl'+n+'pk') in v; n++)`. Add-leg still uses MAXN as Infinity (no cap).
+- Create job labels (behavior unchanged): priMount `.prilbl` is now "Priority driver (optional, preferred if free)". The original Driver label in #drvsec stays hidden; a new #asnlbl in the same style sits above #lstrip: "Assign driver, best fit first". 12px margin plus a 10px padded light divider under #pribox separates the two controls.

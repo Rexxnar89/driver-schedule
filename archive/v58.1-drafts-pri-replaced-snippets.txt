@@ -1,0 +1,17 @@
+v.58.1 (2026-11-25) replaced snippets: draftLoad wrap no longer loops n<=MAXN (Infinity);
+Priority driver / Assign driver headings on the Create job form.
+
+[draftLoad wrap loop (v.58 / v32 after MAXN=1/0)]
+for(let n=3;n<=MAXN;n++){if(('nl'+n+'pk') in v)L.push({pk:v['nl'+n+'pk'],dz:v['nl'+n+'dz'],t:v['nl'+n+'t'],drv:v['nl'+n+'d']})}if(!EDIT)draw(L)
+
+[draftLoad wrap loop (v.58.1)]
+for(let n=3;('nl'+n+'pk') in v;n++)L.push({pk:v['nl'+n+'pk'],dz:v['nl'+n+'dz'],t:v['nl'+n+'t'],drv:v['nl'+n+'d']});if(!EDIT)draw(L)
+
+[priMount heading (v.58)]
+<span class="prilbl">Priority driver</span>
+... if(st&&b.parentElement===w&&st.previousElementSibling===b){priFill();priHint();return}if(st)w.insertBefore(b,st);else w.insertBefore(b,w.firstChild);
+
+[priMount heading (v.58.1)]
+<span class="prilbl">Priority driver (optional, preferred if free)</span>
+plus #asnlbl "Assign driver, best fit first" inserted between #pribox and #lstrip.
+#pribox {margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid #cfd8dc}
