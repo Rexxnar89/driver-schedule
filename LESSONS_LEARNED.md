@@ -548,3 +548,11 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Harness: sample positions after paint (rAF then setTimeout 0); rAF-time reads see pre-anchoring layout and report phantom moves. Judge taps by the touched element; content inserted above it is info only.
 - Reusable harness: tests/browser/still-lib.js (open/step/_watch/_stop). Pass 1 test: tests/browser/still62.js. Rollback: 56bde39 (v.61).
 - Tests use /tmp/pt for screenshots and lr42 hard-codes localhost:8812 — create/serve those on a fresh box.
+
+## 2026-11-25 v.63 Current jobs stay still (pass 2 of the jump hunt)
+- Top banners at scrollY 0 are never protected by scroll anchoring. Make every banner state the same height: an inline button with padding made "✔ LIVE … Refresh" 10px taller than "Loading…", so cards jumped on every sync.
+- Never re-find a tapped element by its text when it is an input: the value changes as you type. Keep the element reference and use it while it is connected.
+- A native smooth scrollIntoView aims once; if the list re-draws during the glide it lands short, and any scrollBy from a keeper cancels it. For "go to the next job", glide with rAF re-aiming every frame and hold keepers while gliding (window._dsNav). Tests hook dsOnGlide.
+- An action that MOVES the card to another place in the list (Complete leg → card goes to the top as in progress) needs the moved block kept on screen, not "keep scrollY".
+- Still flagged: a 3-line error banner or #syncbar appearing at the very top still pushes cards down (needs a layout decision).
+- Test: tests/browser/still63.js. Rollback: 30c6aa2 (v.62).

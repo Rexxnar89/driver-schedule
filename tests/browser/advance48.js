@@ -66,7 +66,7 @@ const ok=(name,cond,extra)=>{results.push({name,pass:!!cond,extra});console.log(
    if(window._svHooked){window._sv=[];return}
    window._sv=[];window._svHooked=1;
    const orig=Element.prototype.scrollIntoView;
-   Element.prototype.scrollIntoView=function(o){window._sv.push({id:this.id||'',cls:String(this.className||''),tag:this.tagName,beh:o&&o.behavior,block:o&&o.block});return orig.call(this,o)};
+   Element.prototype.scrollIntoView=function(o){window._sv.push({id:this.id||'',cls:String(this.className||''),tag:this.tagName,beh:o&&o.behavior,block:o&&o.block});return orig.call(this,o)};/* v63: Complete job glides with its own re-aiming smooth scroll (caScroll) and reports it here */window.dsOnGlide=el=>window._sv.push({id:el.id||'',cls:String(el.className||''),tag:el.tagName,beh:'smooth',block:'start',glide:1});
  });
  const state=()=>pg.evaluate(()=>{
    const openOf=u=>{const c=[...document.querySelectorAll('#caday .jc,#dcards .jc')].find(el=>{const h=el.querySelector('.jh');return h&&(h.getAttribute('onclick')||'').includes("'"+u+"'")});if(!c)return{found:false};const btn=[...c.querySelectorAll('button')].find(b=>/Complete job/.test(b.textContent||''));return{found:true,open:!!btn,txt:(c.innerText||'').slice(0,80)}};
@@ -97,7 +97,7 @@ const ok=(name,cond,extra)=>{results.push({name,pass:!!cond,extra});console.log(
  });
 
  const s0=await seed(true);
- ok('helpers and version present', s0.ver==='2026-11-25.62' && s0.open.join(',')==='T1,T2,T3', s0);
+ ok('helpers and version present', s0.ver==='2026-11-25.63' && s0.open.join(',')==='T1,T2,T3', s0);
  await hookScroll();
  await pg.evaluate(()=>{window.scrollTo(0,0)});
  await W(300);

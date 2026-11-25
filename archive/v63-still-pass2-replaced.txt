@@ -1,0 +1,14 @@
+[livebar-css]
+</style></head><body>
+
+[keeper-el]
+A={u:uo(c),i:ix(c),k,top:el.getBoundingClientRect().top,sy:sy==null?scrollY:sy}};
+
+[keeper-cur]
+if(A.k){const el=find(c,A.k);if(el)return el.getBoundingClientRect().top}
+
+[keeper-nav]
+const fix=()=>{if(!A||own)return;const t=cur();
+
+[caScroll-glide]
+(window.dsClearAnchor||(()=>{}))();(window.dsOwnScroll||(fn=>fn()))(()=>{el.scrollIntoView({behavior:'smooth',block:'start'})});try{el.focus({preventScroll:true})}catch(e){};if(window.dsClearAnchor)dsClearAnchor()}
