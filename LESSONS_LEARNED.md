@@ -522,3 +522,8 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 ## v.58.1 (2026-11-25) — opening Drafts hung; heading labels
 - Opening a shared draft (📝 Drafts → Open) never returned. The draftLoad wrap in the extra-legs module did `for (let n=3; n<=MAXN; n++)` to rebuild legs 3+, and v32 set `MAXN=1/0` (no cap). That loop is infinite, so the Open button looked dead and the Create job form never appeared. The original draftLoad body is fine. Fix: walk only keys that exist, same as splitsync's legsFromDraft: `for (let n=3; ('nl'+n+'pk') in v; n++)`. Add-leg still uses MAXN as Infinity (no cap).
 - Create job labels (behavior unchanged): priMount `.prilbl` is now "Priority driver (optional, preferred if free)". The original Driver label in #drvsec stays hidden; a new #asnlbl in the same style sits above #lstrip: "Assign driver, best fit first". 12px margin plus a 10px padded light divider under #pribox separates the two controls.
+## 2026-11-25 v.59 Compare
+- isVehEvt(j) is true for ANY job with j.vehicle set; it is only safe for banner/availability checks. Don't use it to drop jobs from a list; add `&&!client`.
+- mergeToff() drops fixture jobs with toff:1 on render; use a Proton-style block (block:true, title 'x') in tests.
+- Snapshot LS.st for read-only checks after the app's own async Done-sync settles (it adds synced/exp).
+- The version regexes in tests/prio48.js are escaped (25\.58) — a plain sed misses them.
