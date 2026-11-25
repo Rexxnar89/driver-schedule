@@ -1,0 +1,22 @@
+v.59 (2026-11-25) replaced snippets — Compare tab added (nav button, section, tab scroll memory key and observer list). The Calendar polish is CSS only (no replaced code).
+
+[nav]
+<button onclick="show('find')">🔍 Find job</button>
+
+[section]
+<section id="cal" class="hide"><div id="calbody"></div></section>
+
+[key]
+const key=()=>{const c=document.getElementById('cal');if(c&&!c.classList.contains('hide'))return'cal';
+
+[obs]
+['driver','owner','newjob','cal'].forEach(id=>{const e=document.getElementById(id);e&&new MutationObserver
+
+[icsCreated]
+rid:g('RECURRENCE-ID'),loc:g('LOCATION'),
+
+[jobCreated]
+split:ev.sp||1,rr:ev.rr||'',ms:ev.ms||(ev.rr?ev.start:null)}})}
+
+[cardCreated]
+${DN?'<b style="margin-left:8px;font-size:clamp(1rem,5vw,1.2rem);font-weight:900;letter-spacing:.5px">COMPLETED</b>':''}</div>`})()}</div>${jChips(j,badges(j))}
