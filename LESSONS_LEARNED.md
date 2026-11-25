@@ -480,3 +480,11 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Lesson: never identify a DOM item by a key that can repeat (multi-day events, legs, uid-less cards); store the occurrence index too or keep the element.
 - Lesson: reproduce with the user's real (read-only) data when a bug is tied to a day — fixtures missed the multi-day availability card.
 - Tests: new `tests/browser/dupcard52.js` FAILS on v.51 (jump -4581px) and PASSES on v.52 (0px). Real-data slow scroll on the fix: 0 drops.
+
+## 2026-11-25 — v.53: per-leg miles + odometer mode
+- Jeffrey (Nov 25 voice, 6:37–6:40am ET): each leg its own miles, trip total = sum (20 + 5 + 20 = 45), decimals like 19.5; per-leg Miles/Odometer toggle, modes can mix in one trip (e.g. legs 1–2 odometer, leg 3 typed); push live once tests pass.
+- Already there since v.46: per-leg Miles fields on the job card and projMi summing them for the charge. Added: `legMiOf(s,n)` as the one place a leg's miles come from; a "Trip miles 20 + 5 + 19.5 = 44.5 mi" box under the legs; "(same as Leg 1 — change if different)" on legs still using the Leg 1 default; decimal/comma input (`legNum`, step any); Odometer mode.
+- Odometer storage per job: Leg 1 `l1odo`, Leg 2+ `legs[i].odo` = {on, a:start, b:end, aAuto, okd}. Leg miles = end − start. Next odometer leg's start pre-fills from the previous odometer leg's end (`aAuto`) and keeps following it until edited (edit = odometer reset). End < start: red warning, not counted (typed miles used, never negative). Over 300 mi: counts only after OK on the end reading (a changed start just waits). Back to Miles keeps the odometer result as typed miles; readings stay stored.
+- Card fields commit with the green ✓ Done button (fdone module stops plain `change`); browser tests must tap ✓ Done after typing.
+- Sheet: rows use actual miles (`s.mi`) and halfway (`s.hm`), not projected leg miles — unchanged. Pickup miles stay note-only.
+- Tests: new `tests/browser/legmiles53.js` (typed, decimals, default, mixed modes, prefill, reset, end<start, >300, switch back, old jobs, pickup miles, charge = rate × total); `tests/splitgap46.js` now loads `legMiOf` too.

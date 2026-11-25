@@ -1,0 +1,10 @@
+v.53 (2026-11-25) replaced snippets — per-leg miles + odometer mode.
+
+1) legMiList / legMiSet (v.46), Leg 1 and Leg 2+ Miles inputs and the Add-leg line in legsHTML (pre-v53 text below):
+function legMiList(s){const L=Array.isArray(s&&s.legs)?s.legs:[];if(!L.length)return[];const l1=l1miOf(s);const out=[l1];L.forEach(l=>{if(!l){out.push(l1);return}if(l.miEd){const v=l.mi;out.push(v!==''&&v!=null&&!isNaN(+v)?R2(+v):0);return}if(l.mi!==''&&l.mi!=null&&!isNaN(+l.mi)&&String(l.mi).trim()!=='')out.push(R2(+l.mi));else out.push(l1)});return out}
+function legMiSet(u,n,v){const S=ST(),s={...(S[u]||{})};if(n<=1){s.l1mi=v;s.l1miEd=1;if(Array.isArray(s.legs))s.legs=s.legs.map(l=>({...l,...(!l.miEd?{mi:v,miAuto:1}:{})}))}else if(Array.isArray(s.legs)&&s.legs[n-2]){const L=s.legs.map(l=>({...l}));L[n-2].mi=v;L[n-2].miEd=1;delete L[n-2].miAuto;s.legs=L}S[u]=s;LS.st=JSON.stringify(S);render()}
+<label style="flex:0 1 90px;min-width:72px;margin:0;font-size:.75rem">Miles<input type="number" step="0.1" inputmode="decimal" value="${E(s.l1mi??'')}" placeholder="mi" onchange="legMiSet('${u}',1,this.value)" style="width:100%"></label>
+<label style="flex:1 1 90px;min-width:min(90px,100%)">Miles<input type="number" step="0.1" inputmode="decimal" value="${E(l.miEd||l.mi!=null&&l.mi!==''?l.mi:(s.l1mi??''))}" placeholder="mi" onchange="legMiSet('${u}',${n},this.value)" style="width:100%"></label>
+
+2) projMi leg condition:
+if(lm.length&&(l1miOf(s)||lm.some((x,i)=>i&&x)))

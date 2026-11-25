@@ -22,7 +22,7 @@ function gasFor(){return{gas:0,date:'',exact:true}}
 eval(pick('legSpansOf'));
 eval(pick('spans'));
 eval(pick('l1miOf'));
-eval(pick('legMiList'));
+eval(pick('legOdo'));eval(pick('legOdoMi'));eval(pick('legMiOf'));eval(pick('legMiList')); // v53: legMiList reads each leg through legMiOf
 eval(pick('projMi'));
 eval(pick('calc'));
 
