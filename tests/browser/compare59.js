@@ -18,7 +18,7 @@ let _b;const killer=setTimeout(()=>{console.log('COMPARE59 TIMEOUT');try{_b&&_b.
   await pg.waitForFunction('typeof render=="function"&&typeof calRender=="function"',{timeout:15000});await W(500);
   const bad=[],ok=(n,c,d)=>{if(!c)bad.push(n+' '+JSON.stringify(d===undefined?'':d))},R={};
   R.ver=await pg.evaluate(()=>(document.querySelector('meta[name=ds-ver]')||{}).content||'');
-  ok('version is 2026-11-25.60',R.ver==='2026-11-25.60',R.ver);
+  ok('version is 2026-11-25.61',R.ver==='2026-11-25.61',R.ver);
   R.fx=await pg.evaluate(()=>{LS.drivers=JSON.stringify(['Jeffrey','Jared','Kaci','BB']);jobs.length=0;const now=Date.now(),M=6e4,at=m=>new Date(now+m*M),cr=Date.now()-3*864e5;
     const mk=(id,drv,s,e,x)=>({uid:id,evuid:id,start:s,endT:e,driver:drv,client:'Fake Rider '+id,title:'Fake',raw:'Fake',from:'1 Test St, Sampletown, OH',to:'2 Demo Ave, Sampletown, OH',pax:1,tt:'ow',vehicle:'Ford Van',...(x||{})});
     const o=new Date(now+150*M);o.setSeconds(0,0);o.setMinutes(7);const ov=m=>new Date(+o+m*M);
@@ -34,10 +34,10 @@ let _b;const killer=setTimeout(()=>{console.log('COMPARE59 TIMEOUT');try{_b&&_b.
   R.tab=await pg.evaluate(()=>{const b=[...document.querySelectorAll('nav.hnav button')].find(x=>/Compare/.test(x.textContent));b.click();return{btn:!!b,vis:['driver','owner','newjob','cal','cmp'].map(i=>document.getElementById(i).classList.contains('hide')?0:1).join('')}});await W(400);
   ok('Compare tab button opens only #cmp',R.tab.btn&&R.tab.vis=='00001',R.tab);
   await pg.evaluate(()=>{cmpAB(0,'Jeffrey');cmpAB(1,'Jared');cmpSet('d',ymdL(new Date()))});await W(200);
-  // 2 Now strip
-  R.now=await pg.evaluate(()=>Object.fromEntries([...document.querySelectorAll('#cmp .cmpnow .cmpnr[data-d]')].map(r=>[r.dataset.d,r.dataset.st+' · '+r.querySelector('.cmps').textContent+' · '+[...r.querySelectorAll('.cmpc')].map(c=>c.classList.contains('on')?'#':c.classList.contains('off')?'/':'.').join('')])));
-  ok('Now: Jared finishing, Kaci starts within 1 h, BB off, Jeffrey free',/^fin · Finishing/.test(R.now.Jared||'')&&/^soon · Starts/.test(R.now.Kaci||'')&&/^off · Off/.test(R.now.BB||'')&&/^free/.test(R.now.Jeffrey||''),R.now);
-  ok('Now slots: Jared busy now, Kaci busy in the 2nd/3rd slot, BB hatched',/ · #/.test(R.now.Jared)&&/· \.?\.?#/.test(R.now.Kaci)&&/\/\/\/\/\/\/$/.test(R.now.BB),R.now);
+  // 2 top strip (v61: follows the comparison: selected drivers + visible range)
+  R.now=await pg.evaluate(()=>({mode:document.querySelector('#cmp .cmpcov').dataset.mode,rows:Object.fromEntries([...document.querySelectorAll('#cmp .cmpcov .cmpnr[data-d]')].map(r=>[r.dataset.d,[...r.querySelectorAll('.cmpc')].map(c=>c.dataset.n).join('')])),slot:Math.floor(new Date().getHours()/3)}));
+  ok('strip shows only the compared drivers (Jeffrey vs Jared)',Object.keys(R.now.rows).join()=='Jeffrey,Jared',R.now);
+  ok('Day view strip: 8 three-hour slots, Jared busy in the slot holding now',R.now.mode=='day'&&R.now.rows.Jared.length==8&&+R.now.rows.Jared[R.now.slot]>=1,R.now);
   if(SH){await pg.evaluate(()=>scrollTo(0,document.getElementById('cmp').offsetTop-4));await W(300);await pg.screenshot({path:SH+'/1-compare-now-strip-and-controls.png'})}
   // 3 day grid on the overlap day, Jeffrey vs Jared side by side
   await pg.evaluate(d=>cmpSet('d',d),R.fx.day);await W(200);

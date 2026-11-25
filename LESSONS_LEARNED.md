@@ -535,3 +535,7 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - `recDrv` could sit on "finding nearest free driver…" when `geo()`/`geoNet` never returned (stubbed or queued nominatim). An 8s overall deadline now falls back to no-miles ranking so the recommendation can finish.
 - Fix: call `recDrv` from `dsRefresh` (existing 100ms debounce, no new fast timer) and from `pickDay` after `avail()`. Busy uses `j.end||j.endT||start+1h`. Early returns wipe ★ and `_recD` and do not auto-pick last-resort when Any and only LR is free. Skip `nd.onchange` when the value is already the pick, so dsRefresh→recDrv cannot loop.
 - Test: `tests/browser/recdrv60.js`. Rollback: `e909853` (v.59).
+
+## 2026-11-25 v.61 Compare highlight
+- The Compare top strip was a 'Now' strip: it always showed the current time for ALL drivers, so it ignored the range, navigation and A vs B. Strips and highlights in a comparison view must be built from the same range + selection the grid uses (RNG(), SEL(), items(...,true)).
+- scrolljump48 "weather did not render" fails on v.60 as well (time-of-day dependent); not caused by v.61.

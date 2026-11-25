@@ -1,0 +1,29 @@
+[nowStrip]
+function nowStrip(){const now=new Date(),t0=new Date(Math.floor(now/18e5)*18e5),t1=new Date(+t0+6*18e5),D=DRV(),L=items(new Date(+now-864e5),new Date(+t1+36e5),false),H=[...Array(6)].map((_,i)=>new Date(+t0+i*18e5));
+ const row=n=>{const M=L.filter(x=>x.drv==n),J=M.filter(x=>x.k=='job'&&x.st!='cx'&&!x.ban),on=J.filter(x=>x.s<=now&&x.e>now).sort((p,q)=>q.e-p.e)[0],nx=J.filter(x=>x.s>now).sort((p,q)=>p.s-q.s)[0],off=M.find(x=>x.k=='off'&&x.s<=now&&x.e>now),av=M.find(x=>x.k=='av'&&x.s<=now&&x.e>now);
+  let st,cls;if(on&&on.e-now<=30*6e4){st='Finishing '+tm(on.e);cls='fin'}else if(on){st='On a job · until '+tm(on.e);cls='on'}else if(nx&&nx.s-now<=36e5){st='Starts '+tm(nx.s);cls='soon'}else if(off){st='Off';cls='off'}else{st=av?'Available':'Free';cls='free';if(nx&&nx.s.toDateString()==now.toDateString())st+=' · next '+tm(nx.s)}
+  const cell=i=>{const a=+H[i],b=a+18e5,ov=x=>+x.s<b&&+x.e>a;return J.some(ov)?`<i class="cmpc on" style="background:${col(n)}"></i>`:M.some(x=>x.k=='off'&&ov(x))?'<i class="cmpc off"></i>':M.some(x=>x.k=='av'&&ov(x))?`<i class="cmpc av" style="border-color:${col(n)}"></i>`:'<i class="cmpc"></i>'};
+  return`<div class="cmpnr" data-d="${E(n)}" data-st="${cls}"><span class="cmpnn"><span class="cmpdot" style="background:${col(n)}"></span>${E(n)}<small class="cmps ${cls}">${E(st)}</small></span>${H.map((_,i)=>cell(i)).join('')}</div>`};
+ return`<div class="cmpnow"><div class="cmpnowh"><b>Now</b> ${tm(now)} <small>· who’s on, starting within 1 h, finishing within 30 min</small></div><div class="cmpnr cmpnrh"><span></span>${H.map((h,i)=>`<small>${i?tm(h).replace(':00',''):'Now'}</small>`).join('')}</div>${D.map(row).join('')}</div>`}
+
+
+[renderStrip]
+ let h=nowStrip()+`<div class="cmpbar">
+
+[daySel]
+return`<div class="cmpday" style="width:${cw*Math.max(1,N.length)}px"><div class="cmphd" style="height:${HD}px">
+
+[scrollKey]
+const k=V.mode+ymdL(R.a)+N.join(),
+
+[initScroll]
+sc.scrollTop=Math.max(0,(ti>=0?today.getHours()-1:7))*HH;sc.scrollLeft=ti>0?ti*cw*Math.max(1,N.length):0}};
+
+[pick]
+window.cmpSet=(k,v)=>{
+
+[goClear]
+window.cmpGo=n=>{if(!n){V.d=ymdL(V.mode=='week'?weekStart(new Date()):new Date());return re()}
+
+[css]
+.cmpnl{position:absolute;left:0;right:0;border-top:2px solid #e53935;z-index:20;pointer-events:none}
