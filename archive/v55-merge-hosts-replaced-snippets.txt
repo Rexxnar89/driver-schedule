@@ -1,0 +1,25 @@
+v.55 (2026-11-25) replaced snippets — multi-leg jobs can be merged in (absorbed with their legs); restore sends all their legs back.
+
+[legDel]
+window.legDel=(u,i)=>{const L=LG(u);if(!L||!confirm('Remove leg '+(i+2)+'?'))return;const l=L.splice(i,1)[0];if(l&&l.fromUid)setSt(l.fromUid,'mergedInto','');setSt(u,'legs',L.length?L:null)};
+
+[label]
+${i&&l.fromUid?'<small style="color:#555"> (merged from another job)</small>':''}
+
+[mergeDo]
+/* v54: the base may already have legs: they stay exactly as they are (miles, odometer, done, merged-from) and the new jobs go in by time */window.mergeDo=uids=>{const v=uids.map(u=>jobs.find(j=>j.uid==u)).filter(Boolean).sort((a,b)=>a.start-b.start);if(v.length<2)return;const A=v.find(j=>LG(j.uid))||v[0],X=LG(A.uid)||[],N=v.filter(j=>j!==A);if(X.length+1+N.length>MAXL)return alert('Up to '+MAXL+' legs per job');if(N.some(B=>B.start<A.start))return alert('A job before Leg 1 can’t be added to a job that already has legs.');const sp=j=>{try{return jStops(j)}catch(e){return{p:[],d:[]}}};let prev=X.length?X[X.length-1]:{pk:(sp(A).p||[]).join(' & ')||A.from||A.loc||'',dz:(sp(A).d||[]).slice(-1)[0]||A.to||''};const L=N.map(B=>{const P=sp(B),l={pk:(P.p||[]).join(' & ')||B.from||B.loc||prev.dz||'',dz:(P.d||[]).join(' & ')||B.to||prev.pk||'',t:toL(B.start),drv:B.driver||A.driver,done:0,fromUid:B.uid};setSt(B.uid,'mergedInto',A.uid);prev=l;return l}),T=l=>l.t?+new Date(l.t):1/0,C=[...X];L.forEach(l=>{const i=C.findIndex(x=>T(x)>T(l));i<0?C.push(l):C.splice(i,0,l)});setSt(A.uid,'legs',C);document.getElementById('mergedlg')?.remove();EXP.add(A.uid);renderDriver();setTimeout(()=>flashCard(A.uid),60)};
+
+
+[cand]
+const base=jobs.find(j=>j.uid==pre),X=base&&LG(base.uid)||[];/* v54: a base with legs only takes jobs after its Leg 1 */const C=jobs.filter(j=>j.start&&j.start>=t0&&!j.canceled&&!j.block&&!LG(j.uid)&&!(ST()[j.uid]||{}).mergedInto&&!(X.length&&j.start<base.start))
+
+[draw]
+const draw=()=>{const tot=X.length+sel.size,left=MAXL-tot,full=left<=0,last=left==1,ord=[...sel].map(u=>jobs.find(j=>j.uid==u)).filter(Boolean).map(j=>({t:j.start,x:j.client||j.raw||''})).concat(X.map(l=>({t:l.t?new Date(l.t):null,x:'(already on this job)'}))).sort((a,b)=>(a.t||1/0)-(b.t||1/0));
+
+[rows]
+${C.filter(j=>j.uid!=pre).map(j=>{const on=sel.has(j.uid),u=Q(j.uid);return`<div style="padding:5px 0;border-bottom:1px solid #eee;${on?'background:#e8f5e9':''}"><div style="cursor:pointer" onclick="mergeTap('${u}')">${on?'✅ ':''}${E(fmt(j.start))} · <b>${E(j.client||j.raw||'')}</b> · ${E(j.driver||'')}</div>${tap==j.uid&&!on?`<div style="display:flex;gap:6px;margin-top:4px">${full?`<small>${MAXL} legs max — this job is full</small>`:`<button class="btn" style="margin:0;background:#2e7d32;color:#fff" onclick="mergeNow('${u}')">Merge</button>${last?'<small>last leg slot</small>':`<button class="btn" style="margin:0" onclick="mergeMore('${u}')">Select more</button>`}`}</div>`:''}</div>`}).join('')}
+
+[guards]
+ window.mergeTap=u=>{if(sel.has(u)&&u!=pre){sel.delete(u);tap=null}else tap=tap==u?null:u;draw()};
+ window.mergeNow=u=>{if(X.length+sel.size+1>MAXL)return;mergeDo([...sel,u])};
+ window.mergeMore=u=>{if(X.length+sel.size+1>MAXL)return;sel.add(u);tap=null;draw()};

@@ -31,7 +31,7 @@ let _b;const killer=setTimeout(()=>{console.log('MERGE54 TIMEOUT');try{_b&&_b.cl
   // 2 tap Merge on A at 390px, picker shows slots left, excludes B, Z (before Leg 1) and A
   ok('picker opens from merged card',await openA());
   R.p=await pg.evaluate(()=>{const d=document.getElementById('mergedlg');if(!d)return{txt:'no picker',rows:''};return{txt:d.textContent.replace(/\s+/g,' '),rows:[...d.querySelectorAll('div[onclick^="mergeTap"]')].map(x=>x.getAttribute('onclick').match(/'([^']+)'/)[1]).join('')}});
-  ok('picker: 6 left, lists C..I only',/6 left/.test(R.p.txt)&&R.p.rows=='CDEFGHI'&&/already on this job/.test(R.p.txt),R.p);
+  ok('picker: 6 left, lists Z,C..I (v55: earlier jobs allowed)',/6 left/.test(R.p.txt)&&R.p.rows=='ZCDEFGHI'&&/already on this job/.test(R.p.txt),R.p);
   await pick('C','Merge');await W(200);R.c=await G();
   ok('C merged on top: 3 legs, order B C',R.c.n==3&&R.c.from=='BC',R.c);ok('leg 2 odometer kept 5.5, leg 3 default 20',R.c.mi.join()=='20,5.5,20'&&R.c.mi2.odo==1,R.c);ok('Merge still there at 3',R.c.mA,R.c);
   // 3 D..H with Select more up to the cap; last slot has no Select more

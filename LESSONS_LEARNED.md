@@ -495,3 +495,9 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Jobs earlier than Leg 1 are kept out of the picker for a multi-leg base (they would have to become Leg 1 and shift all index-keyed state).
 - Inserting a leg in the middle shifts index-keyed state (fork uid u~Ln, NEXT LEG, alarms A[n]) the same way legDel already does.
 - Picker guards (mergeMore/mergeNow) check the slots left, not only the UI, so a stale tap can't overfill a job.
+
+## v.55 (2026-11-25) — multi-leg jobs can be merged in
+- Picker: multi-leg jobs are candidates; each needs 1 + its legs slots of the 8. Ones that won't fit are greyed with "needs N slots · K left". Merged-in, canceled, block and availability jobs stay out.
+- Host rule: the earliest job is the host, so its Leg 1 stays Leg 1 (replaces v.54's "no job before Leg 1" rule). Every other leg goes in by time.
+- Absorbing a multi-leg job: its Leg 1 becomes a leg (l1of, with l1mi/l1odo/l1done), its legs move over as-is, all tagged via:[uid,...]. Its own legs list is cleared so nothing (busy times, alarms, totals) counts twice. Auto miles are frozen (wasAuto) so they don't jump to the host's Leg 1 value.
+- Restore: removing any leg tagged via[0]=X sends the whole of X back (Leg 1 fields, its legs with current miles/odometer/done; untouched auto miles go back to auto). via is a stack, so nested absorbs unwind one level at a time.
