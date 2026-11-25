@@ -527,3 +527,11 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - mergeToff() drops fixture jobs with toff:1 on render; use a Proton-style block (block:true, title 'x') in tests.
 - Snapshot LS.st for read-only checks after the app's own async Done-sync settles (it adds synced/exp).
 - The version regexes in tests/prio48.js are escaped (25\.58) — a plain sed misses them.
+
+## v.60 (2026-11-25) — recommended driver refreshes with date/time
+- Cause: `dsRefresh` (v30, ~100ms) updated avail / awin / notes when date, time, trip type, legs or window chips changed, but never called `recDrv`. `pickDay` (day chips) set `ndt.value` and called `avail()` with no input/change event, so the `#npt`/`#npd` and `pdSync` recDrv hooks never fired. The list moved; the ★ stayed on a now-busy driver.
+- Busy check used `j.end||start+1h` and ignored `j.endT`, so a longer job could look free after the first hour and a busy driver could be recommended while a free non-last-resort driver existed.
+- Early returns ("everyone is busy then" / "no non-last-resort driver is free then") left the old ★ labels, `_recD`, and selected driver in place.
+- `recDrv` could sit on "finding nearest free driver…" when `geo()`/`geoNet` never returned (stubbed or queued nominatim). An 8s overall deadline now falls back to no-miles ranking so the recommendation can finish.
+- Fix: call `recDrv` from `dsRefresh` (existing 100ms debounce, no new fast timer) and from `pickDay` after `avail()`. Busy uses `j.end||j.endT||start+1h`. Early returns wipe ★ and `_recD` and do not auto-pick last-resort when Any and only LR is free. Skip `nd.onchange` when the value is already the pick, so dsRefresh→recDrv cannot loop.
+- Test: `tests/browser/recdrv60.js`. Rollback: `e909853` (v.59).
