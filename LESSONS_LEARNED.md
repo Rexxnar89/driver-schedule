@@ -556,3 +556,8 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - An action that MOVES the card to another place in the list (Complete leg → card goes to the top as in progress) needs the moved block kept on screen, not "keep scrollY".
 - Still flagged: a 3-line error banner or #syncbar appearing at the very top still pushes cards down (needs a layout decision).
 - Test: tests/browser/still63.js. Rollback: 30c6aa2 (v.62).
+
+## 2026-11-25 v.64 Upcoming stays still (pass 3 of the jump hunt)
+- scrollIntoView({block:'center'}) on an open card taller than the screen lands in the middle of its body. Tall target = block:'start' (flashCard; used by the Upcoming split-leg chip, Find, Next-job links).
+- The still-lib mock answers Proton with an old-script error; that banner arrives ~9 s after load and changes the top bar. Wait for `!LOADING` before checks at the top, or it looks like an app jump.
+- Test: tests/browser/still64.js. Rollback: a2086bf (v.63).

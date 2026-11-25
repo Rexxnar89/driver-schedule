@@ -1,0 +1,2 @@
+[flashCard-start]
+(window.dsOwnScroll||(fn=>fn()))(()=>sel.scrollIntoView({block:'center'}));sel.style.transition='box-shadow .3s';
