@@ -509,3 +509,8 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Proton location rule: locParse now records the label per line (cur), not per block — "Pickup:\nDrop-off:" in one block had made both drop-offs.
 - regression.js expected nav A>B>C>H (Home appended); updated to A>B>C with the v.56 rule.
 - Create form: #nv/#neq get tucked into the per-driver picker's hidden Manual entry when a driver is chosen; only move them when they are shown on their own, and never while focused.
+
+## v.57 (2026-11-25) — manual boxes out, one projection from typed miles
+- Removed v.56's "Your projected miles" / "Your fare $" boxes and Calc/Yours lines (archive/v57-manual-boxes-replaced-snippets.txt). Saved pmMan/fMan stay in job state untouched (never synced), so nothing is lost if they come back.
+- New read-only line in Projections / fare, right under Expected (charge): "Projection from typed miles: <Halfway × 2> mi · $fare", using calc() with the same date (rate/gas) and wait hours as the charge. Shown only when the legs drive the charge and Halfway/Total has a number; it reads s.hm only and writes nothing, so leg numbers and the leg estimate can't change.
+- proj56.js became proj57.js (manual-box checks replaced).

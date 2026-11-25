@@ -1,0 +1,17 @@
+v.57 (2026-11-25) removed: v.56 "Your projected miles" / "Your fare $" boxes and their Calc/Yours lines. Saved pmMan/fMan values stay in job state (not shown, not deleted, never synced).
+
+[cmp_tI]
+,cmp=(c,y,fm)=>`Calc ${c?fm(c):'–'} · Yours ${fm(y)}${c?` · <b style="color:${y-c>=0?'#2e7d32':'#c62828'}">${y-c>=0?'+':'−'}${fm(Math.abs(R2(y-c)))}</b>`:''}`,tI=(k,lb,v,ph)=>`<label style="font-size:0.75rem;margin:4px 0 0">${lb}</label><input type="text" inputmode="decimal" placeholder="${ph}" value="${esc2(v??'')}" onchange="manSet('${u}','${k}',this.value)">`;
+
+[manInputs]
++(ed?tI('pmMan','Your projected miles (optional · shown beside the calculated)',s.pmMan,'your own miles number')+tI('fMan','Your fare $ (optional · shown beside the calculated)',s.fMan,'your own fare'):'')
+
+[pmLine]
++(hasN(s.pmMan)?`<div class="mancmp">${L('Projected mi · yours',cmp(t.proj,+s.pmMan,x=>R2(x)+' mi'))}</div>`:'')
+
+[fmLine]
++(hasN(s.fMan)?`<div class="mancmp">${L('<b>Fare · yours</b>',cmp(pc?t.exp:0,+s.fMan,f))}</div>`:'')
+
+[manSet]
+
+function manSet(u,k,v){v=hmNum(v);if(v===null)return render();setSt(u,k,v)}

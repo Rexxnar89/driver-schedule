@@ -1,12 +1,12 @@
-// node tests/browser/proj56.js   (U=.../index.html)
+// node tests/browser/proj57.js   (U=.../index.html)
 // v56: projections use each leg's entered miles; Halfway and Total each show the other live (comma decimals);
-// manual "your" miles/fare beside the calculated with the difference; Proton location rule (all Pickup unless a
+// v57: the v56 manual boxes are gone (saved values kept); one read-only 'Projection from typed miles' line beside the leg total; Proton location rule (all Pickup unless a
 // drop-off is labelled); job navigation has no Home origin/stop; Navigate home bar between Projections and Actuals;
 // readable unselected toggles. 390px Android, made-up data.
 const p=require('puppeteer-core');
 const U=process.env.U||'http://127.0.0.1:8812/index.html',SH=process.env.SHOTS||'';
 const W=ms=>new Promise(r=>setTimeout(r,ms)),R2=x=>Math.round((x+1e-9)*100)/100;
-let _b;const killer=setTimeout(()=>{console.log('PROJ56 TIMEOUT');try{_b&&_b.close()}catch(e){}process.exit(2)},150000);
+let _b;const killer=setTimeout(()=>{console.log('PROJ57 TIMEOUT');try{_b&&_b.close()}catch(e){}process.exit(2)},150000);
 (async()=>{const b=await p.launch({executablePath:'/usr/bin/google-chrome',args:['--no-sandbox','--disable-dev-shm-usage'],protocolTimeout:60000});_b=b;
   const pg=await (await b.createBrowserContext()).newPage();
   await pg.emulate({viewport:{width:390,height:844,isMobile:true,hasTouch:true,deviceScaleFactor:2},userAgent:'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Mobile Safari/537.36'});
@@ -37,17 +37,16 @@ let _b;const killer=setTimeout(()=>{console.log('PROJ56 TIMEOUT');try{_b&&_b.clo
   await done();R.d1=await vals();ok('saved halfway 19.5 as source',R.d1.s.hm=='19.5'&&R.d1.s.hmMode=='half'&&R.d1.h=='19.5'&&R.d1.t=='39'&&R.d1.src=='(typed)|(calculated)',R.d1);
   await typeIn('.hmin[data-k="total"]','45');R.live2=await vals();ok('typing Total 45 shows Halfway 22.5 live',R.live2.h=='22.5',R.live2);
   await done();R.d2=await vals();ok('saved total 45 as source, hm 22.5 for the sheet',R.d2.s.hm=='22.5'&&R.d2.s.hmTot=='45'&&R.d2.s.hmMode=='total'&&R.d2.src=='(calculated)|(typed)',R.d2);
-  // 3 manual numbers beside the calculated, calculated unchanged
-  R.c0=await pg.evaluate(()=>{const t=trip(ST().S,jobs[1].start,'S');return{proj:t.proj,exp:R2(t.exp)}});
-  const man=async(k,v)=>{const sel=`input[onchange*="manSet('S','${k}'"]`;await typeIn(sel,v);await done()};
-  await man('pmMan','50');await man('fMan','55,5');
-  R.c1=await pg.evaluate(()=>{const s=ST().S,t=trip(s,jobs[1].start,'S'),c=dtCard('S');return{proj:t.proj,exp:R2(t.exp),pm:s.pmMan,fm:s.fMan,cmp:[...c.querySelectorAll('.mancmp')].map(x=>x.textContent.replace(/\s+/g,' ').trim())}});
-  const dF=R2(55.5-R.c0.exp),fx=x=>'$'+R2(Math.abs(x)).toFixed(2);
-  ok('calculated values unchanged by manual entries',R.c1.proj==R.c0.proj&&R.c1.exp==R.c0.exp&&R.c0.proj==45,{c0:R.c0,c1:R.c1});
-  ok('manual saved with the job',R.c1.pm=='50'&&R.c1.fm=='55.5',R.c1);
-  ok('miles: Calc 45 mi · Yours 50 mi · +5 mi',R.c1.cmp[0]&&/Calc 45 mi · Yours 50 mi · \+5 mi/.test(R.c1.cmp[0]),R.c1.cmp);
-  ok('fare: Calc · Yours $55.50 · diff',R.c1.cmp[1]&&R.c1.cmp[1].includes(`Calc $${R.c0.exp.toFixed(2)} · Yours $55.50 · ${dF>=0?'+':'−'}${fx(dF)}`),{cmp:R.c1.cmp,exp:R.c0.exp});
-  if(SH){await pg.evaluate(()=>{const x=dtCard('S').querySelector('.hmrow');x.scrollIntoView({block:'start'});scrollBy(0,-60)});await W(400);await pg.screenshot({path:SH+'/2-halfway-total-and-yours-vs-calc.png'})}
+  // 3 v57: manual boxes removed (old saved values untouched); multi-leg card shows one read-only projection from the typed miles
+  await pg.evaluate(()=>{const S=ST();S.S={...S.S,pmMan:'50',fMan:'55.5'};LS.st=JSON.stringify(S);renderDriver()});await W(200);
+  R.c1=await pg.evaluate(()=>{const s=ST(),M=s.M,j=jobs[0],t=trip(M,j.start,'M'),cm=dtCard('M'),cs=dtCard('S'),tp=cm.querySelector('.typproj');return{boxes:document.querySelectorAll('input[onchange*="manSet"],.mancmp').length,kept:s.S.pmMan=='50'&&s.S.fMan=='55.5',typ:tp?tp.textContent.replace(/\s+/g,' ').trim():'',want:'$'+R2(calc(60,j.start,M.wh).total).toFixed(2),proj:t.proj,exp:R2(t.exp),legs:legMiList(M).join(),legsRaw:JSON.stringify(M.legs),sTyp:!!cs.querySelector('.typproj'),hm:M.hm}});
+  ok('manual boxes and Calc/Yours lines gone',R.c1.boxes==0,R.c1);ok('saved manual values not deleted',R.c1.kept,R.c1);
+  ok('Projection from typed miles: 60 mi · fare',R.c1.typ.replace(/\s/g,"")==`Projectionfromtypedmiles60mi·${R.c1.want}`,R.c1);
+  ok('leg numbers and leg estimate unchanged',R.c1.proj==44.5&&R.c1.exp==R.m.exp&&R.c1.legs=='20,5,19.5'&&R.c1.hm=='30',R.c1);
+  ok('no extra line on a job without legs',!R.c1.sTyp,R.c1);
+  if(SH){await pg.evaluate(()=>{const x=dtCard('M').querySelector('.typproj');x.scrollIntoView({block:'center'})});await W(400);await pg.screenshot({path:SH+'/2-projection-from-typed-miles.png'})}
+  R.c1b=await pg.evaluate(()=>{const m=ST().M;legMiSet('M',2,'6');const a=R2(trip(ST().M,jobs[0].start,'M').exp),tp=dtCard('M').querySelector('.typproj').textContent;legMiSet('M',2,'5');return{a,tp}});
+  ok('typed-miles projection does not follow leg edits',R.c1b.tp.includes('60 mi · '+R.c1.want),R.c1b);
   // 4 toggle contrast (unselected = dark text on light grey)
   R.tg=await pg.evaluate(()=>{const c=dtCard('S'),bt=[...c.querySelectorAll('button')].filter(x=>/^(Halfway miles|Total miles|Miles|Odometer)$/.test(x.textContent.trim())),cs=bt.map(x=>getComputedStyle(x)),un=cs.filter(x=>/236, 239, 241/.test(x.backgroundColor));const cm=dtCard('M'),ob=[...cm.querySelectorAll('.legmi button')].map(x=>getComputedStyle(x)).filter(x=>/236, 239, 241/.test(x.backgroundColor));return{n:bt.length,un:un.map(x=>x.color),ob:ob.map(x=>x.color).slice(0,2)}});
   ok('unselected toggles: #37474f on #eceff1',R.tg.un.length>=1&&R.tg.un.every(c=>c=='rgb(55, 71, 79)')&&R.tg.ob.length&&R.tg.ob.every(c=>c=='rgb(55, 71, 79)'),R.tg);
@@ -70,6 +69,6 @@ let _b;const killer=setTimeout(()=>{console.log('PROJ56 TIMEOUT');try{_b&&_b.clo
   ok('create form order Passengers > Vehicles & equipment > Vehicle > Trailer',R.cf.prev=='vesec'&&R.cf.pax<R.cf.ve&&R.cf.ve<R.cf.nv&&R.cf.nv<R.cf.neq&&R.cf.ids&&R.cf.h.join()=='vehChg(),eqChg()',R.cf);
   if(SH){await pg.evaluate(()=>{document.getElementById('paxsec').scrollIntoView({block:'start'});scrollBy(0,-10)});await W(400);await pg.screenshot({path:SH+'/4-create-job-vehicle-order.png'})}
   if(errs.length)bad.push('page errors '+errs.slice(0,3).join(' | '));
-  console.log('PROJ56',JSON.stringify({m:R.m.proj,c0:R.c0,cmp:R.c1.cmp,tg:R.tg,hb:R.hb,pr:R.pr}).slice(0,900));
-  console.log(bad.length?'PROJ56 FAIL\n'+bad.join('\n'):'PROJ56 PASS');await b.close();clearTimeout(killer);process.exit(bad.length?1:0)
-})().catch(e=>{console.log('PROJ56 ERROR',e&&e.stack||e);try{_b&&_b.close()}catch(x){}clearTimeout(killer);process.exit(1)});
+  console.log('PROJ57',JSON.stringify({m:R.m.proj,c0:R.c0,typ:R.c1.typ,tg:R.tg,hb:R.hb,pr:R.pr}).slice(0,900));
+  console.log(bad.length?'PROJ57 FAIL\n'+bad.join('\n'):'PROJ57 PASS');await b.close();clearTimeout(killer);process.exit(bad.length?1:0)
+})().catch(e=>{console.log('PROJ57 ERROR',e&&e.stack||e);try{_b&&_b.close()}catch(x){}clearTimeout(killer);process.exit(1)});
