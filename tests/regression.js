@@ -19,6 +19,6 @@ var routeEst=async L=>{let mi=0,h=0;for(let i=1;i<L.length;i++){const d=LEG[L[i-
 eval('async '+pick('rtEst'));const E=await rtEst(['A','B'],['C'],false);
 var J={tt:'ow',stops:{p:['A','B'],d:['C']}};var ttOf=j=>j.tt,jStops=j=>j.stops;eval(pick('jobStopsList'));const nav=jobStopsList(J).join('>');
 const o=trip({emi:String(E.full.mi)},new Date('2026-10-21T09:00'),'x'),o2=trip({hm:String(60/2),hmMode:'total'},new Date('2026-10-21T09:00'),'x');
-const okOW=E.full.mi===60&&E.paid.mi===25&&nav==='A>B>C>H'&&o.proj===60&&R2(o.exp)===98.4&&o.wait==null&&o2.proj===60;
+const okOW=E.full.mi===60&&E.paid.mi===25&&nav==='A>B>C'/* v56: navigation = pickups then drop-offs only, no Home stop */&&o.proj===60&&R2(o.exp)===98.4&&o.wait==null&&o2.proj===60;
 console.log('one-way loop',E.full.mi,'mi, nav',nav,'fare',o.exp,'total-mode',o2.proj,okOW?'ok':'FAIL');
 console.log(ok&&okOW?'PASS':'FAIL');process.exit(ok&&okOW?0:1)})();

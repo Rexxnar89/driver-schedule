@@ -1,0 +1,60 @@
+v.56 (2026-11-25) replaced snippets — projections use leg numbers, Halfway/Total pair, manual fare/miles, Proton location rule, no forced Home in navigation, Navigate home bar moved, toggle contrast.
+
+[setHm]
+function setHm(u,v){const S=ST(),j_=jobs.find(x=>x.uid==u),tm=((S[u]||{}).hmMode||(j_&&ttOf(j_)=='ow'?'total':''))=='total';if(tm){S[u]={...S[u],hmTot:v};LS.st=JSON.stringify(S);setSt(u,'hm',v===''?'':String(R2(+v/2)))}else setSt(u,'hm',v)}
+
+[numBlockHm]
+let h=layers(j,s,t)+(ed?(()=>{const tm=s.hmMode=='total',b=(m,n)=>`<button type="button" class="btn" style="padding:3px 10px;margin:0;border-radius:0;${(m=='total')==tm?'background:#1f3a5f;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6)':'background:#eee'}" onclick="setHmMode('${u}','${m}')">${n}</button>`;return`<div style="display:flex;margin-top:4px">${b('half','Halfway miles')}${b('total','Total miles')}</div><input type="number" step="1" placeholder="${tm?'Predicted total trip miles':'Projected mi (miles so far at halfway)'}" value="${tm?(s.hmTot??''):(s.hm??'')}" onchange="setHm('${u}',this.value)"><div style="font-size:0.75rem;color:#555">${s.hm?(tm?`Halfway ≈ ${R2(+s.hm)} mi · priced on ${R2(+s.hm*2)} mi`:`Total ≈ ${R2(+s.hm*2)} mi (priced on this)`):''}</div>`})():'')
+
+[projLine]
+h+=L('Projected mi',t.proj?`${t.proj} mi <small>(${t.src})</small>`:'–')+
+
+[fareLine]
+L('Est. halfway mi',s.hm?s.hm+' mi'+(s.hmMode=='total'?` <small>(from total ${s.hmTot} mi)</small>`:''):'–')+(pc?L('Expected before wait',f(t.expBW))+L('<b>Expected (charge)</b>',f(t.exp)):'')+
+
+[layersPM]
+pM=+s.hm?R2(+s.hm*2):0,
+
+[layersLbl]
+pM?pM+' mi'+(s.hmMode=='total'?'':' (2×'+s.hm+')'):''
+
+[legMiToggle]
+(k=='odo')==!!o.on?'background:#1f3a5f;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6)':'background:#eee'}
+
+[locLabel]
+const ml=x.match(/^(to|drop(?:[- ]?off)?|then to|and to)\b[:\s,]*/i)
+
+[locPush]
+(nums.length?nums:other.slice(0,1)).forEach(q=>out.push({raw:q,t:mode}))
+
+[locDedup]
+if(!L.length||key(L[L.length-1].a)!=key(a))L.push({a,t:o.t})
+
+[locStops]
+function locStops(j){if(j._ls!==undefined)return j._ls;const L=locParse(j.loc);if(!L.length)return j._ls=null;const tp=split(j.from).length,td=split(j.to).length,n=L.length,lab=L.some(o=>o.t);if(n==1&&!tp&&!L[0].t)return j._ls={p:[],d:[L[0].a]};let ty;if(lab){let m='p';ty=L.map((o,i)=>(o.t?(m=o.t):i==0?'p':m))}else if(n>1&&tp+td==n)ty=L.map((_,i)=>i<tp?'p':'d');else ty=L.map((_,i)=>n>1&&i==n-1?'d':'p');ty[0]='p';const p=L.filter((_,i)=>ty[i]=='p').map(o=>o.a),d=L.filter((_,i)=>ty[i]=='d').map(o=>o.a);return j._ls={p,d:d.length?d:split(j.to)}}
+
+[navUrl]
+function navUrl(a){a=navFix(a);return'https://www.google.com/maps/dir/?api=1'+(LS.navcur=='1'?'':'&origin='+encodeURIComponent(HOME()))+'&destination='+encodeURIComponent(a)}
+
+[jobStopsList]
+let rt=false;try{rt=ttOf(j)!='split'}catch(e){}if(rt&&L.length&&D.length){const H=HOME();if(ttOf(j)!='ow')L=[...L,...P.slice().reverse()];if(L[L.length-1].toLowerCase()!=H.toLowerCase())L.push(H)}return L}
+
+[homeBtn]
+<a class="btn" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('9082 Township Road 552, Shreve, OH 44676')}&travelmode=driving" onclick="event.stopPropagation()" ontouchstart="event.stopPropagation()" onpointerdown="event.stopPropagation()" aria-label="Navigate home" title="Navigate home" style="background:#6a1b9a!important;border:1px solid #4a148c!important;display:inline-flex;align-items:center;justify-content:center;min-height:52px;min-width:64px;box-sizing:border-box;line-height:1;padding:4px 12px;margin-right:2px;text-decoration:none"><span style="font-size:1.8em;line-height:1;background:#fff;border-radius:8px;padding:2px 4px" aria-hidden="true">🏠</span></a>
+
+[homeBar]
++sec('proj','Projections / fare',SUM_P,SEC_P,'#eef3fa')+sec('act','Actuals',SUM_A,h,'#eef7ee')+
+
+[fdHook]
+renderDriver=keepFocus(renderDriver);renderQuiet=keepFocus(renderQuiet);render=keepFocus(render);
+
+[locParse original lines (v.55)]
+function locParse(loc){if(!loc)return[];const t=loc.replace(/\\n/gi,'\n').replace(/\\([,;\\])/g,'$1');const out=[];let mode=null;
+t.split(/\n\s*\n|;|\s&\s|\||\s{3,}|\s,(?=\s*\d)/).forEach(blk=>{const lines=blk.split('\n').map(x=>x.trim()).filter(Boolean),nums=[],other=[];let lab=null;
+lines.forEach(x=>{const ml=x.match(/^(to|drop(?:[- ]?off)?|then to|and to)\b[:\s,]*/i),mp=x.match(/^(pick ?up|from|first|start)\b[:\s,]*/i);if(ml){lab='d';x=x.slice(ml[0].length)}else if(mp){lab=lab||'p';x=x.slice(mp[0].length)}x=x.replace(/\b(first|second|then)\b[\s,]*$/i,'').trim();if(!x)return;
+x.split(/(?<!\b(?:rd|road|tr|township|twp|sr|cr|county|co|route|rte|st|box|apt|hwy|highway|us|no|#)\.?)\s+(?=\d{3,6}\s+[A-Za-z])/i).forEach(q=>{q=q.trim();if(!q)return;const cityOnly=/^[A-Za-z .]{0,30},?\s*(OH|Ohio)?\s*(\d{5})?$/i.test(q)&&(CITYRE.test(q)||/^(OH|Ohio)$/i.test(q)||/^\d{5}$/.test(q));if(cityOnly&&nums.length&&!/\b(OH|Ohio)\b/i.test(nums[nums.length-1])){nums[nums.length-1]+=' '+q;return}if(NUMADDR(q))nums.push(q);else if(isAddr(q))other.push(q)})});
+if(lab)mode=lab;(nums.length?nums:other.slice(0,1)).forEach(q=>out.push({raw:q,t:mode}))});
+const key=a=>{const n=a.match(/\d+/g)||[];return n.length>=2?n[0]+'|'+n[1]:n.length?n[0]+'|'+((a.match(/\d+\s+(\w+)/)||[])[1]||'').toLowerCase():a.toLowerCase()};const L=[];out.forEach(o=>{const a=locClean(o.raw);if(!L.length||key(L[L.length-1].a)!=key(a))L.push({a,t:o.t})});return L}
+
+[paxsec P (v.55)]
+const P=()=>{const v=D('vesec'),w=D('paxsec'),r=D('nvrec');if(!(w&&v&&w.nextElementSibling===v&&(!r||r.parentElement===w)))place();watch()};

@@ -501,3 +501,11 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Host rule: the earliest job is the host, so its Leg 1 stays Leg 1 (replaces v.54's "no job before Leg 1" rule). Every other leg goes in by time.
 - Absorbing a multi-leg job: its Leg 1 becomes a leg (l1of, with l1mi/l1odo/l1done), its legs move over as-is, all tagged via:[uid,...]. Its own legs list is cleared so nothing (busy times, alarms, totals) counts twice. Auto miles are frozen (wasAuto) so they don't jump to the host's Leg 1 value.
 - Restore: removing any leg tagged via[0]=X sends the whole of X back (Leg 1 fields, its legs with current miles/odometer/done; untouched auto miles go back to auto). via is a stack, so nested absorbs unwind one level at a time.
+
+## v.56 (2026-11-25) — projections from leg numbers, Halfway/Total pair, your numbers, Proton rule, navigation, form order
+- The fare already summed leg miles (projMi) but the Projections grid still showed halfway × 2 and hid Total $ without a halfway; the grid now reads the same source as the fare ("44.5 mi (legs)").
+- Halfway/Total: two text inputs (inputmode=decimal, comma → point). oninput updates the twin live (input events pass the fdone module; only change is held until ✓ Done). fdRestore is wrapped so the twin stays in step after a repaint mid-typing. hm stays the sheet value; hmMode records which one was typed.
+- Manual "yours" numbers (pmMan, fMan) are display-only keys, not in setSt's sync list, so the sheet format is unchanged.
+- Proton location rule: locParse now records the label per line (cur), not per block — "Pickup:\nDrop-off:" in one block had made both drop-offs.
+- regression.js expected nav A>B>C>H (Home appended); updated to A>B>C with the v.56 rule.
+- Create form: #nv/#neq get tucked into the per-driver picker's hidden Manual entry when a driver is chosen; only move them when they are shown on their own, and never while focused.

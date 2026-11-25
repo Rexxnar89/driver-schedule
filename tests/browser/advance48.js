@@ -97,7 +97,7 @@ const ok=(name,cond,extra)=>{results.push({name,pass:!!cond,extra});console.log(
  });
 
  const s0=await seed(true);
- ok('helpers and version present', s0.ver==='2026-11-25.55' && s0.open.join(',')==='T1,T2,T3', s0);
+ ok('helpers and version present', s0.ver==='2026-11-25.56' && s0.open.join(',')==='T1,T2,T3', s0);
  await hookScroll();
  await pg.evaluate(()=>{window.scrollTo(0,0)});
  await W(300);
