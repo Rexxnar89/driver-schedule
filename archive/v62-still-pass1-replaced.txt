@@ -1,0 +1,32 @@
+[topstab-scroll]
+if(d&&!(window.SCR&&SCR()=='driver'))scrollBy(0,d)
+
+[topstab-NA]
+const SC=new Set(['driver','owner','newjob']);const H=new WeakMap();
+
+[topstab-removed]
+if(h&&scrollY>0&&r.nextSibling&&r.nextSibling.nodeType==1&&r.nextSibling.getBoundingClientRect().top<-h)scrollBy(0,-h)
+
+[awAnc-o]
+if(ae&&el.contains(ae)===false&&ae!==document.body&&ae.getBoundingClientRect().height){a=ae}if(a!==el&&el.contains(a)){
+
+[awAnc-ret]
+return n?{e:n,t:n.getBoundingClientRect().top}:null}return{e:a,t:a.getBoundingClientRect().top}}catch(x){return null}}
+
+[awAncFix-o]
+function awAncFix(el,A){try{if(!A)return;
+
+[awAncFix-ro]
+if(!n||!n.isConnected)return;const d=n.getBoundingClientRect().top-A.t;if(Math.abs(d)>1)scrollBy(0,d)}catch(x){}}
+
+[est-retry]
+const key=HOME()+'|'+formTT()+'|'+L.join('|');if(!force&&key==window._ek)return;window._ek=key;window._estMsg='Estimating route…';estMark();
+
+[est-fail]
+catch(e){window._ek='';window._estMsg='<span style="color:#c62828">Auto-estimate failed ('+e+'). Type the miles and time yourself.</span>'}
+
+[est-ok]
+const R0=ratios(),mi=E.full.mi,h=E.full.h;if(window._ek!=key)return;
+
+[nsrbox]
+nrhbox.classList.toggle('hide',!sp);nsrbox.classList.toggle('hide',!sp);

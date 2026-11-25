@@ -9,7 +9,7 @@ ok(/id="priany"/.test(src)&&/id="pri"/.test(src),'checkbox #priany and dropdown 
 ok(/except last-resort/.test(src),'Any-driver hint mentions last-resort exclusion');
 ok(!/<button[^>]*id="drvany"/.test(src),'Any-driver button markup removed');
 ok(/A job set to Any driver also skips these/.test(src),'Owner last-resort blurb mentions Any-driver skip');
-ok(/content="2026-11-25\.61"/.test(src),'app version is 2026-11-25.61');
+ok(/content="2026-11-25\.62"/.test(src),'app version is 2026-11-25.62');
 
 const m=src.match(/window\.priSort=\(names,t,pri\)=>\{[\s\S]*?\};/);
 ok(!!m,'priSort helper found');

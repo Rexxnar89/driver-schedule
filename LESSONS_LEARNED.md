@@ -539,3 +539,12 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 ## 2026-11-25 v.61 Compare highlight
 - The Compare top strip was a 'Now' strip: it always showed the current time for ALL drivers, so it ignored the range, navigation and A vs B. Strips and highlights in a comparison view must be built from the same range + selection the grid uses (RNG(), SEL(), items(...,true)).
 - scrolljump48 "weather did not render" fails on v.60 as well (time-of-day dependent); not caused by v.61.
+
+## 2026-11-25 v.62 Create/Edit job form stays still (pass 1 of the jump hunt)
+- Chrome/Android already does native scroll anchoring (overflow-anchor:auto). Code that also calls scrollBy to "keep things in place" (v42 topstab, awAncFix) corrects a SECOND time → the page jumps by the same amount the other way. Guard hand corrections with `CSS.supports('overflow-anchor','auto')`, or measure only the residual inside a one-shot ResizeObserver (runs after layout + anchoring, before paint).
+- awAncFix pinned the focused field even when the change was ABOVE it caused by your own tap (+ Add leg pulled 350px, passengers 322px). If the anchor is outside the repainted block, let native anchoring handle it.
+- A failing route estimate (`estRoute`) was retried every ~1.5s forever, flipping "Estimating route…" and the error (different heights = flicker). Remember failures per key for 2 min and keep the error up while retrying.
+- Two code paths deciding the same visibility (rptCalc by trip type, the 400ms gate by the Split job checkbox) = a box that flickers. One source of truth.
+- Harness: sample positions after paint (rAF then setTimeout 0); rAF-time reads see pre-anchoring layout and report phantom moves. Judge taps by the touched element; content inserted above it is info only.
+- Reusable harness: tests/browser/still-lib.js (open/step/_watch/_stop). Pass 1 test: tests/browser/still62.js. Rollback: 56bde39 (v.61).
+- Tests use /tmp/pt for screenshots and lr42 hard-codes localhost:8812 — create/serve those on a fresh box.
