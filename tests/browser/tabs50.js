@@ -39,7 +39,7 @@ const TODAY=J.filter(x=>x[1]==0).map(x=>x[0]),FUT=J.filter(x=>x[1]>0).map(x=>x[0
 const tap=async label=>{await pg.evaluate(l=>[...document.querySelectorAll('.hnav>button')].find(b=>b.innerText.trim().startsWith(l)).click(),label);await W(350)};
   // 1 nav order
   const order=await S(()=>[...document.querySelectorAll('.hnav>button')].map(b=>b.innerText.replace(/\d+$/,'').trim()));
-  const ix=['Current jobs','Upcoming jobs','🔍 Find job','Owner'].map(l=>order.indexOf(l));
+  const ix=['Current jobs','Upcoming jobs','🔍 Find job','⚖️ Compare','Owner'] /* v59: Compare sits between Find and Owner */.map(l=>order.indexOf(l));
   if(ix.some(i=>i<0)||ix.some((v,i)=>i&&v!=ix[i-1]+1))bad.push('tab order wrong: '+JSON.stringify(order));
   // 2 Current
   let c=await state();console.log('CURRENT',JSON.stringify(c));
