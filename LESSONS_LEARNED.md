@@ -488,3 +488,10 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Card fields commit with the green ✓ Done button (fdone module stops plain `change`); browser tests must tap ✓ Done after typing.
 - Sheet: rows use actual miles (`s.mi`) and halfway (`s.hm`), not projected leg miles — unchanged. Pickup miles stay note-only.
 - Tests: new `tests/browser/legmiles53.js` (typed, decimals, default, mixed modes, prefill, reset, end<start, >300, switch back, old jobs, pickup miles, charge = rate × total); `tests/splitgap46.js` now loads `legMiOf` too.
+
+## v.54 (2026-11-25) — Merge stays on merged jobs, leg cap 8
+- The 4-leg cap lived only in the card's SPLIT JOB module (MAXL used by splitAdd and the Add leg button; picker text said "4 legs max" but never enforced it). The create form has been uncapped since v32 and the sheet has no per-leg columns, so raising the cap to 8 is one constant with no sheet change.
+- Appending to a job that already has legs: keep the base's legs (with their v.53 miles/odometer) and insert new legs by time; never rebuild the leg list from scratch or typed per-leg values are lost.
+- Jobs earlier than Leg 1 are kept out of the picker for a multi-leg base (they would have to become Leg 1 and shift all index-keyed state).
+- Inserting a leg in the middle shifts index-keyed state (fork uid u~Ln, NEXT LEG, alarms A[n]) the same way legDel already does.
+- Picker guards (mergeMore/mergeNow) check the slots left, not only the UI, so a stale tap can't overfill a job.
