@@ -514,3 +514,7 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - Removed v.56's "Your projected miles" / "Your fare $" boxes and Calc/Yours lines (archive/v57-manual-boxes-replaced-snippets.txt). Saved pmMan/fMan stay in job state untouched (never synced), so nothing is lost if they come back.
 - New read-only line in Projections / fare, right under Expected (charge): "Projection from typed miles: <Halfway × 2> mi · $fare", using calc() with the same date (rate/gas) and wait hours as the charge. Shown only when the legs drive the charge and Halfway/Total has a number; it reads s.hm only and writes nothing, so leg numbers and the leg estimate can't change.
 - proj56.js became proj57.js (manual-box checks replaced).
+
+## v.58 (2026-11-25) — Please reset odometer
+- One "Odometer reading (mi)" box under "Please reset odometer" first thing under the open card header (.jh). Putting it above the header made the tapped header jump on open/close (tabs50 HISTSNAP +112px), so it sits right below the header bar, saved as odoReset via setSt. Not in setSt's sync list and not read by exLine, so it stays off the sheet; nothing else reads it, so legs, totals, charge and the typed-miles line can't change.
+- Jeffrey dropped the second "forgot to reset" box at the end of the call; only one box exists.

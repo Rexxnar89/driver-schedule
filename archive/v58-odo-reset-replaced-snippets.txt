@@ -1,0 +1,4 @@
+v.58 (2026-11-25) replaced snippet: open-card assembly in card() now puts odoTop(j) first.
+
+[card() open assembly (v.57)]
+.replace(/^(<div[^>]*>)/,m=>m+hd+jDetails(j))}
