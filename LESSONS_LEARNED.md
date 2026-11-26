@@ -561,3 +561,10 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - scrollIntoView({block:'center'}) on an open card taller than the screen lands in the middle of its body. Tall target = block:'start' (flashCard; used by the Upcoming split-leg chip, Find, Next-job links).
 - The still-lib mock answers Proton with an old-script error; that banner arrives ~9 s after load and changes the top bar. Wait for `!LOADING` before checks at the top, or it looks like an app jump.
 - Test: tests/browser/still64.js. Rollback: a2086bf (v.63).
+
+## 2026-11-25 v.65 Find, Calendar, Compare stay still (pass 4 of the jump hunt)
+- The Current-jobs card keeper also runs on Find (same #driver screen). It anchors a visible CARD, so when typing in the search box shrank the results it scrolled the search box away (263px), and Newest moved the controls 2234px. Controls outside the cards are now kept still by formstill (roots: newjob, cmp, cal, driver non-card controls; text boxes stay kept while focused) and the card keeper steps aside while formstill is active (dsFormStill()).
+- Compare: toggling a driver chip adds/removes a row in the grid ABOVE the chips; the whole body is rebuilt, so Chrome's anchoring loses its anchor. Same formstill fix (re-finds the chip by its onclick).
+- calJump ("Open in Current jobs" in the calendar popup) scrolled twice: flashCard, then scrollIntoView center again 200 ms later = middle of a tall open card. One scroll, tall card = header on top.
+- Calendar events live in #calscroll (its own x/y scroller); tests must scroll that box to the event before tapping. Minute redraws of #calbody/#cmpbody keep the inner scroll (checked), so they are not a jump.
+- Test: tests/browser/still65.js (stubs loadLive: the made-up mock's error banner). Rollback: 967e035 (v.64).

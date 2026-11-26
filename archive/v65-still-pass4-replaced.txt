@@ -1,0 +1,21 @@
+[formstill-v62]
+<script>/* v62 formstill: on the Create/Edit job form, the button, checkbox or chip you tap stays at the same spot on screen while the form reacts (legs added, sections opening above, Available windows repainting). Measured after layout (ResizeObserver runs after layout and after Chrome's own scroll anchoring, before paint), so only what is left over is corrected: no visible jump, no double correction. Ends at your next finger scroll, after 2.5 s, or when the app deliberately scrolls somewhere (scrollIntoView / scrollTo = navigation). No timers. */
+(()=>{const nj=()=>document.getElementById('newjob');let A=null,own=0;const IS='button,a,summary,label,input[type=checkbox],input[type=radio],select,.chip,.sech,[onclick]';
+const top=()=>A&&A.el.isConnected?A.el.getBoundingClientRect().top:null;
+const fix=()=>{if(!A||own)return;if(Date.now()-A.t>2500){A=null;return}const t=top();if(t==null){A=null;return}const d=t-A.top;if(Math.abs(d)>1){own=1;try{scrollBy(0,d)}finally{own=0}}};
+const once=()=>{if(!A||!window.ResizeObserver)return;const ro=new ResizeObserver(()=>{ro.disconnect();fix()});ro.observe(document.documentElement)};
+document.addEventListener('pointerdown',e=>{const f=nj();if(!f||f.classList.contains('hide'))return;const el=e.target&&e.target.closest&&e.target.closest(IS);if(!el||!f.contains(el)||/^(text|search|tel|number|email|date|time|datetime-local|url)$/.test(el.type||'')&&el.tagName=='INPUT'||el.tagName=='TEXTAREA')return;A={el,top:el.getBoundingClientRect().top,t:Date.now()}},{capture:true,passive:true});
+new MutationObserver(()=>{if(A)once()}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style','hidden','open']});
+let ty=null;addEventListener('touchstart',e=>{ty=e.touches&&e.touches[0]?e.touches[0].clientY:null},{passive:true,capture:true});addEventListener('touchmove',e=>{const y=e.touches&&e.touches[0]?e.touches[0].clientY:null;if(ty!=null&&y!=null&&Math.abs(y-ty)>10)A=null},{passive:true,capture:true});addEventListener('wheel',()=>{A=null},{passive:true,capture:true});
+const nav=()=>{if(!own)A=null};const si=Element.prototype.scrollIntoView;Element.prototype.scrollIntoView=function(){nav();return si.apply(this,arguments)};const st=window.scrollTo;window.scrollTo=function(){nav();return st.apply(this,arguments)};
+window.dsFormStill=()=>A})();
+</script>
+
+[keeper-mo]
+const mo=new MutationObserver(()=>{MN++;if(window.SCR&&SCR()!='driver')return;if(!A){pickVis();return}fix()});
+
+[keeper-ro]
+const ro=window.ResizeObserver?new ResizeObserver(()=>{if(window.SCR&&SCR()!='driver')return;if(A)fix()}):null;
+
+[calJump-once]
+setTimeout(()=>{try{flashCard(uid)}catch(e){}const c=[...document.querySelectorAll('#driver .jc')].find(c=>(c.querySelector('.jh')||{}).getAttribute&&c.querySelector('.jh').getAttribute('onclick').includes(uid));if(c)c.scrollIntoView({block:'center'})},200)}
