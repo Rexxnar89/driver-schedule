@@ -1,0 +1,2 @@
+[mergeTap-still]
+mergeTap=u=>{if(sel.has(u)&&u!=pre){sel.delete(u);tap=null}else if(TOT()+SZ(u)<=MAXL)tap=tap==u?null:u;draw()};

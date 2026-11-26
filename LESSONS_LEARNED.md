@@ -568,3 +568,9 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - calJump ("Open in Current jobs" in the calendar popup) scrolled twice: flashCard, then scrollIntoView center again 200 ms later = middle of a tall open card. One scroll, tall card = header on top.
 - Calendar events live in #calscroll (its own x/y scroller); tests must scroll that box to the event before tapping. Minute redraws of #calbody/#cmpbody keep the inner scroll (checked), so they are not a jump.
 - Test: tests/browser/still65.js (stubs loadLive: the made-up mock's error banner). Rollback: 967e035 (v.64).
+
+## 2026-11-25 v.66 Popups, Back, tab switching (pass 5 of the jump hunt)
+- Ten popups (Address book, Vehicles, Feedback, Online, Activity, Drafts, Merge, Drive alarm, Discount, Vehicle issue) open over the page without moving it and put you back at the same spot on ✕/Close/Done or the phone's Back. Every tab keeps its own scroll spot.
+- The Merge jobs dialog redraws its whole box on each tap (innerHTML): the box's own scroll reset and, being centred, it grew around the leg list, so the tapped job moved 21-41px. Keep the box scroll + tapped row (scrollTop, then the box's top offset).
+- Owner tab sits behind the owner PIN overlay (#pinov); tests can't reach it without a PIN. The PIN modal() appends a new #pinov every call without removing an old one (harmless for real taps; stacks if Owner is opened again by code).
+- Test: tests/browser/still66.js. Rollback: c35d70d (v.65).

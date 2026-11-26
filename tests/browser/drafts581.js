@@ -38,7 +38,7 @@ let _b;const killer=setTimeout(()=>{console.log('DRAFTS581 TIMEOUT');try{_b&&_b.
       asn: /Assign driver, best fit first/.test(s)
     };
   });
-  ok('version is 2026-11-25.65', src.ver==='2026-11-25.65', src.ver);
+  ok('version is 2026-11-25.66', src.ver==='2026-11-25.66', src.ver);
   ok('draftLoad wrap does not loop n<=MAXN', !src.infLoop, src);
   ok('draftLoad wrap walks existing nlNpk keys', src.keyLoop, src);
   ok('priority heading text in source', src.pri);

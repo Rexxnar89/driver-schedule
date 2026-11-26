@@ -18,7 +18,7 @@ let _b;const killer=setTimeout(()=>{console.log('COMPARE59 TIMEOUT');try{_b&&_b.
   await pg.waitForFunction('typeof render=="function"&&typeof calRender=="function"',{timeout:15000});await W(500);
   const bad=[],ok=(n,c,d)=>{if(!c)bad.push(n+' '+JSON.stringify(d===undefined?'':d))},R={};
   R.ver=await pg.evaluate(()=>(document.querySelector('meta[name=ds-ver]')||{}).content||'');
-  ok('version is 2026-11-25.65',R.ver==='2026-11-25.65',R.ver);
+  ok('version is 2026-11-25.66',R.ver==='2026-11-25.66',R.ver);
   R.fx=await pg.evaluate(()=>{LS.drivers=JSON.stringify(['Jeffrey','Jared','Kaci','BB']);jobs.length=0;const now=Date.now(),M=6e4,at=m=>new Date(now+m*M),cr=Date.now()-3*864e5;
     const mk=(id,drv,s,e,x)=>({uid:id,evuid:id,start:s,endT:e,driver:drv,client:'Fake Rider '+id,title:'Fake',raw:'Fake',from:'1 Test St, Sampletown, OH',to:'2 Demo Ave, Sampletown, OH',pax:1,tt:'ow',vehicle:'Ford Van',...(x||{})});
     const o=new Date(now+150*M);o.setSeconds(0,0);o.setMinutes(7);const ov=m=>new Date(+o+m*M);

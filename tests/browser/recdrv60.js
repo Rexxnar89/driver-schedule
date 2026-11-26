@@ -37,7 +37,7 @@ let _b;const killer=setTimeout(()=>{console.log('RECDRV60 TIMEOUT');try{_b&&_b.c
       wipe:s.includes("wipe=()=>{[...nd.options].forEach(o=>o.removeAttribute('label'));window._recD=''}")
     };
   });
-  ok('version is 2026-11-25.65', src.ver==='2026-11-25.65', src.ver);
+  ok('version is 2026-11-25.66', src.ver==='2026-11-25.66', src.ver);
   ok('dsRefresh calls recDrv', src.dsCallsRec, src);
   ok('pickDay calls recDrv', src.pickCallsRec, src);
   ok('busy check uses endT', src.endT, src);
