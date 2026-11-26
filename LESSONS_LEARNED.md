@@ -574,3 +574,11 @@ Defaults must be recomputed until the user picks by hand; a default cached befor
 - The Merge jobs dialog redraws its whole box on each tap (innerHTML): the box's own scroll reset and, being centred, it grew around the leg list, so the tapped job moved 21-41px. Keep the box scroll + tapped row (scrollTop, then the box's top offset).
 - Owner tab sits behind the owner PIN overlay (#pinov); tests can't reach it without a PIN. The PIN modal() appends a new #pinov every call without removing an old one (harmless for real taps; stacks if Owner is opened again by code).
 - Test: tests/browser/still66.js. Rollback: c35d70d (v.65).
+
+## 2026-11-25 v.67 Owner tab, Drafts list, Test mode (pass 6 of the jump hunt)
+- Closing a long open section near the end of a page makes the page shorter; Chrome clamps the scroll and everything drops (Owner "Setup guide" closed: 269-519px). Anchoring can't help because the page simply ends. On a tap in a non-card screen, hold body min-height at the current page height until the next finger scroll / wheel; the empty space goes away as soon as you scroll.
+- "+ Add driver" on Owner inserts a row above the button (87px). Owner is now a formstill root, like Create/Compare/Calendar.
+- clEditForm "New / clear" scrolls to the client form on purpose (navigation, allowed).
+- Owner can be tested without a PIN by marking the headless session as unlocked in the TEST only (sessionStorage) and answering "Who are you?"; nothing about the PIN is typed, stored or shipped. The ownbar is rebuilt on each view, so select its buttons by onclick, not by tags added before.
+- compare59 fails in the evening (fixture job crosses the day edge); fails the same on v.66, not a regression.
+- Test: tests/browser/still67.js. Rollback: 42a3bfc (v.66).

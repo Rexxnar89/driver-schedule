@@ -1,0 +1,11 @@
+[formstill-owner]
+const rootOf=t=>{for(const id of ['newjob','cmp','cal','driver']){
+
+[formstill-hold]
+A={el,r,id:el.id||'',oc:el.getAttribute('onclick')||'',f,top:el.getBoundingClientRect().top,t:Date.now()}},{capture:true,passive:true});
+
+[formstill-unhold]
+let A=null,own=0;const IS='button,a,summary,label,input[type=checkbox],input[type=radio],select,.chip,.sech,[onclick]',IS2=IS+',input,textarea';
+
+[formstill-unhold2]
+if(ty!=null&&y!=null&&Math.abs(y-ty)>10)A=null},{passive:true,capture:true});addEventListener('wheel',()=>{A=null},{passive:true,capture:true});
